@@ -1,0 +1,47 @@
+export type Locale =
+  | "tr" | "en" | "es" | "fr" | "de" | "ar" | "zh" | "ja" | "ko" | "pt" | "ru"
+  | "hi" | "id" | "it" | "nl" | "pl" | "vi" | "th" | "uk" | "sv" | "bn" | "ms"
+  | "fa" | "he" | "cs" | "ro" | "hu" | "el" | "da" | "fi" | "no" | "sk" | "bg"
+  | "hr" | "sr" | "sl" | "lt" | "lv" | "et";
+
+export const LOCALES: { code: Locale; name: string; native: string }[] = [
+  { code: "tr", name: "Turkish", native: "Türkçe" },
+  { code: "en", name: "English", native: "English" },
+  { code: "es", name: "Spanish", native: "Español" },
+  { code: "fr", name: "French", native: "Français" },
+  { code: "de", name: "German", native: "Deutsch" },
+  { code: "ar", name: "Arabic", native: "العربية" },
+  { code: "zh", name: "Chinese", native: "中文" },
+  { code: "ja", name: "Japanese", native: "日本語" },
+  { code: "ko", name: "Korean", native: "한국어" },
+  { code: "pt", name: "Portuguese", native: "Português" },
+  { code: "ru", name: "Russian", native: "Русский" },
+  { code: "hi", name: "Hindi", native: "हिन्दी" },
+  { code: "id", name: "Indonesian", native: "Bahasa Indonesia" },
+  { code: "it", name: "Italian", native: "Italiano" },
+  { code: "nl", name: "Dutch", native: "Nederlands" },
+  { code: "pl", name: "Polish", native: "Polski" },
+  { code: "vi", name: "Vietnamese", native: "Tiếng Việt" },
+  { code: "th", name: "Thai", native: "ไทย" },
+  { code: "uk", name: "Ukrainian", native: "Українська" },
+  { code: "sv", name: "Swedish", native: "Svenska" },
+  { code: "bn", name: "Bengali", native: "বাংলা" },
+  { code: "ms", name: "Malay", native: "Bahasa Melayu" },
+  { code: "fa", name: "Persian", native: "فارسی" },
+  { code: "he", name: "Hebrew", native: "עברית" },
+  { code: "cs", name: "Czech", native: "Čeština" },
+  { code: "ro", name: "Romanian", native: "Română" },
+  { code: "hu", name: "Hungarian", native: "Magyar" },
+  { code: "el", name: "Greek", native: "Ελληνικά" },
+  { code: "da", name: "Danish", native: "Dansk" },
+  { code: "fi", name: "Finnish", native: "Suomi" },
+  { code: "no", name: "Norwegian", native: "Norsk" },
+  { code: "sk", name: "Slovak", native: "Slovenčina" },
+  { code: "bg", name: "Bulgarian", native: "Български" },
+  { code: "hr", name: "Croatian", native: "Hrvatski" },
+  { code: "sr", name: "Serbian", native: "Srpski" },
+  { code: "sl", name: "Slovenian", native: "Slovenščina" },
+  { code: "lt", name: "Lithuanian", native: "Lietuvių" },
+  { code: "lv", name: "Latvian", native: "Latviešu" },
+  { code: "et", name: "Estonian", native: "Eesti" },
+];

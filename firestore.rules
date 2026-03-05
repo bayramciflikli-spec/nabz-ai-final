@@ -1,0 +1,125 @@
+rules_version = '2';
+// NABZ-AI - Ultra güvenlik: Hırsızlık, hack ve veri sızıntısına karşı sıkı kurallar
+// Her koleksiyon sadece yetkili işlemlere izin verir.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ========== PROJELER (Videolar) ==========
+    // Herkes okuyabilir (keşif), sadece giriş yapan oluşturabilir, sadece sahibi güncelleyebilir/silebilir
+    match /projects/{projectId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.authorId == request.auth.uid;
+      allow update, delete: if request.auth != null
+        && resource.data.authorId == request.auth.uid;
+    }
+
+    // ========== YORUMLAR ==========
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.authorId == request.auth.uid;
+      allow update, delete: if request.auth != null
+        && resource.data.authorId == request.auth.uid;
+    }
+
+    // ========== BİLDİRİMLER ==========
+    // Sadece sahibi okuyabilir, sadece sistem/kullanıcı oluşturabilir
+    match /notifications/{notificationId} {
+      allow read: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+    }
+
+    // ========== KULLANICI VERİLERİ ==========
+    // Kullanıcı kendi profilini okuyup yazabilir; admin (role=='admin') tümünü görebilir/yazabilir.
+    // Admin dokümanını Firebase Console'da users/{adminUid} oluşturup role: 'admin' ekleyin.
+    match /users/{userId} {
+      allow read: if request.auth != null
+        && (request.auth.uid == userId
+          || (exists(/databases/$(database)/documents/users/$(request.auth.uid))
+            && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'));
+      allow write: if request.auth != null
+        && (request.auth.uid == userId
+          || (exists(/databases/$(database)/documents/users/$(request.auth.uid))
+            && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'));
+      // legal_history: Yasal kabul imzaları (API ile yazılır). Kullanıcı kendi kayıtlarını okuyabilir.
+      match /legal_history/{docId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow create, update, delete: if false; // Sadece sunucu (Admin SDK) yazar
+      }
+    }
+
+    // ========== IP PASAPORTU (contents) ==========
+    // Sadece sunucu (Admin SDK) erişir. Client bu koleksiyonu kullanmaz.
+    match /contents/{contentId} {
+      allow read, write: if false;
+    }
+
+    // ========== MONETİZASYON ==========
+    match /channelMonetization/{docId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+    }
+
+    // ========== OYNATMA LİSTELERİ ==========
+    match /playlists/{playlistId} {
+      allow read, write: if request.auth != null
+        && (resource == null || resource.data.userId == request.auth.uid)
+        && (request.resource == null || request.resource.data.userId == request.auth.uid);
+    }
+
+    // ========== RAPORLAR ==========
+    // Sadece raporlayan kendi raporlarını okuyabilir, herkes (auth) rapor oluşturabilir
+    match /reports/{reportId} {
+      allow read: if request.auth != null
+        && resource.data.reporterId == request.auth.uid;
+      allow create: if request.auth != null
+        && request.resource.data.reporterId == request.auth.uid;
+      allow update, delete: if false; // Raporlar silinmez/değiştirilmez
+    }
+
+    // ========== ABONELİKLER ==========
+    match /subscriptions/{subId} {
+      allow read, write: if request.auth != null
+        && (resource == null || resource.data.subscriberId == request.auth.uid)
+        && (request.resource == null || request.resource.data.subscriberId == request.auth.uid);
+    }
+
+    // ========== ÖDEME MAKBUZLARI ==========
+    match /receipts/{receiptId} {
+      allow read: if request.auth != null && resource.data.to == request.auth.uid;
+      allow create, update, delete: if false;
+    }
+
+    // ========== KYC BAŞVURULARI ==========
+    match /kyc_applications/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create, update, delete: if false;
+    }
+
+    // ========== ADMINS / TRANSPARENCY_REPORTS ==========
+    // Sadece sunucu (Admin SDK) yazar. İstemci erişimi yok.
+    match /admins/{docId} {
+      allow read, write: if false;
+    }
+    match /transparency_reports/{docId} {
+      allow read, write: if false;
+    }
+    match /legal_logs/{docId} {
+      allow read, write: if false;
+    }
+    match /vault/{docId} {
+      allow read, write: if false;
+    }
+    match /legal_settings/{docId} {
+      allow read, write: if false;
+    }
+
+  }
+}

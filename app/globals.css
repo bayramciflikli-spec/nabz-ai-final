@@ -1,0 +1,475 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@300;400;700;900&family=Space+Grotesk:wght@400;500;600;700;800&family=Syne:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #020617;
+  --foreground: #f8fafc;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* Klavye odaklanması - erişilebilirlik */
+*:focus-visible {
+  outline: 2px solid rgba(239, 68, 68, 0.6);
+  outline-offset: 2px;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes slideUp {
+  from { bottom: -100px; opacity: 0; }
+  to { bottom: 2rem; opacity: 1; }
+}
+.animate-slide-up {
+  animation: slideUp 0.5s ease-out forwards;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+
+@keyframes vertical-marquee {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+.animate-vertical-marquee {
+  animation: vertical-marquee 10s linear infinite;
+}
+.animate-vertical-marquee-slow {
+  animation: vertical-marquee 25s linear infinite;
+}
+/* Sondakika: Sağdan sola kayan haber bandı (sürekli scroll) */
+@keyframes sondakika-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-sondakika-scroll {
+  animation: sondakika-scroll 90s linear infinite;
+}
+
+@keyframes landing-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+}
+.animate-landing-pulse {
+  animation: landing-pulse 4s ease-in-out infinite;
+}
+
+/* Shorts double-tap heart */
+@keyframes heartPop {
+  0% { transform: scale(0); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+.animate-heart-pop {
+  animation: heartPop 0.6s ease-out forwards;
+}
+
+/* Yükleniyor - soldan sağa kırmızı kalp ritim çizgisi, saniyede 1 döngü */
+@keyframes loading-pulse-draw {
+  0% { stroke-dashoffset: 200; }
+  100% { stroke-dashoffset: 0; }
+}
+.loading-pulse-line {
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: loading-pulse-draw 1s ease-in-out infinite;
+}
+
+@keyframes horizontal-marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-horizontal-marquee {
+  display: flex;
+  width: max-content;
+  animation: horizontal-marquee 15s linear infinite;
+}
+
+/* Arka planda logoları sağdan sola kaydıran flu efekt (hayaletimsi) */
+@keyframes background-stream {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes background-stream-reverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+.animate-background-stream {
+  display: flex;
+  width: max-content;
+  animation: background-stream 50s linear infinite;
+}
+.animate-background-stream-slow {
+  display: flex;
+  width: max-content;
+  animation: background-stream 70s linear infinite;
+}
+.animate-background-stream-fast {
+  display: flex;
+  width: max-content;
+  animation: background-stream 35s linear infinite;
+}
+.animate-background-stream-reverse {
+  display: flex;
+  width: max-content;
+  animation: background-stream-reverse 45s linear infinite;
+}
+
+/* Tam ekran kayan AI arka plan */
+@keyframes ai-bg-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-ai-bg-scroll {
+  animation: ai-bg-scroll 60s linear infinite;
+}
+
+/* Video panelleri kayma - yatay, kesintisiz döngü */
+@keyframes video-slide {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-video-slide {
+  display: flex;
+  width: max-content;
+  animation: video-slide 45s linear infinite;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Shorts dikey kayma */
+@keyframes video-slide-vertical {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+.animate-video-slide-vertical {
+  display: flex;
+  flex-direction: column;
+  height: max-content;
+  animation: video-slide-vertical 45s linear infinite;
+}
+
+/* AI logo: net, bembeyaz, parlak - blur yok */
+.phantom-logo {
+  filter: brightness(0) invert(1) brightness(2);
+}
+
+/* Cosmic Deep: beyaz + mavi glow */
+.phantom-logo-cosmic {
+  filter: brightness(0) invert(1);
+  box-shadow: 0 0 15px rgba(58, 166, 255, 0.4);
+}
+
+.now-text {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  letter-spacing: 5px;
+  text-shadow: 0 0 10px #bc13fe, 0 0 20px #bc13fe;
+  text-transform: uppercase;
+}
+
+.search-input-font {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 400;
+}
+
+.brand-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-style: italic;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+}
+
+/* NowSplashScreen animasyonları - React Native interpolasyonlarına uyumlu */
+@keyframes splash-n {
+  0% {
+    opacity: 0;
+    transform: translateX(-200px);
+  }
+  40% {
+    opacity: 1;
+    transform: translateX(-160px);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-150px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes splash-w {
+  0% {
+    opacity: 0;
+    transform: translateX(200px);
+  }
+  40% {
+    opacity: 1;
+    transform: translateX(160px);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(150px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes splash-portal {
+  0% {
+    transform: scale(2);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(0.8);
+  }
+}
+@keyframes splash-glow {
+  0% {
+    opacity: 0;
+    transform: scale(2);
+  }
+  40% {
+    opacity: 0.3;
+    transform: scale(2);
+  }
+  70% {
+    opacity: 0.3;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+}
+.animate-splash-n {
+  animation: splash-n 2s ease-out forwards;
+}
+.animate-splash-w {
+  animation: splash-w 2s ease-out forwards;
+}
+.animate-splash-portal {
+  animation: splash-portal 2s ease-out forwards;
+}
+.animate-splash-glow {
+  animation: splash-glow 2s ease-out forwards;
+}
+
+/* IntroAnimation: 4s bekleme + 2s N sola, W sağa, O büyüme, kamera geçişi */
+@keyframes intro-n {
+  0%, 66.67% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50vw);
+    opacity: 0;
+  }
+}
+@keyframes intro-w {
+  0%, 66.67% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(50vw);
+    opacity: 0;
+  }
+}
+@keyframes intro-o {
+  0%, 66.67% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(50);
+  }
+}
+@keyframes intro-overlay {
+  0%, 66.67% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.animate-intro-n {
+  animation: intro-n 6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.animate-intro-w {
+  animation: intro-w 6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.animate-intro-o {
+  animation: intro-o 6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+.animate-intro-overlay {
+  animation: intro-overlay 6s ease-out forwards;
+}
+
+/* NabzIntro: HTML ile birebir - #0d0f12, gradient, nabız 2.5s, patlama 2.2s */
+.nabz-intro-overlay {
+  background-color: #0d0f12 !important;
+  transition: opacity 0.8s ease-out;
+  z-index: 9999 !important;
+}
+.nabz-logo-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nabz-text {
+  position: relative;
+  z-index: 2;
+  font-size: clamp(48px, 10vw, 75px);
+  font-weight: 900;
+  letter-spacing: 3px;
+  background: linear-gradient(to right, #4ade80, #3b82f6, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+}
+/* Header logosu için küçük versiyon */
+.nabz-logo-text {
+  font-size: clamp(1.25rem, 4vw, 2rem);
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  background: linear-gradient(to right, #4ade80, #3b82f6, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.nabz-svg-overlay {
+  position: absolute;
+  width: 110%;
+  height: 100px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  pointer-events: none;
+  filter: drop-shadow(0 0 5px #3b82f6);
+}
+.nabz-pulse-line {
+  stroke-dasharray: 1500;
+  stroke-dashoffset: 1500;
+  animation: nabz-draw-line 2.5s ease-out forwards;
+}
+@keyframes nabz-draw-line {
+  to { stroke-dashoffset: 0; }
+}
+.nabz-explosion {
+  position: absolute;
+  right: 15%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  margin-right: -2px;
+  margin-top: -2px;
+  background: #fff;
+  border-radius: 50%;
+  opacity: 0;
+  animation: nabz-burst 0.6s 2.2s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes nabz-burst {
+  0% {
+    transform: translateY(-50%) scale(1);
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 40px 20px #a855f7;
+  }
+  100% {
+    transform: translateY(-50%) scale(15);
+    opacity: 0;
+  }
+}
+
+/* NabzIntro: düzenli ritim, duraksız, bitiminde patlama */
+.intro-final-path {
+  animation: intro-draw-path 3.8s linear forwards;
+}
+.intro-final-done {
+  stroke-dashoffset: 0;
+}
+@keyframes intro-draw-path {
+  0% { stroke-dashoffset: 1; }
+  100% { stroke-dashoffset: 0; }
+}
+@keyframes intro-beam {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) scaleY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0) scaleY(1);
+  }
+}
+/* Final supernova - explode */
+.intro-supernova {
+  animation: intro-explode 1s ease-out forwards;
+}
+@keyframes intro-explode {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+  40% { box-shadow: 0 0 200px 100px white, 0 0 400px 200px #00f2ff; opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(30); opacity: 0; }
+}
+/* Final ai-particle - 0.2 offset peak scale(1.3), 0.8 finish */
+.intro-ai-particle {
+  opacity: 0;
+}
+@keyframes intro-final-fly {
+  0% {
+    transform: translate(-50%, -50%) translate(0, 0) scale(0);
+    opacity: 0;
+  }
+  20% {
+    transform: translate(-50%, -50%) translate(var(--particle-x), var(--particle-y)) scale(1.3);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) translate(calc(var(--particle-x) * 1.1), calc(var(--particle-y) * 1.1)) scale(1);
+    opacity: 0.8;
+  }
+}
+@keyframes intro-logo-pop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}

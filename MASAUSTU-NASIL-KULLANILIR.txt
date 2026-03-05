@@ -1,0 +1,19 @@
+========================================
+  NABZ-AI - MASAUSTUNDEN ACMA
+========================================
+
+1) Masaustunde "NABZ-AI" kisayoluna CIFT TIKLA.
+
+2) Bir pencere acilir ("NABZ-AI Baslatiliyor..."). 15 saniye icinde
+   tarayici otomatik acilir ve uygulama acilir.
+
+3) Sunucu arka planda (kucultulmus siyah pencere) calisir.
+   O pencereyi kapatirsan uygulama kapanir; kapatma.
+
+4) Bir daha acmak icin yine masaustundeki "NABZ-AI" kisayoluna cift tikla.
+
+========================================
+Kisayol yoksa:
+  Proje klasorunde "Masaustu-Kisayol-Olustur.bat" dosyasina
+  cift tikla - masaustune NABZ-AI kisayolu eklenir.
+========================================

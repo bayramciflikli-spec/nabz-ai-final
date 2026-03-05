@@ -1,0 +1,19 @@
+NABZ-AI – Masaüstünde çalıştırma
+================================
+
+1. Bu klasörü Cursor veya VS Code ile açın:
+   C:\Users\Yumi4\Desktop\NABZ-AI
+
+2. Terminal açıp bağımlılıkları yükleyin (node_modules buraya kopyalanmadı):
+   npm install
+
+3. .env.local dosyası yoksa .env.local.example'ı kopyalayıp .env.local yapın
+   ve Firebase değerlerini doldurun.
+
+4. Sunucuyu başlatın:
+   npm run dev
+
+5. Tarayıcıda açın:
+   http://localhost:3000
+
+Not: Kodlar .cursor klasöründen buraya kopyalandı. Artık projeyi masaüstünden açıp burada geliştirebilirsiniz.

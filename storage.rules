@@ -1,0 +1,23 @@
+rules_version = '2';
+// NABZ-AI Storage - Üst düzey güvenlik
+// Path traversal ve yetkisiz erişim engelli
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /projects/{userId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /users/{userId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /private-kyc/{userId}/{allPaths=**} {
+      allow read, write: if false;
+    }
+    // Şeffaflık raporları – sadece Kurucu (super_admin) okuyup yazabilir
+    // NOT: request.auth.token.role için Firebase Auth custom claim ayarlanmalı
+    match /legal_archive/reports/{reportID} {
+      allow read, write: if request.auth != null && request.auth.token.role == 'super_admin';
+    }
+  }
+}

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NABZ-AI | Red Pulse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #000000; /* Tam siyah arka plan */
+            --sidebar-bg: #000000;
+            --hover-bg: #1a1a1a;
+            --pulse-red: #ff0000; /* Saf kırmızı nabız */
+            --text-main: #ffffff;
+            --text-dim: #888888;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* --- SOL PANEL (SADE) --- */
+        .sidebar {
+            width: 240px;
+            height: 100vh;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid #222;
+            overflow-y: auto;
+            padding-top: 10px;
+        }
+
+        .sidebar-section {
+            border-bottom: 1px solid #222;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            cursor: pointer;
+            color: var(--text-main);
+            text-decoration: none;
+        }
+
+        .sidebar-item:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .section-title {
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        /* --- ANA İÇERİK --- */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            height: 60px;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #222;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 22px;
+            color: var(--text-main);
+            position: relative;
+        }
+
+        /* Logonun altındaki kırmızı nabız çizgisi */
+        .logo::after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--pulse-red);
+            box-shadow: 0 0 8px var(--pulse-red);
+        }
+
+        .search-bar {
+            width: 400px;
+            background: #111;
+            border: 1px solid #333;
+            padding: 10px 20px;
+            border-radius: 4px;
+            color: white;
+            outline: none;
+        }
+
+        /* Video Alanı */
+        .content-scroll {
+            padding: 24px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .video-card {
+            cursor: pointer;
+        }
+
+        .thumbnail {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #1a1a1a;
+            border: 1px solid #222;
+            margin-bottom: 10px;
+        }
+
+        /* Nabız Animasyonu için SVG */
+        .pulse-line {
+            stroke: var(--pulse-red);
+            stroke-width: 3;
+            fill: none;
+            filter: drop-shadow(0 0 5px var(--pulse-red));
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-section">
+            <a class="sidebar-item">🏠 Ana Sayfa</a>
+            <a class="sidebar-item">🎬 Shorts</a>
+            <a class="sidebar-item">🔔 Abonelikler</a>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title">Siz</div>
+            <a class="sidebar-item">🕒 Geçmiş</a>
+            <a class="sidebar-item">📜 Oynatma listeleri</a>
+            <a class="sidebar-item">📽️ Videolarınız</a>
+            <a class="sidebar-item">⌚ Daha sonra izle</a>
+            <a class="sidebar-item">👍 Beğendiğim videolar</a>
+            <a class="sidebar-item">📥 İndirilenler</a>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title">Keşfet</div>
+            <a class="sidebar-item">🎵 Müzik</a>
+            <a class="sidebar-item">🎙️ Canlı</a>
+            <a class="sidebar-item">🎮 Oyun</a>
+            <a class="sidebar-item">🏆 Spor</a>
+        </div>
+
+        <div class="sidebar-section">
+            <a class="sidebar-item">⚙️ Ayarlar</a>
+            <a class="sidebar-item">🚩 İçerik bildirme geçmişi</a>
+            <a class="sidebar-item">❓ Yardım</a>
+            <a class="sidebar-item">💬 Geri bildirim gönder</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <header class="header">
+            <div class="logo">NABZ-AI</div>
+            <input type="text" class="search-bar" placeholder="Kırmızı nabızla aramaya başla...">
+            <div style="width: 30px; height: 30px; border-radius: 50%; background: #222; border: 1px solid var(--pulse-red);"></div>
+        </header>
+
+        <div class="content-scroll">
+            <div class="video-grid">
+                <script>
+                    for(let i=1; i<=12; i++) {
+                        document.write(`
+                            <div class="video-card">
+                                <div class="thumbnail"></div>
+                                <div style="font-size:14px; font-weight:600;">Kırmızı Ritim Video #${i}</div>
+                                <div style="font-size:12px; color:var(--text-dim); margin-top:4px;">NABZ-AI Studio</div>
+                            </div>
+                        `);
+                    }
+                </script>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

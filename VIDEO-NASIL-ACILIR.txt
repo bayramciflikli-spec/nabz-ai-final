@@ -1,0 +1,14 @@
+Tanıtım "videou" nasıl açılır
+=============================
+
+tanitim-video-slideshow.html bir VIDEO DOSYASI DEĞİL – tarayıcıda açılan bir sunumdur.
+
+1) Çift tıklayın: tanitim-video-slideshow.html
+   → Varsayılan tarayıcı (Chrome, Edge vb.) açılır ve sunum oynar.
+
+2) Veya tanitim-video-AC.bat dosyasına çift tıklayın
+   → Aynı sunum tarayıcıda açılır.
+
+3) Video oynatıcı (VLC, Windows Media Player) ile AÇMAYIN – sadece tarayıcıda çalışır.
+
+Gerçek MP4 video isterseniz: Tarayıcıda sunumu açıp tam ekran (F11) yapın, sonra Win+G (Xbox Game Bar) veya OBS ile ekran kaydı alıp videoyu öyle kaydedebilirsiniz.

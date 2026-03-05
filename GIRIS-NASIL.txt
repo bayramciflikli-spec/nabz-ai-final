@@ -1,0 +1,20 @@
+========================================
+  "GIREMIYORUM" / PORT DOLU / EADDRINUSE
+========================================
+
+NEDEN: Port 3000 zaten kullanımda (eski sunucu veya baska program).
+
+COZUM - IKI SECENEK:
+
+1) UYGULAMA ZATEN ACIK OLABILIR
+   Tarayicida su adresi ac:  http://127.0.0.1:3000
+   Aciliyorsa sunucu zaten calisiyor, giris yapabilirsin.
+
+2) YENIDEN BASLATMAK ISTIYORSAN
+   - Cursor icinde "npm run dev" YAZMA.
+   - NABZ-AC.bat dosyasina CIFT TIKLA (proje klasorunde).
+   - Bu dosya portu kapatir, sunucuyu baslatir.
+   - "Ready" yazana kadar bekle, sonra tarayicida http://127.0.0.1:3000 ac.
+
+OZET: Cursor terminalinde npm run dev yerine NABZ-AC.bat kullan.
+========================================

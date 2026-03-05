@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="bolt-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#BC13FE"/>
+      <stop offset="50%" stop-color="#fff"/>
+      <stop offset="100%" stop-color="#4ade80"/>
+    </linearGradient>
+    <filter id="bolt-glow">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Merkez şimşek - klasik yıldırım formu -->
+  <path d="M100 25 L88 85 L96 85 L72 175 L108 95 L100 95 Z" fill="url(#bolt-grad)" opacity="0.9" filter="url(#bolt-glow)"/>
+  <!-- Parlak çekirdek -->
+  <path d="M100 35 L92 80 L97 80 L78 160 L102 92 L100 92 Z" fill="white" opacity="0.5"/>
+</svg>

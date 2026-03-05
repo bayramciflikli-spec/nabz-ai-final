@@ -1,0 +1,18 @@
+Reklam modu – hareketli, renkli, sesli tanıtım
+==============================================
+
+Dosya: tanitim-reklam-modu.html
+
+• Hareketli renkli arka plan ve uçuşan renkli şekiller
+• Türkçe sesli anlatım (tarayıcının yapay zeka sesi – yüz yok, sadece ses)
+• Ses, slayttaki yazıyla uyumlu; ses bittiğinde sonraki slayta geçer
+• Başlıklar renkli gradient ve hafif animasyonlu
+
+Nasıl açılır
+------------
+1. tanitim-reklam-modu.html dosyasına çift tıklayın (tarayıcıda açılır).
+2. İlk slaytta kısa bir süre sonra Türkçe ses otomatik başlar.
+3. Sağ üstte "Sesli anlatım" butonu ile sesi açıp kapatabilirsiniz.
+4. Tam ekran için F11 kullanın.
+
+Not: Türkçe ses tarayıcıya bağlıdır (Chrome/Edge genelde Türkçe destekler). İnternet gerekmez; tarayıcı yerel TTS kullanır.

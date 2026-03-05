@@ -1,0 +1,21 @@
+========================================
+  NABZ UYGULAMASINI ACMAK - TEK YOL
+========================================
+
+1) NABZ-AC.bat dosyasina CIFT TIKLA.
+
+2) Acilan TEK pencereyi KAPATMA.
+    "Ready" ve "Local: http://127.0.0.1:3000" yazana kadar bekle.
+
+3) Tarayicini (Chrome, Edge, vb.) ac ve adres cubuguna yaz:
+    http://127.0.0.1:3000
+
+4) Enter'a bas. Uygulama acilir.
+
+   (Ikinci pencere yok - her sey tek pencerede. Tarayiciyi sen aciyorsun.)
+
+========================================
+Sorun cikarsa:
+- NABZ-AC.bat'i kapat. Tekrar NABZ-AC.bat'a cift tikla.
+- "Ready" yazdiktan SONRA tarayicida 127.0.0.1:3000 ac.
+========================================

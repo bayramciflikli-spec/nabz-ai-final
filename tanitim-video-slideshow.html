@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NABZ-AI Tanıtım – Video Sunum</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #020617; color: #e2e8f0; font-family: system-ui, sans-serif; min-height: 100vh; overflow: hidden; }
+    .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 3rem; text-align: center; opacity: 0; transition: opacity 0.8s ease; }
+    .slide.active { opacity: 1; z-index: 1; }
+    .slide h1 { font-size: clamp(2rem, 6vw, 4rem); font-weight: 900; color: #22d3ee; margin: 0 0 1rem; text-shadow: 0 0 30px rgba(34,211,238,0.4); }
+    .slide .tagline { font-size: clamp(1rem, 2.5vw, 1.5rem); color: #94a3b8; margin-bottom: 1.5rem; max-width: 600px; }
+    .slide .point { font-size: clamp(1rem, 2vw, 1.25rem); color: #cbd5e1; margin: 0.5rem 0; }
+    .slide ul { list-style: none; padding: 0; margin: 1rem 0 0; }
+    .progress { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 0.5rem; }
+    .progress span { width: 8px; height: 8px; border-radius: 50%; background: #475569; transition: background 0.3s; }
+    .progress span.active { background: #22d3ee; box-shadow: 0 0 10px #22d3ee; }
+    .timer { position: fixed; top: 1rem; right: 1rem; z-index: 10; font-size: 0.75rem; color: #64748b; }
+  </style>
+</head>
+<body>
+  <!-- Slayt 1: Başlık -->
+  <div class="slide active" data-slide="0">
+    <h1>NABZ-AI</h1>
+    <p class="tagline">Yapay zeka destekli video ve içerik platformu</p>
+  </div>
+
+  <!-- Slayt 2: Özet -->
+  <div class="slide" data-slide="1">
+    <h1>Ne İşe Yarar?</h1>
+    <p class="tagline">Metinlerinizi saniyeler içinde sinematik videolara dönüştürün.</p>
+    <p class="point">İçerik keşfedin • Kanal açın • Gelir elde edin</p>
+  </div>
+
+  <!-- Slayt 3: Özellikler 1 -->
+  <div class="slide" data-slide="2">
+    <h1>İçerik & Keşif</h1>
+    <ul>
+      <li class="point">Trending / yeni içerik</li>
+      <li class="point">Kategoriye göre keşfet (Shorts, video, müzik)</li>
+      <li class="point">Akıllı arama & öneriler</li>
+    </ul>
+  </div>
+
+  <!-- Slayt 4: Özellikler 2 -->
+  <div class="slide" data-slide="3">
+    <h1>Üretim & Kanal</h1>
+    <ul>
+      <li class="point">İçerik oluştur / video yükle</li>
+      <li class="point">Kanal sayfası, abone, monetizasyon</li>
+      <li class="point">Cüzdan & abonelik</li>
+    </ul>
+  </div>
+
+  <!-- Slayt 5: Tek cümle -->
+  <div class="slide" data-slide="4">
+    <h1>Nabız</h1>
+    <p class="tagline" style="font-size: 1.25rem; color: #a5f3fc;">Metinlerinizi AI ile videoya çeviren, keşif ve kanal geliri sunan bir içerik platformudur.</p>
+  </div>
+
+  <!-- Slayt 6: Teknolojiler -->
+  <div class="slide" data-slide="5">
+    <h1>Teknolojiler</h1>
+    <p class="tagline">Next.js • React • TypeScript • Firebase • Tailwind CSS • Capacitor</p>
+  </div>
+
+  <!-- Slayt 7: Son -->
+  <div class="slide" data-slide="6">
+    <h1>NABZ-AI</h1>
+    <p class="tagline">Teşekkürler</p>
+  </div>
+
+  <div class="progress" id="progress"></div>
+  <div class="timer" id="timer"></div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const total = slides.length;
+    const secPerSlide = 5;
+    let current = 0;
+    let t = 0;
+
+    slides.forEach((_, i) => {
+      const dot = document.createElement('span');
+      dot.classList.toggle('active', i === 0);
+      dot.setAttribute('aria-label', 'Slayt ' + (i + 1));
+      document.getElementById('progress').appendChild(dot);
+    });
+
+    const dots = document.querySelectorAll('.progress span');
+
+    function go(n) {
+      slides[current].classList.remove('active');
+      dots[current].classList.remove('active');
+      current = (n + total) % total;
+      slides[current].classList.add('active');
+      dots[current].classList.add('active');
+      t = 0;
+      document.getElementById('timer').textContent = (current + 1) + ' / ' + total;
+    }
+
+    setInterval(() => {
+      t++;
+      if (t >= secPerSlide) go(current + 1);
+    }, 1000);
+
+    document.getElementById('timer').textContent = '1 / ' + total;
+  </script>
+</body>
+</html>

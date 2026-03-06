@@ -1,0 +1,8 @@
+NABZ-AI - Guncel kod BURADA (Desktop\NABZ-AI)
+============================================
+- PWA (uygulama olarak yukle), launcher, tum bagimliliklar bu klasorde.
+- Cursor'da npm run dev yazinca sunucu BURADAN calisiyor (localhost:3000).
+- Canli site (Vercel) eski gorunuyorsa: bu klasorden "vercel --prod" calistir.
+
+Tek kaynak: Bu klasoru Cursor'da acarsan (Dosya > Klasor Ac > NABZ-AI)
+her zaman guncel kodu duzenlersin.

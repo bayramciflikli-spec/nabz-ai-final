@@ -14,6 +14,8 @@ import { GlobalLoginModal } from "@/components/GlobalLoginModal";
 import { SearchOverlayProvider } from "@/components/SearchOverlayContext";
 import { SearchOverlay } from "@/components/SearchOverlay";
 import { AdminManifest } from "@/components/AdminManifest";
+import { PwaRegister } from "@/components/PwaRegister";
+import { PwaInstallBanner } from "@/components/PwaInstallBanner";
 import { BannedTermsLoader } from "@/components/BannedTermsLoader";
 import { ToastProvider } from "@/components/ToastContext";
 
@@ -40,6 +42,8 @@ export default function RootLayout({
       <AdSenseWithConsent />
       <body className="antialiased min-h-screen bg-slate-950 text-white pb-24 lg:pb-0">
         <AdminManifest />
+        <PwaRegister />
+        <PwaInstallBanner />
         <BannedTermsLoader />
         <ErrorBoundary>
           <ToastProvider>

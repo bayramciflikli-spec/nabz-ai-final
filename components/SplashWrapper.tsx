@@ -86,27 +86,23 @@ export function SplashWrapper({ children }: { children: React.ReactNode }) {
                   ease: "easeOut",
                 }}
               >
-                {/* Parlama: drop-shadow ile premium his */}
+                {/* Parlama: drop-shadow. Siyahı kaldırmak için logo div'de background-image + mix-blend-mode: screen */}
                 <div
                   className="flex items-center justify-center p-4 sm:p-6"
                   style={{
                     filter: "drop-shadow(0 0 24px rgba(249,115,22,0.5)) drop-shadow(0 0 48px rgba(168,85,247,0.35)) drop-shadow(0 0 80px rgba(249,115,22,0.2))",
                   }}
                 >
-                  {/* Siyah arka planı kaldır, sadece renkli kısımlar: mix-blend-mode: screen */}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/logo.jpg"
-                    alt="NABZ-AI"
-                    className="nabz-splash-logo w-48 h-48 sm:w-64 sm:h-64 object-contain select-none pointer-events-none"
+                  <div
+                    role="img"
+                    aria-label="NABZ-AI"
+                    className="nabz-splash-logo w-48 h-48 sm:w-64 sm:h-64 bg-no-repeat bg-center bg-contain select-none pointer-events-none"
                     style={{
-                      mixBlendMode: "screen",
                       maxWidth: "min(80vw, 320px)",
                       maxHeight: "min(80vh, 320px)",
+                      backgroundImage: "url(/logo.jpg)",
+                      mixBlendMode: "screen",
                     }}
-                    decoding="async"
-                    fetchPriority="high"
-                    draggable={false}
                   />
                 </div>
               </motion.div>

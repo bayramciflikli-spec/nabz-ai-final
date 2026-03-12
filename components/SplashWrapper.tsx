@@ -38,32 +38,28 @@ export function SplashWrapper({ children }: { children: React.ReactNode }) {
     }, 1200);
   };
 
+  // Tıklama yok: 3 saniye sonra otomatik geçiş
+  useEffect(() => {
+    if (seen) return;
+    const t = window.setTimeout(() => start(), 3000);
+    return () => window.clearTimeout(t);
+  }, [seen]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <>
       {!seen && (
         <div
-          className={`fixed inset-0 z-[200] bg-black cursor-pointer select-none ${exiting ? "nabz-splash-exit" : ""}`}
-          onClick={start}
-          role="button"
-          aria-label="NABZ-AI aç"
+          className={`fixed inset-0 z-[200] bg-transparent select-none ${exiting ? "nabz-splash-exit" : ""}`}
+          aria-label="NABZ-AI açılıyor"
         >
-          <div className="absolute inset-0">
-            {/* Tam ekran: boşluksuz, YouTube gibi full-bleed */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/nabz-ai-logo.png"
-              alt="NABZ-AI"
-              className="w-full h-full object-cover"
-              draggable={false}
-            />
-          </div>
-
-          {/* Oynat: logonun ortası; tıklayınca içinden geçiş hissi */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className={`nabz-splash-play ${exiting ? "nabz-splash-play-exit" : ""}`}>
-              <div className="nabz-splash-play-inner" aria-hidden />
-            </div>
-          </div>
+          {/* Sadece logo: tam ekran, arka plan yok */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/nabz-ai-logo.png"
+            alt="NABZ-AI"
+            className="w-full h-full object-contain"
+            draggable={false}
+          />
         </div>
       )}
       {children}

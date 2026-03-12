@@ -22,7 +22,7 @@ import { ToastProvider } from "@/components/ToastContext";
 export const metadata: Metadata = {
   title: "Nabız - AI Video Platformu",
   description: "Kelimelerinizi saniyeler içinde sinematik videolara dönüştürün. Yapay zeka destekli video üretim platformu.",
-  manifest: "/manifest.json",
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: [
       { url: "/logo.png", type: "image/png", sizes: "any" },

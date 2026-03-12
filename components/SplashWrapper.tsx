@@ -57,55 +57,37 @@ export function SplashWrapper({ children }: { children: React.ReactNode }) {
             transition={{ duration: 0.25, ease: "easeOut" }}
           >
             <motion.div
-              className="flex items-center justify-center w-full h-full"
-              initial={false}
+              className="relative flex items-center justify-center w-full h-full"
+              initial={{ opacity: 0, scale: 0.9 }}
               animate={
                 phase === "visible"
-                  ? {}
-                  : {
-                      scale: [1, 1.2, 2.5, 5, 12],
-                      opacity: [1, 1, 0.95, 0.6, 0],
-                    }
+                  ? { opacity: 1, scale: 1 }
+                  : { opacity: 0, scale: 6 }
               }
               transition={{
-                duration: 0.9,
-                times: [0, 0.2, 0.5, 0.75, 1],
-                ease: [0.25, 0.46, 0.45, 0.94],
+                duration: phase === "visible" ? 0.9 : 0.8,
+                ease: "easeInOut",
               }}
               onAnimationComplete={() => phase === "zooming" && onZoomComplete()}
             >
-              <motion.div
-                className="relative flex items-center justify-center"
-                initial={{ opacity: 0, scale: 0.85 }}
-                animate={{
-                  opacity: 1,
-                  scale: 1,
-                }}
-                transition={{
-                  duration: 0.8,
-                  ease: "easeOut",
+              {/* Parlama + tam ekran logo. background-image + mix-blend-mode: screen */}
+              <div
+                className="flex items-center justify-center w-full h-full"
+                style={{
+                  filter:
+                    "drop-shadow(0 0 32px rgba(249,115,22,0.55)) drop-shadow(0 0 64px rgba(168,85,247,0.4)) drop-shadow(0 0 120px rgba(249,115,22,0.25))",
                 }}
               >
-                {/* Parlama: drop-shadow. Siyahı kaldırmak için logo div'de background-image + mix-blend-mode: screen */}
                 <div
-                  className="flex items-center justify-center p-4 sm:p-6"
+                  role="img"
+                  aria-label="NABZ-AI"
+                  className="nabz-splash-logo w-full h-full bg-no-repeat bg-center bg-cover select-none pointer-events-none rounded-none"
                   style={{
-                    filter: "drop-shadow(0 0 24px rgba(249,115,22,0.5)) drop-shadow(0 0 48px rgba(168,85,247,0.35)) drop-shadow(0 0 80px rgba(249,115,22,0.2))",
+                    backgroundImage: "url(/logo.jpg)",
+                    mixBlendMode: "screen",
                   }}
-                >
-                  <div
-                    role="img"
-                    aria-label="NABZ-AI"
-                    className="nabz-splash-logo w-48 h-48 sm:w-64 sm:h-64 bg-no-repeat bg-center bg-contain select-none pointer-events-none"
-                    style={{
-                      maxWidth: "min(80vw, 320px)",
-                      maxHeight: "min(80vh, 320px)",
-                      backgroundImage: "url(/logo.jpg)",
-                      mixBlendMode: "screen",
-                    }}
-                  />
-                </div>
-              </motion.div>
+                />
+              </div>
             </motion.div>
           </motion.div>
         )}

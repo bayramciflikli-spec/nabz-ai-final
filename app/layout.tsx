@@ -23,6 +23,16 @@ export const metadata: Metadata = {
   title: "Nabız - AI Video Platformu",
   description: "Kelimelerinizi saniyeler içinde sinematik videolara dönüştürün. Yapay zeka destekli video üretim platformu.",
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/logo.png", type: "image/png", sizes: "any" },
+      { url: "/logo.png", type: "image/png", sizes: "192x192" },
+      { url: "/logo.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: [
+      { url: "/logo.png", type: "image/png", sizes: "180x180" },
+    ],
+  },
 };
 
 export const viewport = {

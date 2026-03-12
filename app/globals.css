@@ -18,12 +18,25 @@ body {
   color: var(--foreground);
 }
 
-/* Splash logo GPU optimizasyonu (Framer Motion ile animasyon) */
-.nabz-splash-logo {
-  will-change: transform, opacity;
+/* Splash: sadece transform + opacity, filtre yok = yağ gibi akar */
+.nabz-splash-layer {
   transform: translateZ(0);
   backface-visibility: hidden;
-  image-rendering: auto;
+  contain: strict;
+}
+.nabz-splash-layer.nabz-splash-enter {
+  animation: nabz-splash-enter 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.nabz-splash-layer.nabz-splash-zoom {
+  animation: nabz-splash-zoom 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes nabz-splash-enter {
+  from { opacity: 0; transform: translateZ(0) scale(0.92); }
+  to { opacity: 1; transform: translateZ(0) scale(1); }
+}
+@keyframes nabz-splash-zoom {
+  from { opacity: 1; transform: translateZ(0) scale(1); }
+  to { opacity: 0; transform: translateZ(0) scale(5); }
 }
 
 /* Klavye odaklanması - erişilebilirlik */

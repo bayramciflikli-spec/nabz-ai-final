@@ -49,7 +49,7 @@ export function SplashWrapper({ children }: { children: React.ReactNode }) {
     <>
       {!seen && (
         <div
-          className={`fixed inset-0 z-[200] bg-transparent select-none ${exiting ? "nabz-splash-exit" : ""}`}
+          className={`fixed inset-0 z-[200] bg-[#0F0F0F] select-none ${exiting ? "nabz-splash-exit" : ""}`}
           aria-label="NABZ-AI açılıyor"
         >
           {/* Sadece logo: tam ekran, arka plan yok */}
@@ -57,7 +57,7 @@ export function SplashWrapper({ children }: { children: React.ReactNode }) {
           <img
             src="/nabz-ai-logo.png"
             alt="NABZ-AI"
-            className="w-full h-full object-contain"
+            className="w-full h-full object-cover"
             draggable={false}
           />
         </div>

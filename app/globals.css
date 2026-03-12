@@ -18,6 +18,50 @@ body {
   color: var(--foreground);
 }
 
+/* Splash (tam ekran logo) -> oynat içinden geçiş */
+@keyframes nabz-splash-zoom {
+  0% { transform: scale(1); filter: blur(0px); opacity: 1; }
+  55% { transform: scale(1.08); filter: blur(0px); opacity: 1; }
+  100% { transform: scale(2.6); filter: blur(6px); opacity: 0; }
+}
+
+@keyframes nabz-splash-play {
+  0% { transform: scale(1); opacity: 0.95; box-shadow: 0 0 0 rgba(255,255,255,0); }
+  40% { transform: scale(1); opacity: 1; box-shadow: 0 0 40px rgba(255,255,255,0.25); }
+  100% { transform: scale(14); opacity: 0; box-shadow: 0 0 120px rgba(255,255,255,0.35); }
+}
+
+.nabz-splash-exit {
+  animation: nabz-splash-zoom 1.2s cubic-bezier(0.22, 0.7, 0.25, 1) forwards;
+}
+
+.nabz-splash-play {
+  width: clamp(72px, 12vw, 120px);
+  height: clamp(72px, 12vw, 120px);
+  border-radius: 9999px;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nabz-splash-play-inner {
+  width: 0;
+  height: 0;
+  border-top: 14px solid transparent;
+  border-bottom: 14px solid transparent;
+  border-left: 22px solid rgba(255,255,255,0.92);
+  margin-left: 6px;
+  filter: drop-shadow(0 0 14px rgba(255,255,255,0.25));
+}
+
+.nabz-splash-play-exit {
+  animation: nabz-splash-play 1.2s cubic-bezier(0.18, 0.7, 0.25, 1) forwards;
+}
+
 /* Klavye odaklanması - erişilebilirlik */
 *:focus-visible {
   outline: 2px solid rgba(239, 68, 68, 0.6);

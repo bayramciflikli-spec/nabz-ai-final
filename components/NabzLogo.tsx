@@ -10,9 +10,8 @@ export function NabzLogo({ className = "" }: NabzLogoProps) {
     <img
       src="/nabz-ai-logo.png"
       alt="NABZ:AI"
-      className={`h-14 sm:h-16 w-auto object-contain mix-blend-lighten ${className}`}
+      className={`h-14 sm:h-16 w-auto object-contain rounded-2xl ${className}`}
       style={{
-        // mix-blend-lighten: koyu arka planı "transparan" yapar, sadece parlak logo kalır
         backgroundColor: "transparent",
       }}
     />

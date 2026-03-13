@@ -21,6 +21,17 @@ const favicon = (domain: string) => `https://www.google.com/s2/favicons?domain=$
 
 export const CATEGORY_SECTIONS: CategorySectionConfig[] = [
   {
+    labelKey: "section.shorts",
+    query: "AI shorts dikey video tiktok reels",
+    contentSource: "shorts",
+    apps: [
+      { name: "Kling", href: "https://www.klingai.com", logo: favicon("klingai.com") },
+      { name: "CapCut", href: "https://www.capcut.com", logo: favicon("capcut.com") },
+      { name: "Runway", href: "https://runwayml.com", logo: favicon("runwayml.com") },
+      { name: "InVideo", href: "https://invideo.io", logo: favicon("invideo.io") },
+    ],
+  },
+  {
     labelKey: "category.haberAI",
     query: "AI haber yapay zeka gündem",
     contentSource: "enler",

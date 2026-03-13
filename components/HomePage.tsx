@@ -306,75 +306,25 @@ export function HomePage() {
     imageUrl: p.imageUrl as string | undefined,
   });
 
-  const videos = filteredTrending.length > 0 ? filteredTrending.map(toCard) : Array.from({ length: 12 }, (_, i) => ({
-    id: `s${i + 1}`,
-    title: `${t("home.fallbackShorts")} #${i + 1}`,
-    channel: t("home.channelStudio"),
-    likesCount: (i + 1) * 12,
-    dislikesCount: (i + 1) * 2,
-    commentsCount: (i + 1) * 3,
-  }));
-
-  const enler = (filteredByCategory.enler?.length ?? 0) > 0 ? filteredByCategory.enler.map(toCard) : filteredNewContent.slice(0, 8).map(toCard);
-  const enlerFallback = enler.length === 0 ? Array.from({ length: 8 }, (_, i) => ({
-    id: `e${i + 1}`,
-    title: `${t("home.fallbackEnler")} #${i + 1}`,
-    channel: t("home.channelStudio"),
-    likesCount: (i + 1) * 24,
-    dislikesCount: (i + 1) * 3,
-    commentsCount: (i + 1) * 5,
-  })) : enler;
-
-  const videoList = (filteredByCategory.video?.length ?? 0) > 0 ? filteredByCategory.video.map(toCard) : filteredNewContent.slice(0, 8).map(toCard);
-  const videoListFallback = videoList.length === 0 ? Array.from({ length: 8 }, (_, i) => ({
-    id: `v${i + 1}`,
-    title: `${t("home.fallbackVideo")} #${i + 1}`,
-    channel: t("home.channelStudio"),
-    likesCount: (i + 1) * 18,
-    dislikesCount: (i + 1) * 2,
-    commentsCount: (i + 1) * 4,
-  })) : videoList;
-
-  const musicList = (filteredByCategory.muzik?.length ?? 0) > 0 ? filteredByCategory.muzik.map(toCard) : Array.from({ length: 8 }, (_, i) => ({
-    id: `m${i + 1}`,
-    title: `${t("home.fallbackMuzik")} #${i + 1}`,
-    channel: t("home.channelStudio"),
-    likesCount: (i + 1) * 15,
-    dislikesCount: (i + 1) * 1,
-    commentsCount: (i + 1) * 2,
-  }));
-
-  const animasyonList = (filteredByCategory.animasyon?.length ?? 0) > 0 ? filteredByCategory.animasyon.map(toCard) : Array.from({ length: 8 }, (_, i) => ({
-    id: `a${i + 1}`,
-    title: `${t("home.fallbackAnimasyon")} #${i + 1}`,
-    channel: t("home.channelStudio"),
-    likesCount: (i + 1) * 20,
-    dislikesCount: (i + 1) * 4,
-    commentsCount: (i + 1) * 6,
-  }));
-
-  const logoTasarimList = (filteredByCategory["logo-tasarim"]?.length ?? 0) > 0 ? filteredByCategory["logo-tasarim"].map(toCard) : Array.from({ length: 8 }, (_, i) => ({
-    id: `l${i + 1}`,
-    title: `${t("home.fallbackLogoTasarim")} #${i + 1}`,
-    channel: t("home.channelStudio"),
-    likesCount: (i + 1) * 10,
-    dislikesCount: (i + 1) * 1,
-    commentsCount: (i + 1) * 2,
-  }));
-
+  const videos = filteredTrending.map(toCard);
+  const enler = (filteredByCategory.enler?.length ?? 0) > 0 ? filteredByCategory.enler.map(toCard) : filteredNewContent.map(toCard);
+  const videoList = (filteredByCategory.video?.length ?? 0) > 0 ? filteredByCategory.video.map(toCard) : filteredNewContent.map(toCard);
+  const musicList = (filteredByCategory.muzik?.length ?? 0) > 0 ? filteredByCategory.muzik.map(toCard) : [];
+  const animasyonList = (filteredByCategory.animasyon?.length ?? 0) > 0 ? filteredByCategory.animasyon.map(toCard) : [];
+  const logoTasarimList = (filteredByCategory["logo-tasarim"]?.length ?? 0) > 0 ? filteredByCategory["logo-tasarim"].map(toCard) : [];
   const shortsList = (filteredByCategory.shorts?.length ?? 0) > 0 ? filteredByCategory.shorts.map(toCard) : videos;
 
   const contentBySource = useMemo(
     () => ({
       trending: videos,
       shorts: shortsList,
-      enler: enlerFallback,
-      video: videoListFallback,
+      enler,
+      video: videoList,
       muzik: musicList,
       animasyon: animasyonList,
       "logo-tasarim": logoTasarimList,
     }),
-    [videos, shortsList, enlerFallback, videoListFallback, musicList, animasyonList, logoTasarimList]
+    [videos, shortsList, enler, videoList, musicList, animasyonList, logoTasarimList]
   );
 
   const [sondakikaHaberler, setSondakikaHaberler] = useState<SondakikaItem[]>([]);
@@ -680,7 +630,14 @@ export function HomePage() {
 
           {/* Ana başlıklar: her biri kayan içerik + ilgili AI uygulama kısayolları */}
           {CATEGORY_SECTIONS.map((sec, idx) => {
-            const list = contentBySource[sec.contentSource as keyof typeof contentBySource] ?? videos;
+            const items = contentBySource[sec.contentSource as keyof typeof contentBySource] ?? videos;
+            const hasContent = items.length > 0;
+            // Slot sayısı:
+            // - içerik yoksa: 7 adet + paylaş kartı (uygulama dolsun)
+            // - içerik 1-6 arasındaysa: 7 slot (önce içerik, kalanlar +)
+            // - içerik >= 7 ise: tüm içerik + 1 adet ekstra paylaş kartı (8., 9., ... her zaman son slot +)
+            const slotCount = !hasContent ? 7 : items.length >= 7 ? items.length + 1 : 7;
+            const slots = Array.from({ length: slotCount }, (_, i) => i);
             const isFirst = idx === 0;
             return (
               <section key={sec.labelKey} className="shrink-0">
@@ -713,19 +670,43 @@ export function HomePage() {
                   </div>
                 </div>
                 <ScrollableCarousel className="px-4 sm:px-6" contentClassName="gap-4 sm:gap-6 py-4" speed={55}>
-                  {[...list, ...list].map((c, i) => (
-                    <ContentCard
-                      key={`${sec.labelKey}-${c.id}-${i}`}
-                      id={c.id}
-                      title={c.title}
-                      channel={c.channel}
-                      variant={sec.contentSource === "shorts" ? "shorts" : undefined}
-                      likesCount={c.likesCount}
-                      dislikesCount={c.dislikesCount}
-                      commentsCount={c.commentsCount}
-                      imageUrl={(c as { imageUrl?: string }).imageUrl}
-                    />
-                  ))}
+                  {slots.map((slotIndex) => {
+                    const isExtraShareSlot = hasContent && items.length >= 7 && slotIndex === slotCount - 1;
+                    const hasItemHere = slotIndex < items.length && !isExtraShareSlot;
+
+                    if (!hasItemHere) {
+                      // + paylaş kartı
+                    return (
+                        <Link
+                          key={`${sec.labelKey}-share-${slotIndex}`}
+                          href="/upload"
+                          className="group flex-shrink-0 w-32 min-w-32 max-w-32 sm:w-40 sm:min-w-40 sm:max-w-40 flex flex-col items-center justify-center rounded-xl border border-dashed border-red-400/70 bg-red-500/10 hover:bg-red-500/20 hover:border-red-400 transition-all duration-200"
+                        >
+                          <span className="w-10 h-10 rounded-full bg-red-500/30 flex items-center justify-center mb-1">
+                            <span className="text-2xl leading-none text-red-100">+</span>
+                          </span>
+                          <span className="text-xs font-semibold text-red-100 text-center">
+                            {t("home.uploadContent")}
+                          </span>
+                        </Link>
+                    );
+                    }
+
+                    const c = items[slotIndex];
+                    return (
+                      <ContentCard
+                        key={`${sec.labelKey}-${c.id}-${slotIndex}`}
+                        id={c.id}
+                        title={c.title}
+                        channel={c.channel}
+                        variant={sec.contentSource === "shorts" ? "shorts" : undefined}
+                        likesCount={c.likesCount}
+                        dislikesCount={c.dislikesCount}
+                        commentsCount={c.commentsCount}
+                        imageUrl={(c as { imageUrl?: string }).imageUrl}
+                      />
+                    );
+                  })}
                 </ScrollableCarousel>
               </section>
             );

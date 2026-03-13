@@ -9,8 +9,7 @@ import { searchAitube } from "@/lib/searchAitube";
 import { getInstantSuggestions } from "@/lib/searchUtils";
 import { fetchTrendingContent, fetchNewContent, fetchByCategory, applyLegalFilter, fetchRecommendedForUser } from "@/lib/contentDiscovery";
 import type { DiscoverProject } from "@/lib/contentDiscovery";
-import { CATEGORY_TABS, getCategorySearchUrl } from "@/lib/categoryTabs";
-import { CATEGORY_SECTIONS } from "@/lib/categorySections";
+import { SECTION_APPS } from "@/lib/sectionApps";
 import { Sidebar } from "./Sidebar";
 import { AIBackground } from "./AIBackground";
 import { Mic, Search, Video } from "lucide-react";
@@ -306,25 +305,75 @@ export function HomePage() {
     imageUrl: p.imageUrl as string | undefined,
   });
 
-  const videos = filteredTrending.map(toCard);
-  const enler = (filteredByCategory.enler?.length ?? 0) > 0 ? filteredByCategory.enler.map(toCard) : filteredNewContent.map(toCard);
-  const videoList = (filteredByCategory.video?.length ?? 0) > 0 ? filteredByCategory.video.map(toCard) : filteredNewContent.map(toCard);
-  const musicList = (filteredByCategory.muzik?.length ?? 0) > 0 ? filteredByCategory.muzik.map(toCard) : [];
-  const animasyonList = (filteredByCategory.animasyon?.length ?? 0) > 0 ? filteredByCategory.animasyon.map(toCard) : [];
-  const logoTasarimList = (filteredByCategory["logo-tasarim"]?.length ?? 0) > 0 ? filteredByCategory["logo-tasarim"].map(toCard) : [];
+  const videos = filteredTrending.length > 0 ? filteredTrending.map(toCard) : Array.from({ length: 12 }, (_, i) => ({
+    id: `s${i + 1}`,
+    title: `${t("home.fallbackShorts")} #${i + 1}`,
+    channel: t("home.channelStudio"),
+    likesCount: (i + 1) * 12,
+    dislikesCount: (i + 1) * 2,
+    commentsCount: (i + 1) * 3,
+  }));
+
+  const enler = (filteredByCategory.enler?.length ?? 0) > 0 ? filteredByCategory.enler.map(toCard) : filteredNewContent.slice(0, 8).map(toCard);
+  const enlerFallback = enler.length === 0 ? Array.from({ length: 8 }, (_, i) => ({
+    id: `e${i + 1}`,
+    title: `${t("home.fallbackEnler")} #${i + 1}`,
+    channel: t("home.channelStudio"),
+    likesCount: (i + 1) * 24,
+    dislikesCount: (i + 1) * 3,
+    commentsCount: (i + 1) * 5,
+  })) : enler;
+
+  const videoList = (filteredByCategory.video?.length ?? 0) > 0 ? filteredByCategory.video.map(toCard) : filteredNewContent.slice(0, 8).map(toCard);
+  const videoListFallback = videoList.length === 0 ? Array.from({ length: 8 }, (_, i) => ({
+    id: `v${i + 1}`,
+    title: `${t("home.fallbackVideo")} #${i + 1}`,
+    channel: t("home.channelStudio"),
+    likesCount: (i + 1) * 18,
+    dislikesCount: (i + 1) * 2,
+    commentsCount: (i + 1) * 4,
+  })) : videoList;
+
+  const musicList = (filteredByCategory.muzik?.length ?? 0) > 0 ? filteredByCategory.muzik.map(toCard) : Array.from({ length: 8 }, (_, i) => ({
+    id: `m${i + 1}`,
+    title: `${t("home.fallbackMuzik")} #${i + 1}`,
+    channel: t("home.channelStudio"),
+    likesCount: (i + 1) * 15,
+    dislikesCount: (i + 1) * 1,
+    commentsCount: (i + 1) * 2,
+  }));
+
+  const animasyonList = (filteredByCategory.animasyon?.length ?? 0) > 0 ? filteredByCategory.animasyon.map(toCard) : Array.from({ length: 8 }, (_, i) => ({
+    id: `a${i + 1}`,
+    title: `${t("home.fallbackAnimasyon")} #${i + 1}`,
+    channel: t("home.channelStudio"),
+    likesCount: (i + 1) * 20,
+    dislikesCount: (i + 1) * 4,
+    commentsCount: (i + 1) * 6,
+  }));
+
+  const logoTasarimList = (filteredByCategory["logo-tasarim"]?.length ?? 0) > 0 ? filteredByCategory["logo-tasarim"].map(toCard) : Array.from({ length: 8 }, (_, i) => ({
+    id: `l${i + 1}`,
+    title: `${t("home.fallbackLogoTasarim")} #${i + 1}`,
+    channel: t("home.channelStudio"),
+    likesCount: (i + 1) * 10,
+    dislikesCount: (i + 1) * 1,
+    commentsCount: (i + 1) * 2,
+  }));
+
   const shortsList = (filteredByCategory.shorts?.length ?? 0) > 0 ? filteredByCategory.shorts.map(toCard) : videos;
 
   const contentBySource = useMemo(
     () => ({
       trending: videos,
       shorts: shortsList,
-      enler,
-      video: videoList,
+      enler: enlerFallback,
+      video: videoListFallback,
       muzik: musicList,
       animasyon: animasyonList,
       "logo-tasarim": logoTasarimList,
     }),
-    [videos, shortsList, enler, videoList, musicList, animasyonList, logoTasarimList]
+    [videos, shortsList, enlerFallback, videoListFallback, musicList, animasyonList, logoTasarimList]
   );
 
   const [sondakikaHaberler, setSondakikaHaberler] = useState<SondakikaItem[]>([]);
@@ -628,58 +677,246 @@ export function HomePage() {
             </section>
           )}
 
-          {/* Ana başlıklar: her biri kayan içerik + ilgili AI uygulama kısayolları */}
-          {CATEGORY_SECTIONS.map((sec, idx) => {
-            const list = contentBySource[sec.contentSource as keyof typeof contentBySource] ?? videos;
-            const isFirst = idx === 0;
-            return (
-              <section key={sec.labelKey} className="shrink-0">
-                <div className={`px-4 sm:px-6 flex flex-wrap items-center gap-3 ${isFirst ? "pt-[60px]" : "pt-4 sm:pt-6"} pb-1`}>
-                  <a
-                    href={getCategorySearchUrl(sec.query)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-lg font-bold text-white/90 hover:text-white transition-colors"
-                  >
-                    {t(sec.labelKey)}
-                  </a>
-                  <span className="text-white/40 text-xs">|</span>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {sec.apps.map((app) => (
-                      <a
-                        key={app.name}
-                        href={app.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title={`${app.name} ${t("home.createWith")}`}
-                        className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs bg-white/5 hover:bg-white/15 border border-white/10 transition-colors"
-                      >
-                        {app.logo ? (
-                          <img src={app.logo} alt="" className="w-4 h-4 rounded" />
-                        ) : null}
-                        <span>{app.name}</span>
-                      </a>
-                    ))}
-                  </div>
-                </div>
-                <ScrollableCarousel className="px-4 sm:px-6" contentClassName="gap-4 sm:gap-6 py-4" speed={55}>
-                  {[...list, ...list].map((c, i) => (
-                    <ContentCard
-                      key={`${sec.labelKey}-${c.id}-${i}`}
-                      id={c.id}
-                      title={c.title}
-                      channel={c.channel}
-                      variant={sec.contentSource === "shorts" ? "shorts" : undefined}
-                      likesCount={c.likesCount}
-                      dislikesCount={c.dislikesCount}
-                      commentsCount={c.commentsCount}
-                      imageUrl={(c as { imageUrl?: string }).imageUrl}
-                    />
+          {/* Shorts - Dikey ekran, sağdan sola kayma */}
+          <section className="shrink-0">
+            <div className="px-4 sm:px-6 pt-[60px] pb-1">
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 className="text-lg font-bold text-white/90">{t(SECTION_APPS[0].titleKey)}</h2>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {SECTION_APPS[0].apps.map((app) => (
+                    <a
+                      key={app.name}
+                      href={app.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={`${app.name} ${t("home.createWith")}`}
+                      className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs bg-white/5 hover:bg-white/15 border border-white/10 transition-colors"
+                    >
+                      {app.logo ? (
+                        <img src={app.logo} alt="" className="w-4 h-4 rounded" />
+                      ) : null}
+                      <span>{app.name}</span>
+                    </a>
                   ))}
-                </ScrollableCarousel>
-              </section>
-            );
-          })}
+                </div>
+              </div>
+            </div>
+            <ScrollableCarousel className="px-4 sm:px-6" contentClassName="gap-4 sm:gap-6 py-4" speed={55}>
+              {[...shortsList, ...shortsList].map((v, i) => (
+                <ContentCard
+                  key={`shorts-${v.id}-${i}`}
+                  id={v.id}
+                  title={v.title}
+                  channel={v.channel}
+                  variant="shorts"
+                  likesCount={v.likesCount}
+                  dislikesCount={v.dislikesCount}
+                  commentsCount={v.commentsCount}
+                  imageUrl={(v as { imageUrl?: string }).imageUrl}
+                />
+              ))}
+            </ScrollableCarousel>
+          </section>
+
+          {/* Enler - Yatay kayan ekran */}
+          <section className="shrink-0">
+            <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-1">
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 className="text-lg font-bold text-white/90">{t(SECTION_APPS[1].titleKey)}</h2>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {SECTION_APPS[1].apps.map((app) => (
+                    <a
+                      key={app.name}
+                      href={app.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={`${app.name} ${t("home.createWith")}`}
+                      className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs bg-white/5 hover:bg-white/15 border border-white/10 transition-colors"
+                    >
+                      {app.logo ? (
+                        <img src={app.logo} alt="" className="w-4 h-4 rounded" />
+                      ) : null}
+                      <span>{app.name}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <ScrollableCarousel className="px-4 sm:px-6" contentClassName="gap-4 sm:gap-6 py-4" speed={55}>
+              {[...enlerFallback, ...enlerFallback].map((e, i) => (
+                <ContentCard
+                  key={`enler-${e.id}-${i}`}
+                  id={e.id}
+                  title={e.title}
+                  channel={e.channel}
+                  likesCount={e.likesCount}
+                  dislikesCount={e.dislikesCount}
+                  commentsCount={e.commentsCount}
+                  imageUrl={(e as { imageUrl?: string }).imageUrl}
+                />
+              ))}
+            </ScrollableCarousel>
+          </section>
+
+          {/* Video - Yatay kayan ekran */}
+          <section className="shrink-0">
+            <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-1">
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 className="text-lg font-bold text-white/90">{t(SECTION_APPS[2].titleKey)}</h2>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {SECTION_APPS[2].apps.map((app) => (
+                    <a
+                      key={app.name}
+                      href={app.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={`${app.name} ${t("home.createWith")}`}
+                      className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs bg-white/5 hover:bg-white/15 border border-white/10 transition-colors"
+                    >
+                      {app.logo ? (
+                        <img src={app.logo} alt="" className="w-4 h-4 rounded" />
+                      ) : null}
+                      <span>{app.name}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <ScrollableCarousel className="px-4 sm:px-6" contentClassName="gap-4 sm:gap-6 py-4" speed={55}>
+              {[...videoListFallback, ...videoListFallback].map((v, i) => (
+                <ContentCard
+                  key={`video-${v.id}-${i}`}
+                  id={v.id}
+                  title={v.title}
+                  channel={v.channel}
+                  likesCount={v.likesCount}
+                  dislikesCount={v.dislikesCount}
+                  commentsCount={v.commentsCount}
+                  imageUrl={(v as { imageUrl?: string }).imageUrl}
+                />
+              ))}
+            </ScrollableCarousel>
+          </section>
+
+          {/* Müzik - Yatay kayan ekran */}
+          <section className="shrink-0">
+            <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-1">
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 className="text-lg font-bold text-white/90">{t(SECTION_APPS[3].titleKey)}</h2>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {SECTION_APPS[3].apps.map((app) => (
+                    <a
+                      key={app.name}
+                      href={app.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={`${app.name} ${t("home.createWith")}`}
+                      className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs bg-white/5 hover:bg-white/15 border border-white/10 transition-colors"
+                    >
+                      {app.logo ? (
+                        <img src={app.logo} alt="" className="w-4 h-4 rounded" />
+                      ) : null}
+                      <span>{app.name}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <ScrollableCarousel className="px-4 sm:px-6" contentClassName="gap-4 sm:gap-6 py-4" speed={55}>
+              {[...musicList, ...musicList].map((m, i) => (
+                <ContentCard
+                  key={`music-${m.id}-${i}`}
+                  id={m.id}
+                  title={m.title}
+                  channel={m.channel}
+                  likesCount={m.likesCount}
+                  dislikesCount={m.dislikesCount}
+                  commentsCount={m.commentsCount}
+                  imageUrl={(m as { imageUrl?: string }).imageUrl}
+                />
+              ))}
+            </ScrollableCarousel>
+          </section>
+
+          {/* Animasyon - Yatay kayan ekran */}
+          <section className="shrink-0">
+            <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-1">
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 className="text-lg font-bold text-white/90">{t(SECTION_APPS[4].titleKey)}</h2>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {SECTION_APPS[4].apps.map((app) => (
+                    <a
+                      key={app.name}
+                      href={app.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={`${app.name} ${t("home.createWith")}`}
+                      className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs bg-white/5 hover:bg-white/15 border border-white/10 transition-colors"
+                    >
+                      {app.logo ? (
+                        <img src={app.logo} alt="" className="w-4 h-4 rounded" />
+                      ) : null}
+                      <span>{app.name}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <ScrollableCarousel className="px-4 sm:px-6" contentClassName="gap-4 sm:gap-6 py-4" speed={55}>
+              {[...animasyonList, ...animasyonList].map((a, i) => (
+                <ContentCard
+                  key={`animasyon-${a.id}-${i}`}
+                  id={a.id}
+                  title={a.title}
+                  channel={a.channel}
+                  likesCount={a.likesCount}
+                  dislikesCount={a.dislikesCount}
+                  commentsCount={a.commentsCount}
+                  imageUrl={(a as { imageUrl?: string }).imageUrl}
+                />
+              ))}
+            </ScrollableCarousel>
+          </section>
+
+          {/* Logo ve Tasarım - Yatay kayan ekran */}
+          <section className="shrink-0">
+            <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-1">
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 className="text-lg font-bold text-white/90">{t(SECTION_APPS[5].titleKey)}</h2>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {SECTION_APPS[5].apps.map((app) => (
+                    <a
+                      key={app.name}
+                      href={app.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={`${app.name} ${t("home.createWith")}`}
+                      className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs bg-white/5 hover:bg-white/15 border border-white/10 transition-colors"
+                    >
+                      {app.logo ? (
+                        <img src={app.logo} alt="" className="w-4 h-4 rounded" />
+                      ) : null}
+                      <span>{app.name}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <ScrollableCarousel className="px-4 sm:px-6" contentClassName="gap-4 sm:gap-6 py-4" speed={55}>
+              {[...logoTasarimList, ...logoTasarimList].map((l, i) => (
+                <ContentCard
+                  key={`logo-${l.id}-${i}`}
+                  id={l.id}
+                  title={l.title}
+                  channel={l.channel}
+                  likesCount={l.likesCount}
+                  dislikesCount={l.dislikesCount}
+                  commentsCount={l.commentsCount}
+                  imageUrl={(l as { imageUrl?: string }).imageUrl}
+                />
+              ))}
+            </ScrollableCarousel>
+          </section>
         </main>
       </div>
     </div>

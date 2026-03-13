@@ -9,7 +9,6 @@ import { searchAitube } from "@/lib/searchAitube";
 import { getInstantSuggestions } from "@/lib/searchUtils";
 import { fetchTrendingContent, fetchNewContent, fetchByCategory, applyLegalFilter, fetchRecommendedForUser } from "@/lib/contentDiscovery";
 import type { DiscoverProject } from "@/lib/contentDiscovery";
-import { CATEGORY_TABS, getCategorySearchUrl } from "@/lib/categoryTabs";
 import { CATEGORY_SECTIONS } from "@/lib/categorySections";
 import { Sidebar } from "./Sidebar";
 import { AIBackground } from "./AIBackground";
@@ -606,21 +605,6 @@ export function HomePage() {
             <UserMenu user={user} />
           </div>
         </header>
-
-        {/* Kategori başlıkları - tarayıcıda en güncel sonuçları bul */}
-        <nav className="flex flex-row flex-wrap items-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-white/10 shrink-0 overflow-x-auto no-scrollbar">
-          {CATEGORY_TABS.map((tab) => (
-            <a
-              key={tab.labelKey}
-              href={getCategorySearchUrl(tab.query)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium bg-white/5 border border-white/20 hover:bg-white/10 hover:border-red-500/30 active:scale-95 transition-all duration-200 shrink-0"
-            >
-              {t(tab.labelKey)}
-            </a>
-          ))}
-        </nav>
 
         {/* Sondakika AI - Sağdan sola kayan haber bandı + Tümü sekmesi */}
         <div className="shrink-0 h-12 flex items-center border-b border-white/10 bg-black/30 overflow-hidden">

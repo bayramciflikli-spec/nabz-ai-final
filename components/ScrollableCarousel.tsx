@@ -46,20 +46,8 @@ export function ScrollableCarousel({
           const half = el.scrollWidth / 2;
           let scrollDelta = 0;
 
-          if (isHoveredRef.current && mouseXRef.current !== null) {
-            const rect = el.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const relX = mouseXRef.current - centerX;
-            const zoneWidth = rect.width / 3;
-            const hoverSpeedMult = 2.6;
-            if (relX > zoneWidth) {
-              scrollDelta = -speed * dt * hoverSpeedMult * Math.min(1, (relX - zoneWidth) / zoneWidth);
-            } else if (relX < -zoneWidth) {
-              scrollDelta = speed * dt * hoverSpeedMult * Math.min(1, (-zoneWidth - relX) / zoneWidth);
-            } else {
-              scrollDelta = (relX > 0 ? -1 : 1) * speed * dt * 0.55;
-            }
-          } else {
+          // Hover'da otomatik kaymayı durdur (kullanıcı rahat okusun)
+          if (!isHoveredRef.current) {
             scrollDelta = speed * dt;
           }
 

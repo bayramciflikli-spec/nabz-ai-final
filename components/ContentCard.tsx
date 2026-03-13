@@ -36,7 +36,7 @@ export function ContentCard({
   return (
     <Link
       href={href}
-      className={`group flex-shrink-0 ${cardWidth} flex flex-col transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]`}
+      className={`group flex-shrink-0 ${cardWidth} flex flex-col transition-transform duration-200 hover:scale-[1.05] active:scale-[0.98]`}
     >
       <div
         className={`w-full ${aspectClass} bg-white/5 border border-white/10 rounded-lg mb-2 group-hover:border-red-500/30 transition-all duration-200 flex-shrink-0 overflow-hidden relative`}
@@ -54,22 +54,12 @@ export function ContentCard({
         )}
       </div>
       <div className="min-h-[2.5rem] flex flex-col justify-end">
-        <p className="font-semibold text-sm truncate">{title}</p>
-        <p className="text-xs text-gray-500 mt-0.5 truncate">{channel}</p>
-        <div className="flex items-center gap-3 mt-1.5 text-xs text-white/60">
-          <span className="flex items-center gap-1" title={`${likesCount} ${t("project.like")}`}>
-            <ThumbsUp size={12} />
-            {likesCount}
-          </span>
-          <span className="flex items-center gap-1" title={t("project.dislike")}>
-            <ThumbsDown size={12} />
-            {dislikesCount}
-          </span>
-          <span className="flex items-center gap-1" title={`${commentsCount} ${t("project.comments")}`}>
-            <MessageCircle size={12} />
-            {commentsCount}
-          </span>
-        </div>
+        <p className="font-semibold text-sm leading-snug line-clamp-2 group-hover:line-clamp-none transition-all duration-200">
+          {title}
+        </p>
+        <p className="text-xs text-gray-500 mt-0.5 truncate">
+          {channel}
+        </p>
       </div>
     </Link>
   );

@@ -44,6 +44,20 @@ export function ContentCard({
         {imageUrl ? (
           <img src={imageUrl} alt={title} className="w-full h-full object-cover" />
         ) : null}
+        {/* Ortadaki + overlay – tıklanınca içerik paylaş (upload) */}
+        <Link
+          href="/upload"
+          onClick={(e) => {
+            // İçerik kartına gitmeyi engelle, sadece paylaş sayfasına götür
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-75 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200"
+        >
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-red-500 flex items-center justify-center shadow-lg">
+            <span className="text-2xl sm:text-3xl leading-none text-white">+</span>
+          </div>
+        </Link>
         {progressPct != null && (
           <div className="absolute bottom-0 left-0 right-0 h-0.5 sm:h-1 bg-white/20">
             <div

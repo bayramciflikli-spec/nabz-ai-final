@@ -630,14 +630,7 @@ export function HomePage() {
 
           {/* Ana başlıklar: her biri kayan içerik + ilgili AI uygulama kısayolları */}
           {CATEGORY_SECTIONS.map((sec, idx) => {
-            const items = contentBySource[sec.contentSource as keyof typeof contentBySource] ?? videos;
-            const hasContent = items.length > 0;
-            // Slot sayısı:
-            // - içerik yoksa: 7 adet + paylaş kartı (uygulama dolsun)
-            // - içerik 1-6 arasındaysa: 7 slot (önce içerik, kalanlar +)
-            // - içerik >= 7 ise: tüm içerik + 1 adet ekstra paylaş kartı (8., 9., ... her zaman son slot +)
-            const slotCount = !hasContent ? 7 : items.length >= 7 ? items.length + 1 : 7;
-            const slots = Array.from({ length: slotCount }, (_, i) => i);
+            const list = contentBySource[sec.contentSource as keyof typeof contentBySource] ?? videos;
             const isFirst = idx === 0;
             return (
               <section key={sec.labelKey} className="shrink-0">
@@ -670,43 +663,19 @@ export function HomePage() {
                   </div>
                 </div>
                 <ScrollableCarousel className="px-4 sm:px-6" contentClassName="gap-4 sm:gap-6 py-4" speed={55}>
-                  {slots.map((slotIndex) => {
-                    const isExtraShareSlot = hasContent && items.length >= 7 && slotIndex === slotCount - 1;
-                    const hasItemHere = slotIndex < items.length && !isExtraShareSlot;
-
-                    if (!hasItemHere) {
-                      // + paylaş kartı
-                    return (
-                        <Link
-                          key={`${sec.labelKey}-share-${slotIndex}`}
-                          href="/upload"
-                          className="group flex-shrink-0 w-32 min-w-32 max-w-32 sm:w-40 sm:min-w-40 sm:max-w-40 flex flex-col items-center justify-center rounded-xl border border-dashed border-red-400/70 bg-red-500/10 hover:bg-red-500/20 hover:border-red-400 transition-all duration-200"
-                        >
-                          <span className="w-10 h-10 rounded-full bg-red-500/30 flex items-center justify-center mb-1">
-                            <span className="text-2xl leading-none text-red-100">+</span>
-                          </span>
-                          <span className="text-xs font-semibold text-red-100 text-center">
-                            {t("home.uploadContent")}
-                          </span>
-                        </Link>
-                    );
-                    }
-
-                    const c = items[slotIndex];
-                    return (
-                      <ContentCard
-                        key={`${sec.labelKey}-${c.id}-${slotIndex}`}
-                        id={c.id}
-                        title={c.title}
-                        channel={c.channel}
-                        variant={sec.contentSource === "shorts" ? "shorts" : undefined}
-                        likesCount={c.likesCount}
-                        dislikesCount={c.dislikesCount}
-                        commentsCount={c.commentsCount}
-                        imageUrl={(c as { imageUrl?: string }).imageUrl}
-                      />
-                    );
-                  })}
+                  {[...list, ...list].map((c, i) => (
+                    <ContentCard
+                      key={`${sec.labelKey}-${c.id}-${i}`}
+                      id={c.id}
+                      title={c.title}
+                      channel={c.channel}
+                      variant={sec.contentSource === "shorts" ? "shorts" : undefined}
+                      likesCount={c.likesCount}
+                      dislikesCount={c.dislikesCount}
+                      commentsCount={c.commentsCount}
+                      imageUrl={(c as { imageUrl?: string }).imageUrl}
+                    />
+                  ))}
                 </ScrollableCarousel>
               </section>
             );

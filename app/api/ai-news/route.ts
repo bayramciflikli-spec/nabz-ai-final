@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 
+// Son 24 saatlik AI haberleri (Google News)
 const RSS_URL =
-  "https://news.google.com/rss/search?q=yapay+zeka+artificial+intelligence+AI+haber&hl=tr&ceid=TR:tr";
+  "https://news.google.com/rss/search?q=yapay+zeka+OR+%22artificial+intelligence%22+when:1d&hl=tr&gl=TR&ceid=TR:tr";
 const CACHE_MAX_AGE = 120; // 2 dakika
 const FALLBACK_ITEMS = [
-  { title: "Yapay zeka ve AI haberleri", url: "https://news.google.com/search?q=yapay+zeka+AI", date: new Date().toISOString().slice(0, 10) },
+  {
+    title: "Yapay zeka ve AI haberleri",
+    url: "https://news.google.com/search?q=yapay+zeka+AI",
+    date: new Date().toISOString().slice(0, 10),
+  },
 ];
 
 function parseRssItems(xml: string): { title: string; url: string; date: string }[] {

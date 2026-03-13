@@ -20,9 +20,8 @@ import { useLocale } from "./LocaleProvider";
 import { ProfileSetupModal, shouldShowProfileSetup } from "./ProfileSetupModal";
 import { ContentCard } from "./ContentCard";
 import { ScrollableCarousel } from "./ScrollableCarousel";
-import { getSortedAiNews } from "@/lib/aiNews";
 
-type SondakikaItem = { titleKey?: string; title?: string; url: string; date: string };
+type SondakikaItem = { title?: string; url: string; date: string };
 const REFRESH_NEWS_MS = 5 * 60 * 1000;
 import { isSearchViolation, sanitizeSearchInput, SAFE_SEARCH_ALTERNATIVES } from "@/lib/searchGuard";
 import { getWatchHistory } from "@/lib/engagement";
@@ -378,8 +377,7 @@ export function HomePage() {
     [videos, shortsList, enlerFallback, videoListFallback, musicList, animasyonList, logoTasarimList]
   );
 
-  const staticNews: SondakikaItem[] = getSortedAiNews().map((n) => ({ titleKey: n.titleKey, url: n.url, date: n.date }));
-  const [sondakikaHaberler, setSondakikaHaberler] = useState<SondakikaItem[]>(staticNews);
+  const [sondakikaHaberler, setSondakikaHaberler] = useState<SondakikaItem[]>([]);
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -653,7 +651,9 @@ export function HomePage() {
                   <span className="shrink-0 text-white/60 text-xs tabular-nums">
                     {haber.date.split("-")[2]} {t(`home.month${parseInt(haber.date.split("-")[1], 10)}`)} {haber.date.split("-")[0]}
                   </span>
-                  <span className="truncate max-w-[200px] sm:max-w-[300px]">{haber.title ?? (haber.titleKey ? t(haber.titleKey) : "")}</span>
+                  <span className="truncate max-w-[200px] sm:max-w-[300px]">
+                    {haber.title}
+                  </span>
                 </a>
               ))}
             </div>

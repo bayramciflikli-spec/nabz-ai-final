@@ -47,8 +47,15 @@ export function HomePage() {
   const [attemptedForbidden, setAttemptedForbidden] = useState(false);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [listening, setListening] = useState(false);
+  const [micError, setMicError] = useState<string | null>(null);
   const longPressTimerRef = useRef<number | null>(null);
   const longPressFiredRef = useRef(false);
+
+  useEffect(() => {
+    if (!micError) return;
+    const t = setTimeout(() => setMicError(null), 5000);
+    return () => clearTimeout(t);
+  }, [micError]);
 
   const searchViolation = isSearchViolation(searchQuery);
 
@@ -118,13 +125,18 @@ export function HomePage() {
 
   const startVoiceSearch = async () => {
     if (typeof window === "undefined") return;
+    setMicError(null);
     const SR: any = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SR) return;
+    if (!SR) {
+      setMicError("Bu tarayıcı sesli aramayı desteklemiyor.");
+      return;
+    }
     if (listening) return;
     try {
       setListening(true);
-      // Trigger permission prompt
-      await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Önce mikrofon izni iste; yoksa tarayıcı penceresi açılır
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((t) => t.stop());
       const recognition = new SR();
       recognition.lang = "tr-TR";
       recognition.interimResults = true;
@@ -145,15 +157,22 @@ export function HomePage() {
           }
         }
       };
-      recognition.onerror = () => {
-        setListening(false);
+      recognition.onerror = (e: any) => {
+        if (e?.error !== "aborted") setListening(false);
       };
       recognition.onend = () => {
         setListening(false);
       };
       recognition.start();
-    } catch {
+    } catch (e: any) {
       setListening(false);
+      if (e?.name === "NotAllowedError" || e?.message?.toLowerCase().includes("permission")) {
+        setMicError("Mikrofon izni gerekli. Lütfen izin verin ve tekrar deneyin.");
+      } else if (e?.name === "NotFoundError") {
+        setMicError("Mikrofon bulunamadı.");
+      } else {
+        setMicError("Mikrofon açılamadı. Tarayıcı ayarlarından mikrofonu etkinleştirin.");
+      }
     }
   };
 
@@ -368,8 +387,8 @@ export function HomePage() {
             </span>
             <span className="font-['Orbitron'] font-black text-sm sm:text-base text-white leading-none">NABZ-AI</span>
           </Link>
-          <div ref={searchRef} className="flex-1 flex items-center justify-center min-w-0 relative">
-            <form onSubmit={handleSearch} className="relative flex items-center gap-2 w-full max-w-[520px] sm:max-w-2xl">
+          <div ref={searchRef} className="flex-1 flex items-center justify-center min-w-0 relative px-1 sm:px-2">
+            <form onSubmit={handleSearch} className="relative flex items-center gap-2 w-full min-w-[140px] max-w-[520px] sm:max-w-2xl">
               <div className="relative flex-1 min-w-0">
                 <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/45" />
                 <input
@@ -401,15 +420,22 @@ export function HomePage() {
                   aria-autocomplete="list"
                 />
               </div>
-              <button
-                type="button"
-                onClick={startVoiceSearch}
-                className={`p-2.5 sm:p-3 rounded-full bg-black/60 border border-white/20 hover:bg-white/10 active:scale-95 transition-all duration-200 shrink-0 ${listening ? "ring-2 ring-red-500/30 border-red-500/40" : ""}`}
-                aria-label="Sesli arama"
-                title="Sesli arama"
-              >
-                <Mic size={20} className={listening ? "text-red-300" : "text-white/80"} />
-              </button>
+              <div className="relative shrink-0">
+                <button
+                  type="button"
+                  onClick={startVoiceSearch}
+                  className={`p-2.5 sm:p-3 rounded-full bg-black/60 border border-white/20 hover:bg-white/10 active:scale-95 transition-all duration-200 ${listening ? "ring-2 ring-red-500/30 border-red-500/40" : ""}`}
+                  aria-label="Sesli arama"
+                  title={micError || "Sesli arama (mikrofon izni gerekir)"}
+                >
+                  <Mic size={20} className={listening ? "text-red-300" : "text-white/80"} />
+                </button>
+                {micError && (
+                  <div className="absolute top-full right-0 mt-1 px-2 py-1.5 rounded-lg bg-red-500/20 border border-red-500/40 text-red-200 text-xs max-w-[220px] z-50 shadow-lg">
+                    {micError}
+                  </div>
+                )}
+              </div>
             </form>
             {suggestionsOpen && (attemptedForbidden || searchQuery.trim() || searchHistory.length > 0) && (
               <div className="absolute top-full left-0 right-0 sm:left-auto sm:right-auto sm:min-w-[320px] mt-1 py-2 bg-black/95 border border-white/20 rounded-xl shadow-2xl z-50 overflow-hidden max-h-64 sm:max-h-80 overflow-y-auto">

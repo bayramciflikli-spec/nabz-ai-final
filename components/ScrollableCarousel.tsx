@@ -29,21 +29,6 @@ export function ScrollableCarousel({
   const lastScrollRef = useRef(0);
   const mouseXRef = useRef<number | null>(null);
   const isHoveredRef = useRef(false);
-  const hoverIdleTimeoutRef = useRef<number | null>(null);
-
-  const startHoverPause = useCallback((clientX: number | null) => {
-    isHoveredRef.current = true;
-    if (clientX !== null) mouseXRef.current = clientX;
-    if (hoverIdleTimeoutRef.current !== null) {
-      window.clearTimeout(hoverIdleTimeoutRef.current);
-    }
-    // 7 saniye boyunca kullanıcı dokunmazsa otomatik akış tekrar başlasın
-    hoverIdleTimeoutRef.current = window.setTimeout(() => {
-      isHoveredRef.current = false;
-      mouseXRef.current = null;
-      hoverIdleTimeoutRef.current = null;
-    }, 7000);
-  }, []);
 
   // Mouse pozisyonuna göre kayma + otomatik kayma
   useEffect(() => {
@@ -61,8 +46,22 @@ export function ScrollableCarousel({
           const half = el.scrollWidth / 2;
           let scrollDelta = 0;
 
-          // Hover / etkileşim sırasında otomatik kaymayı durdur (kullanıcı rahat okusun)
-          if (!isHoveredRef.current) {
+          if (isHoveredRef.current && mouseXRef.current !== null) {
+            // Eski davranış: mouse pozisyonuna göre sağ/sol hızlandır
+            const rect = el.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const relX = mouseXRef.current - centerX;
+            const zoneWidth = rect.width / 3;
+            const hoverSpeedMult = 3.0; // eskisine göre bir tık daha hızlı
+            if (relX > zoneWidth) {
+              scrollDelta = -speed * dt * hoverSpeedMult * Math.min(1, (relX - zoneWidth) / zoneWidth);
+            } else if (relX < -zoneWidth) {
+              scrollDelta = speed * dt * hoverSpeedMult * Math.min(1, (-zoneWidth - relX) / zoneWidth);
+            } else {
+              scrollDelta = (relX > 0 ? -1 : 1) * speed * dt * 0.55;
+            }
+          } else {
+            // Hover yoksa sabit hızda otomatik sağa kay
             scrollDelta = speed * dt;
           }
 
@@ -161,30 +160,17 @@ export function ScrollableCarousel({
       onMouseDown={handleMouseDown}
       onMouseUp={() => setIsDragging(false)}
       onMouseEnter={(e) => {
-        startHoverPause(e.clientX);
+        isHoveredRef.current = true;
+        mouseXRef.current = e.clientX;
       }}
       onMouseMove={(e) => {
-        startHoverPause(e.clientX);
+        if (!isDraggingRef.current && !isTouchDraggingRef.current) {
+          mouseXRef.current = e.clientX;
+        }
       }}
       onMouseLeave={() => {
         isHoveredRef.current = false;
         mouseXRef.current = null;
-        if (hoverIdleTimeoutRef.current !== null) {
-          window.clearTimeout(hoverIdleTimeoutRef.current);
-          hoverIdleTimeoutRef.current = null;
-        }
-      }}
-      onWheel={(e) => {
-        const el = scrollRef.current;
-        if (!el) return;
-        if (e.deltaY === 0) return;
-        e.preventDefault();
-        const half = el.scrollWidth / 2;
-        let next = el.scrollLeft + e.deltaY;
-        next = ((next % half) + half) % half;
-        el.scrollLeft = next;
-        lastScrollRef.current = next;
-        startHoverPause(e.clientX);
       }}
       onClickCapture={handleClick}
       onTouchStart={handleTouchStart}

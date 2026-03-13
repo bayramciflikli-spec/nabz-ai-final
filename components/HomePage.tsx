@@ -14,18 +14,20 @@ import { SECTION_APPS } from "@/lib/sectionApps";
 import { Sidebar } from "./Sidebar";
 import { SectionHeader } from "./SectionHeader";
 import { AIBackground } from "./AIBackground";
-import { Search, Video } from "lucide-react";
+import { Mic, Search, Video } from "lucide-react";
 import { UserMenu } from "./UserMenu";
 import { NotificationBell } from "./NotificationBell";
 import { useLocale } from "./LocaleProvider";
 import { ProfileSetupModal, shouldShowProfileSetup } from "./ProfileSetupModal";
 import { ContentCard } from "./ContentCard";
 import { ScrollableCarousel } from "./ScrollableCarousel";
-import { useSearchOverlay } from "./SearchOverlayContext";
 import { getSortedAiNews } from "@/lib/aiNews";
 import { isSearchViolation, sanitizeSearchInput, SAFE_SEARCH_ALTERNATIVES } from "@/lib/searchGuard";
 import { getWatchHistory } from "@/lib/engagement";
 import { isAdmin } from "@/lib/isAdmin";
+
+const SEARCH_HISTORY_KEY = "nabz.searchHistory.v1";
+const SEARCH_HISTORY_MAX = 20;
 
 export function HomePage() {
   const { t } = useLocale();
@@ -42,10 +44,48 @@ export function HomePage() {
   const [searchLoading, setSearchLoading] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const { open: openSearchOverlay } = useSearchOverlay();
   const [attemptedForbidden, setAttemptedForbidden] = useState(false);
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [listening, setListening] = useState(false);
+  const longPressTimerRef = useRef<number | null>(null);
+  const longPressFiredRef = useRef(false);
 
   const searchViolation = isSearchViolation(searchQuery);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem(SEARCH_HISTORY_KEY);
+      const parsed = raw ? (JSON.parse(raw) as unknown) : [];
+      if (Array.isArray(parsed)) {
+        setSearchHistory(parsed.filter((x) => typeof x === "string" && x.trim()).slice(0, SEARCH_HISTORY_MAX));
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const persistHistory = (next: string[]) => {
+    setSearchHistory(next);
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(next));
+    } catch {
+      // ignore
+    }
+  };
+
+  const addToHistory = (q: string) => {
+    const value = q.trim();
+    if (!value) return;
+    const next = [value, ...searchHistory.filter((x) => x !== value)].slice(0, SEARCH_HISTORY_MAX);
+    persistHistory(next);
+  };
+
+  const removeFromHistory = (q: string) => {
+    const next = searchHistory.filter((x) => x !== q);
+    persistHistory(next);
+  };
 
   const handleSearchInputChange = (next: string) => {
     if (isSearchViolation(next)) {
@@ -63,6 +103,7 @@ export function HomePage() {
     const q = searchQuery.trim();
     if (q && !searchViolation) {
       setSuggestionsOpen(false);
+      addToHistory(q);
       router.push(`/search?q=${encodeURIComponent(q)}`);
     }
   };
@@ -71,7 +112,49 @@ export function HomePage() {
     setSearchQuery(s);
     setSuggestionsOpen(false);
     setAttemptedForbidden(false);
+    addToHistory(s);
     router.push(`/search?q=${encodeURIComponent(s)}`);
+  };
+
+  const startVoiceSearch = async () => {
+    if (typeof window === "undefined") return;
+    const SR: any = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SR) return;
+    if (listening) return;
+    try {
+      setListening(true);
+      // Trigger permission prompt
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recognition = new SR();
+      recognition.lang = "tr-TR";
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+      recognition.onresult = (event: any) => {
+        const last = event.results?.[event.results.length - 1];
+        const text = last?.[0]?.transcript ?? "";
+        if (text) {
+          handleSearchInputChange(text);
+          if (last?.isFinal) {
+            const final = text.trim();
+            if (final && !isSearchViolation(final)) {
+              setSearchQuery(final);
+              addToHistory(final);
+              setSuggestionsOpen(false);
+              router.push(`/search?q=${encodeURIComponent(final)}`);
+            }
+          }
+        }
+      };
+      recognition.onerror = () => {
+        setListening(false);
+      };
+      recognition.onend = () => {
+        setListening(false);
+      };
+      recognition.start();
+    } catch {
+      setListening(false);
+    }
   };
 
   useEffect(() => {
@@ -277,7 +360,7 @@ export function HomePage() {
       </div>
 
       <div className="relative z-10 flex-1 min-w-0 sm:ml-56 flex flex-col min-h-screen text-white">
-        {/* Header: logo (oval) + sadece NABZ-AI */}
+        {/* Header: YouTube tarzı arama */}
         <header className="h-14 sm:h-16 px-3 sm:px-6 flex items-center gap-2 sm:gap-4 border-b border-white/10 shrink-0">
           <Link href="/" className="flex flex-col items-center gap-1 shrink-0 hover:opacity-90 transition-opacity">
             <span className="overflow-hidden shrink-0 w-11 h-9 sm:w-14 sm:h-11 flex items-center justify-center bg-black/40" style={{ borderRadius: "50%" }}>
@@ -285,53 +368,50 @@ export function HomePage() {
             </span>
             <span className="font-['Orbitron'] font-black text-sm sm:text-base text-white leading-none">NABZ-AI</span>
           </Link>
-          <div ref={searchRef} className="flex-1 flex items-center justify-center min-w-0 relative max-w-md sm:ml-64">
-            <form onSubmit={handleSearch} className="relative flex items-center gap-2 w-full max-w-[180px] sm:max-w-xs">
-              <input
-                type="text"
-                placeholder={t("home.searchShort")}
-                value={searchQuery}
-                onChange={(e) => handleSearchInputChange(e.target.value)}
-                onPaste={(e) => {
-                  e.preventDefault();
-                  const pasted = e.clipboardData.getData("text");
-                  const sanitized = sanitizeSearchInput(pasted);
-                  if (sanitized) {
-                    setSearchQuery(sanitized);
-                    setAttemptedForbidden(false);
-                    setSuggestionsOpen(true);
-                  } else {
-                    setAttemptedForbidden(true);
-                    setSuggestionsOpen(true);
-                  }
-                }}
-                onFocus={() => searchQuery && setSuggestionsOpen(true)}
-                className={`w-full min-w-0 bg-black/60 border px-4 py-2 rounded-lg text-sm text-white placeholder:text-white/50 outline-none focus:ring-2 transition-all duration-200 ${
-                  searchViolation
-                    ? "border-red-500/80 focus:border-red-500 focus:ring-red-500/20 shadow-[0_0_20px_rgba(255,0,60,0.2)]"
-                    : "border-white/20 focus:border-red-500/50 focus:ring-red-500/20"
-                }`}
-                aria-label="Arama"
-                aria-expanded={suggestionsOpen}
-                aria-autocomplete="list"
-              />
-              <button
-                type="submit"
-                className="p-2 rounded-full bg-black/60 border border-white/20 hover:bg-white/10 active:scale-95 transition-all duration-200 shrink-0"
-                aria-label={t("home.searchShort")}
-              >
-                <Search size={20} className="text-white/80" />
-              </button>
+          <div ref={searchRef} className="flex-1 flex items-center justify-center min-w-0 relative">
+            <form onSubmit={handleSearch} className="relative flex items-center gap-2 w-full max-w-[520px] sm:max-w-2xl">
+              <div className="relative flex-1 min-w-0">
+                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/45" />
+                <input
+                  type="text"
+                  placeholder={t("home.searchShort")}
+                  value={searchQuery}
+                  onChange={(e) => handleSearchInputChange(e.target.value)}
+                  onPaste={(e) => {
+                    e.preventDefault();
+                    const pasted = e.clipboardData.getData("text");
+                    const sanitized = sanitizeSearchInput(pasted);
+                    if (sanitized) {
+                      setSearchQuery(sanitized);
+                      setAttemptedForbidden(false);
+                      setSuggestionsOpen(true);
+                    } else {
+                      setAttemptedForbidden(true);
+                      setSuggestionsOpen(true);
+                    }
+                  }}
+                  onFocus={() => setSuggestionsOpen(true)}
+                  className={`w-full min-w-0 bg-black/60 border pl-10 pr-4 py-2.5 sm:py-3 rounded-2xl text-sm sm:text-base text-white placeholder:text-white/45 outline-none focus:ring-2 transition-all duration-200 ${
+                    searchViolation
+                      ? "border-red-500/80 focus:border-red-500 focus:ring-red-500/20 shadow-[0_0_20px_rgba(255,0,60,0.2)]"
+                      : "border-white/20 focus:border-red-500/50 focus:ring-red-500/20"
+                  }`}
+                  aria-label="Arama"
+                  aria-expanded={suggestionsOpen}
+                  aria-autocomplete="list"
+                />
+              </div>
               <button
                 type="button"
-                onClick={openSearchOverlay}
-                className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] text-white/50 hover:text-white/80 hover:bg-white/10 transition-colors shrink-0"
-                title="Global arama (⌘K)"
+                onClick={startVoiceSearch}
+                className={`p-2.5 sm:p-3 rounded-full bg-black/60 border border-white/20 hover:bg-white/10 active:scale-95 transition-all duration-200 shrink-0 ${listening ? "ring-2 ring-red-500/30 border-red-500/40" : ""}`}
+                aria-label="Sesli arama"
+                title="Sesli arama"
               >
-                ⌘K
+                <Mic size={20} className={listening ? "text-red-300" : "text-white/80"} />
               </button>
             </form>
-            {suggestionsOpen && (attemptedForbidden || (searchQuery.trim() && !searchViolation)) && (
+            {suggestionsOpen && (attemptedForbidden || searchQuery.trim() || searchHistory.length > 0) && (
               <div className="absolute top-full left-0 right-0 sm:left-auto sm:right-auto sm:min-w-[320px] mt-1 py-2 bg-black/95 border border-white/20 rounded-xl shadow-2xl z-50 overflow-hidden max-h-64 sm:max-h-80 overflow-y-auto">
                 {attemptedForbidden ? (
                   <div className="px-2 pb-2">
@@ -345,6 +425,41 @@ export function HomePage() {
                       >
                         <Search size={14} className="text-white/40 shrink-0" />
                         {s}
+                      </button>
+                    ))}
+                  </div>
+                ) : !searchQuery.trim() && searchHistory.length > 0 ? (
+                  <div className="px-2 pb-2">
+                    <p className="text-[10px] text-white/50 uppercase font-bold px-3 py-1.5">Geçmiş</p>
+                    {searchHistory.map((h) => (
+                      <button
+                        key={h}
+                        type="button"
+                        onPointerDown={() => {
+                          longPressFiredRef.current = false;
+                          if (longPressTimerRef.current) window.clearTimeout(longPressTimerRef.current);
+                          longPressTimerRef.current = window.setTimeout(() => {
+                            longPressFiredRef.current = true;
+                            removeFromHistory(h);
+                          }, 650);
+                        }}
+                        onPointerUp={() => {
+                          if (longPressTimerRef.current) window.clearTimeout(longPressTimerRef.current);
+                          longPressTimerRef.current = null;
+                        }}
+                        onPointerCancel={() => {
+                          if (longPressTimerRef.current) window.clearTimeout(longPressTimerRef.current);
+                          longPressTimerRef.current = null;
+                        }}
+                        onClick={() => {
+                          if (longPressFiredRef.current) return;
+                          selectSuggestion(h);
+                        }}
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-white/10 rounded-lg flex items-center gap-2"
+                        title="Basılı tut: sil"
+                      >
+                        <Search size={14} className="text-white/40 shrink-0" />
+                        <span className="truncate">{h}</span>
                       </button>
                     ))}
                   </div>

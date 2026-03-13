@@ -87,7 +87,7 @@ body {
   100% { transform: translateX(-50%); }
 }
 .animate-sondakika-scroll {
-  animation: sondakika-scroll 90s linear infinite;
+  animation: sondakika-scroll 140s linear infinite;
 }
 
 @keyframes landing-pulse {

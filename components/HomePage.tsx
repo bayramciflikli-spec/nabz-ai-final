@@ -629,6 +629,7 @@ export function HomePage() {
                   rel="noopener noreferrer"
                   className="px-4 py-2 text-sm text-white/90 flex items-center gap-3 shrink-0 whitespace-nowrap hover:bg-white/5 transition-colors"
                   onClick={(e) => e.stopPropagation()}
+                  title={haber.title}
                 >
                   <span className="shrink-0 px-2 py-0.5 rounded bg-red-500/80 text-xs font-bold text-white">
                     {t("home.breakingNews")}

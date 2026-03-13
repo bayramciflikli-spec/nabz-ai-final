@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 
-// Son 24 saatlik AI haberleri (Google News)
+// Son 7 gün içindeki AI haberleri (Google News)
 const RSS_URL =
-  "https://news.google.com/rss/search?q=yapay+zeka+OR+%22artificial+intelligence%22+when:1d&hl=tr&gl=TR&ceid=TR:tr";
+  "https://news.google.com/rss/search?q=yapay+zeka+OR+%22artificial+intelligence%22+when:7d&hl=tr&gl=TR&ceid=TR:tr";
 const CACHE_MAX_AGE = 120; // 2 dakika
 const FALLBACK_ITEMS = [
   {
@@ -23,17 +23,28 @@ function parseRssItems(xml: string): { title: string; url: string; date: string 
     const pubMatch = block.match(/<pubDate>(.*?)<\/pubDate>/i);
     const title = titleMatch ? decodeEntities(titleMatch[1].trim()) : "";
     const link = linkMatch ? linkMatch[1].trim() : "";
-    let date = new Date().toISOString().slice(0, 10);
+    let dateIso = new Date().toISOString();
     if (pubMatch) {
       try {
-        date = new Date(pubMatch[1].trim()).toISOString().slice(0, 10);
+        dateIso = new Date(pubMatch[1].trim()).toISOString();
       } catch {
         // keep default
       }
     }
-    if (title && link) items.push({ title, url: link, date });
+    if (title && link) items.push({ title, url: link, date: dateIso });
   }
-  return items.slice(0, 20);
+  const now = Date.now();
+  const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+  const fresh = items
+    .filter((i) => {
+      const t = Date.parse(i.date);
+      return !Number.isNaN(t) && now - t <= sevenDaysMs;
+    })
+    .map((i) => ({
+      ...i,
+      date: new Date(i.date).toISOString().slice(0, 10),
+    }));
+  return fresh.slice(0, 20);
 }
 
 function decodeEntities(s: string): string {

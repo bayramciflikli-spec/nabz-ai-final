@@ -25,12 +25,12 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
-      { url: "/logo.png", type: "image/png", sizes: "any" },
-      { url: "/logo.png", type: "image/png", sizes: "192x192" },
-      { url: "/logo.png", type: "image/png", sizes: "512x512" },
+      { url: "/api/pwa-icon/32", type: "image/png", sizes: "32x32" },
+      { url: "/api/pwa-icon/192", type: "image/png", sizes: "192x192" },
+      { url: "/api/pwa-icon/512", type: "image/png", sizes: "512x512" },
     ],
     apple: [
-      { url: "/logo.png", type: "image/png", sizes: "180x180" },
+      { url: "/api/pwa-icon/180", type: "image/png", sizes: "180x180" },
     ],
   },
 };

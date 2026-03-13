@@ -41,7 +41,7 @@ export function ScrollableCarousel({
     hoverIdleTimeoutRef.current = window.setTimeout(() => {
       isHoveredRef.current = false;
       mouseXRef.current = null;
-      hoverIdleTimeoutRef.current.current = null;
+      hoverIdleTimeoutRef.current = null;
     }, 7000);
   }, []);
 

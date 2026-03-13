@@ -22,6 +22,9 @@ import { ProfileSetupModal, shouldShowProfileSetup } from "./ProfileSetupModal";
 import { ContentCard } from "./ContentCard";
 import { ScrollableCarousel } from "./ScrollableCarousel";
 import { getSortedAiNews } from "@/lib/aiNews";
+
+type SondakikaItem = { titleKey?: string; title?: string; url: string; date: string };
+const REFRESH_NEWS_MS = 5 * 60 * 1000;
 import { isSearchViolation, sanitizeSearchInput, SAFE_SEARCH_ALTERNATIVES } from "@/lib/searchGuard";
 import { getWatchHistory } from "@/lib/engagement";
 import { isAdmin } from "@/lib/isAdmin";
@@ -363,7 +366,26 @@ export function HomePage() {
 
   const shortsList = (filteredByCategory.shorts?.length ?? 0) > 0 ? filteredByCategory.shorts.map(toCard) : videos;
 
-  const sondakikaHaberler = getSortedAiNews();
+  const staticNews: SondakikaItem[] = getSortedAiNews().map((n) => ({ titleKey: n.titleKey, url: n.url, date: n.date }));
+  const [sondakikaHaberler, setSondakikaHaberler] = useState<SondakikaItem[]>(staticNews);
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const res = await fetch("/api/ai-news");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          setSondakikaHaberler(data.map((n: { title: string; url: string; date: string }) => ({ title: n.title, url: n.url, date: n.date })));
+        }
+      } catch {
+        // fallback: keep static
+      }
+    };
+    fetchNews();
+    const id = setInterval(fetchNews, REFRESH_NEWS_MS);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <div className="relative flex min-h-screen min-w-full overflow-hidden">
@@ -619,7 +641,7 @@ export function HomePage() {
                   <span className="shrink-0 text-white/60 text-xs tabular-nums">
                     {haber.date.split("-")[2]} {t(`home.month${parseInt(haber.date.split("-")[1], 10)}`)} {haber.date.split("-")[0]}
                   </span>
-                  <span className="truncate max-w-[200px] sm:max-w-[300px]">{t(haber.titleKey)}</span>
+                  <span className="truncate max-w-[200px] sm:max-w-[300px]">{haber.title ?? (haber.titleKey ? t(haber.titleKey) : "")}</span>
                 </a>
               ))}
             </div>

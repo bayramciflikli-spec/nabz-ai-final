@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readFile } from "fs/promises";
 import path from "path";
-import sharp from "sharp";
 
 const SIZES = [32, 72, 96, 128, 144, 180, 192, 384, 512] as const;
 type Size = (typeof SIZES)[number];
@@ -15,7 +14,7 @@ function isSize(s: string): s is string & `${Size}` {
  * Mobil ve masaüstü ana ekrana eklendiğinde bu ikon kullanılır.
  */
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ size: string }> }
 ) {
   try {
@@ -59,11 +58,18 @@ export async function GET(
   <text x="${cx}" y="${textY}" text-anchor="middle" fill="white" font-family="Arial Black, Arial, sans-serif" font-size="${Math.max(14, Math.floor(size * 0.09))}" font-weight="900" letter-spacing="0.05em">NABZ-AI</text>
 </svg>`;
 
+    let sharp: typeof import("sharp").default;
+    try {
+      sharp = (await import("sharp")).default;
+    } catch {
+      return NextResponse.redirect(new URL("/logo.png", request.url), 302);
+    }
+
     const png = await sharp(Buffer.from(svg))
       .png()
       .toBuffer();
 
-    return new NextResponse(png, {
+    return new NextResponse(new Uint8Array(png), {
       headers: {
         "Content-Type": "image/png",
         "Cache-Control": "public, max-age=86400, immutable",
@@ -71,6 +77,10 @@ export async function GET(
     });
   } catch (e) {
     console.error("PWA icon error:", e);
-    return NextResponse.json({ error: "İkon oluşturulamadı" }, { status: 500 });
+    try {
+      return NextResponse.redirect(new URL("/logo.png", request.url), 302);
+    } catch {
+      return NextResponse.json({ error: "İkon oluşturulamadı" }, { status: 500 });
+    }
   }
 }

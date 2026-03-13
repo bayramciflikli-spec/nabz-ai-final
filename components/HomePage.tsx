@@ -277,14 +277,13 @@ export function HomePage() {
       </div>
 
       <div className="relative z-10 flex-1 min-w-0 sm:ml-56 flex flex-col min-h-screen text-white">
-        {/* Header */}
+        {/* Header: logo (oval) + sadece NABZ-AI */}
         <header className="h-14 sm:h-16 px-3 sm:px-6 flex items-center gap-2 sm:gap-4 border-b border-white/10 shrink-0">
-          <Link href="/" className="font-['Orbitron'] font-black text-lg sm:text-xl relative shrink-0 hover:opacity-90 transition-opacity">
-            NABZ-AI
-            <span
-              className="absolute -bottom-1 left-0 w-full h-0.5 bg-red-500"
-              style={{ boxShadow: "0 0 8px #ff0000" }}
-            />
+          <Link href="/" className="flex flex-col items-center gap-1 shrink-0 hover:opacity-90 transition-opacity">
+            <span className="overflow-hidden shrink-0 w-11 h-9 sm:w-14 sm:h-11 flex items-center justify-center bg-black/40" style={{ borderRadius: "50%" }}>
+              <img src="/logo.png" alt="" className="w-full h-full object-contain mix-blend-screen" />
+            </span>
+            <span className="font-['Orbitron'] font-black text-sm sm:text-base text-white leading-none">NABZ-AI</span>
           </Link>
           <div ref={searchRef} className="flex-1 flex items-center justify-center min-w-0 relative max-w-md sm:ml-64">
             <form onSubmit={handleSearch} className="relative flex items-center gap-2 w-full max-w-[180px] sm:max-w-xs">

@@ -14,13 +14,17 @@ export interface CategoryTab {
 }
 
 export const CATEGORY_TABS: CategoryTab[] = [
-  { labelKey: "category.haberAI", query: "AI haber yapay zeka güncel" },
-  { labelKey: "category.eglenceAI", query: "AI eğlence yapay zeka video güncel" },
-  { labelKey: "category.egitimAI", query: "AI eğitim yapay zeka öğrenme güncel" },
-  { labelKey: "category.sporAI", query: "AI spor yapay zeka güncel" },
-  { labelKey: "category.teknoAI", query: "AI teknoloji yapay zeka güncel" },
-  { labelKey: "category.muzikAI", query: "AI müzik yapay zeka güncel" },
-  { labelKey: "category.sanatAI", query: "AI sanat yapay zeka güncel" },
+  { labelKey: "category.haberAI", query: "AI haber yapay zeka gündem son gelişmeler" },
+  { labelKey: "category.egitimAI", query: "AI eğitim öğretmen öğrenci öğrenme ders çalışma" },
+  { labelKey: "category.isKariyerAI", query: "AI iş kariyer cv özgeçmiş iş başvurusu ofis işi" },
+  { labelKey: "category.uretkenlikAI", query: "AI üretkenlik not alma e-posta toplantı özet otomasyon" },
+  { labelKey: "category.videoAI", query: "AI video üretim montaj youtube reels shorts altyazı" },
+  { labelKey: "category.muzikAI", query: "AI müzik şarkı vokal mastering ses tasarımı" },
+  { labelKey: "category.sanatAI", query: "AI görsel sanat resim logo kapak tasarım illüstrasyon" },
+  { labelKey: "category.oyunAI", query: "AI game oyun yayın twitch overlay taktik koç" },
+  { labelKey: "category.sosyalMedyaAI", query: "AI sosyal medya içerik instagram tiktok twitter youtube" },
+  { labelKey: "category.saglikSporAI", query: "AI sağlık fitness spor antrenman beslenme uyku koç" },
+  { labelKey: "category.araclarAI", query: "AI araçlar çeviri özet pdf okuma metin düzeltme tablo analiz" },
 ];
 
 /** Tarayıcıda en güncel sonuçları bulmak için arama URL'i */

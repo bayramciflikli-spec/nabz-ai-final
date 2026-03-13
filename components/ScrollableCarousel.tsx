@@ -148,6 +148,17 @@ export function ScrollableCarousel({
       onMouseEnter={(e) => { isHoveredRef.current = true; mouseXRef.current = e.clientX; }}
       onMouseMove={(e) => { mouseXRef.current = e.clientX; }}
       onMouseLeave={() => { isHoveredRef.current = false; mouseXRef.current = null; }}
+      onScroll={(e) => {
+        const el = e.currentTarget;
+        const maxScroll = el.scrollWidth - el.clientWidth;
+        if (maxScroll > 0) {
+          const half = el.scrollWidth / 2;
+          let current = el.scrollLeft;
+          // normalize to looping range
+          current = ((current % half) + half) % half;
+          lastScrollRef.current = current;
+        }
+      }}
       onClickCapture={handleClick}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}

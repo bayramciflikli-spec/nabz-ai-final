@@ -9,6 +9,7 @@ import { searchAitube } from "@/lib/searchAitube";
 import { getInstantSuggestions } from "@/lib/searchUtils";
 import { fetchTrendingContent, fetchNewContent, fetchByCategory, applyLegalFilter, fetchRecommendedForUser } from "@/lib/contentDiscovery";
 import type { DiscoverProject } from "@/lib/contentDiscovery";
+import { CATEGORY_TABS, getCategorySearchUrl } from "@/lib/categoryTabs";
 import { CATEGORY_SECTIONS } from "@/lib/categorySections";
 import { Sidebar } from "./Sidebar";
 import { AIBackground } from "./AIBackground";

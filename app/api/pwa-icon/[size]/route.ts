@@ -24,7 +24,7 @@ export async function GET(
       return NextResponse.json({ error: "Geçersiz boyut" }, { status: 400 });
     }
 
-    const logoPath = path.join(process.cwd(), "public", "logo.png");
+    const logoPath = path.join(process.cwd(), "public", "nabz-ai-logo.png");
     let logoBase64: string;
     try {
       const logoBuffer = await readFile(logoPath);
@@ -35,34 +35,42 @@ export async function GET(
 
     const w = size;
     const h = size;
-    const cx = w / 2;
-    const cy = Math.floor(h * 0.38);
-    const rx = Math.floor(w * 0.38);
-    const ry = Math.floor(h * 0.28);
+    // Maskable safe zone: içerik merkezin %80'inde (Android/iOS maskesinde kesilmez)
+    const safe = 0.8;
+    const pad = (1 - safe) / 2;
+    const vw = w;
+    const vh = h;
+    const cx = vw / 2;
+    const cy = Math.floor(vh * 0.38);
+    const rx = Math.floor(vw * 0.38);
+    const ry = Math.floor(vh * 0.28);
     const logoY = Math.floor(cy - ry - 4);
     const logoH = ry * 2 + 8;
     const logoW = Math.floor(logoH * (5.5 / 4));
-    const textY = Math.floor(cy + ry + (h * 0.22));
+    const textY = Math.floor(cy + ry + (vh * 0.22));
+    const fontSize = Math.max(14, Math.floor(size * 0.09));
 
     const svg = `
-<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-  <defs>
-    <clipPath id="oval">
-      <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"/>
-    </clipPath>
-  </defs>
+<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <rect width="${w}" height="${h}" fill="#0f172a"/>
-  <g clip-path="url(#oval)">
-    <image xlink:href="data:image/png;base64,${logoBase64}" href="data:image/png;base64,${logoBase64}" x="${cx - logoW / 2}" y="${logoY}" width="${logoW}" height="${logoH}" preserveAspectRatio="xMidYMid meet"/>
+  <g transform="translate(${w * pad}, ${h * pad}) scale(${safe})">
+    <defs>
+      <clipPath id="oval">
+        <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"/>
+      </clipPath>
+    </defs>
+    <g clip-path="url(#oval)">
+      <image xlink:href="data:image/png;base64,${logoBase64}" href="data:image/png;base64,${logoBase64}" x="${cx - logoW / 2}" y="${logoY}" width="${logoW}" height="${logoH}" preserveAspectRatio="xMidYMid meet"/>
+    </g>
+    <text x="${cx}" y="${textY}" text-anchor="middle" fill="white" font-family="Arial Black, Arial, sans-serif" font-size="${fontSize}" font-weight="900" letter-spacing="0.05em">NABZ-AI</text>
   </g>
-  <text x="${cx}" y="${textY}" text-anchor="middle" fill="white" font-family="Arial Black, Arial, sans-serif" font-size="${Math.max(14, Math.floor(size * 0.09))}" font-weight="900" letter-spacing="0.05em">NABZ-AI</text>
 </svg>`;
 
     let sharp: typeof import("sharp").default;
     try {
       sharp = (await import("sharp")).default;
     } catch {
-      return NextResponse.redirect(new URL("/logo.png", request.url), 302);
+      return NextResponse.redirect(new URL("/nabz-ai-logo.png", request.url), 302);
     }
 
     const png = await sharp(Buffer.from(svg))
@@ -78,7 +86,7 @@ export async function GET(
   } catch (e) {
     console.error("PWA icon error:", e);
     try {
-      return NextResponse.redirect(new URL("/logo.png", request.url), 302);
+      return NextResponse.redirect(new URL("/nabz-ai-logo.png", request.url), 302);
     } catch {
       return NextResponse.json({ error: "İkon oluşturulamadı" }, { status: 500 });
     }

@@ -7,6 +7,7 @@ const EN_KEYS = {
   "nav.create": "Create",
   "nav.library": "Library",
   "nav.profile": "Profile",
+  "nav.dream": "Dream",
   "nav.upload": "Upload Project",
   "nav.settings": "Settings",
   "nav.nabz": "Nabz",
@@ -184,7 +185,7 @@ type TrKeys = keyof typeof EN_KEYS;
 function trOverrides(): Partial<Record<TrKeys, string>> {
   return {
     "nav.home": "Ana Sayfa", "nav.search": "Ara", "nav.create": "Üret", "nav.library": "Kütüphane",
-    "nav.profile": "Profil", "nav.upload": "Proje Yükle", "nav.settings": "Ayarlar", "nav.nabz": "Nabız",
+    "nav.profile": "Profil", "nav.dream": "Hayal et", "nav.upload": "Proje Yükle", "nav.settings": "Ayarlar", "nav.nabz": "Nabız",
     "home.trending": "Trend", "home.new": "Yeni", "home.explore": "Keşfet",
     "home.recommended": "Sizin için önerilen",
     "home.searchPlaceholder": "Video, kanal ara...", "home.backToHome": "Ana Sayfaya Dön",

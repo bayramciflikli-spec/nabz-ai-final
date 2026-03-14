@@ -4,8 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Search, Plus, Library, User } from "lucide-react";
+import type { User as FirebaseUser } from "firebase/auth";
 import { useLocale } from "@/components/LocaleProvider";
 import { HayalEtPaylasModal } from "@/components/HayalEtPaylasModal";
+import { MobileProfileSheet } from "@/components/MobileProfileSheet";
 
 const navItemKeys = [
   { icon: Home, href: "/", labelKey: "nav.home" },
@@ -16,13 +18,14 @@ const navItemKeys = [
 ];
 
 interface MobileNavProps {
-  user?: { uid?: string } | null;
+  user?: FirebaseUser | null;
 }
 
 export const MobileNav = ({ user }: MobileNavProps) => {
   const pathname = usePathname();
   const { t } = useLocale();
   const [hayalModalOpen, setHayalModalOpen] = useState(false);
+  const [profileSheetOpen, setProfileSheetOpen] = useState(false);
   const isHome = pathname === "/";
 
   const navItems = navItemKeys.map((item) => ({ ...item, label: t(item.labelKey) }));
@@ -33,6 +36,7 @@ export const MobileNav = ({ user }: MobileNavProps) => {
   };
 
   const isActive = (item: (typeof navItems)[0]) => {
+    if (item.isProfile) return false;
     const href = getHref(item);
     if (item.href === "/" && !item.isProfile) return pathname === "/";
     if (item.href === "/search") return pathname === "/search" || pathname?.startsWith("/search");
@@ -87,6 +91,27 @@ export const MobileNav = ({ user }: MobileNavProps) => {
             );
           }
 
+          if (item.isProfile) {
+            return (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => setProfileSheetOpen(true)}
+                className="flex flex-col items-center justify-center flex-1 min-w-0 py-2 gap-0.5 rounded-lg transition-colors active:scale-95 text-gray-400 hover:text-white"
+                aria-label={item.label}
+              >
+                {user?.photoURL ? (
+                  <span className="w-8 h-8 rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-white/10 border border-white/20">
+                    <img src={user.photoURL} alt="" className="w-full h-full object-cover" />
+                  </span>
+                ) : (
+                  <Icon className="w-6 h-6 shrink-0" />
+                )}
+                <span className="text-[10px] font-medium truncate max-w-full px-0.5">{item.label}</span>
+              </button>
+            );
+          }
+
           return (
             <Link
               key={item.label}
@@ -104,6 +129,7 @@ export const MobileNav = ({ user }: MobileNavProps) => {
       </div>
 
       <HayalEtPaylasModal open={hayalModalOpen} onClose={() => setHayalModalOpen(false)} />
+      <MobileProfileSheet open={profileSheetOpen} onClose={() => setProfileSheetOpen(false)} user={user ?? null} />
     </>
   );
 };

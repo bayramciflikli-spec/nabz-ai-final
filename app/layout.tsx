@@ -25,11 +25,11 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
-      { url: "/nabz-ai-logo.png", type: "image/png", sizes: "192x192" },
-      { url: "/nabz-ai-logo.png", type: "image/png", sizes: "512x512" },
+      { url: "/nabz-ai-logo.png?v=2", type: "image/png", sizes: "192x192" },
+      { url: "/nabz-ai-logo.png?v=2", type: "image/png", sizes: "512x512" },
     ],
     apple: [
-      { url: "/nabz-ai-logo.png", type: "image/png", sizes: "180x180" },
+      { url: "/nabz-ai-logo.png?v=2", type: "image/png", sizes: "180x180" },
     ],
   },
 };

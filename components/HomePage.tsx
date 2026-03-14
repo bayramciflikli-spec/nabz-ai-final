@@ -679,7 +679,8 @@ export function HomePage() {
 
           {/* Kategori bölümleri: ana başlık + AI uygulama kısayolları + kayan içerik */}
           {CATEGORY_SECTIONS.map((cat, idx) => {
-            const list = contentBySource[cat.contentSource] ?? contentBySource.trending ?? [];
+            const sourceMap = contentBySource as Record<string, typeof contentBySource.trending>;
+            const list = sourceMap[cat.contentSource] ?? contentBySource.trending ?? [];
             const isShorts = cat.contentSource === "shorts";
             const ptClass = idx === 0 ? "pt-[60px] pb-1" : "pt-4 sm:pt-6 pb-1";
             return (

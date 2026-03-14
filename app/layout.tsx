@@ -19,23 +19,18 @@ import { PwaInstallBanner } from "@/components/PwaInstallBanner";
 import { BannedTermsLoader } from "@/components/BannedTermsLoader";
 import { ToastProvider } from "@/components/ToastContext";
 
-const appUrl =
-  process.env.NEXT_PUBLIC_APP_URL ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
-  "http://localhost:3000";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(appUrl),
   title: "Nabız - AI Video Platformu",
   description: "Kelimelerinizi saniyeler içinde sinematik videolara dönüştürün. Yapay zeka destekli video üretim platformu.",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
-      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
-      { url: "/icon-512.png", type: "image/png", sizes: "512x512" },
+      { url: "/api/pwa-icon/32", type: "image/png", sizes: "32x32" },
+      { url: "/api/pwa-icon/192", type: "image/png", sizes: "192x192" },
+      { url: "/api/pwa-icon/512", type: "image/png", sizes: "512x512" },
     ],
     apple: [
-      { url: "/apple-touch-icon.png", type: "image/png", sizes: "180x180" },
+      { url: "/api/pwa-icon/180", type: "image/png", sizes: "180x180" },
     ],
   },
 };

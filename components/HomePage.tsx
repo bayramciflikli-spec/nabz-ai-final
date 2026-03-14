@@ -361,62 +361,6 @@ export function HomePage() {
     commentsCount: (i + 1) * 2,
   }));
 
-  const sohbetList = filteredTrending.length > 0
-    ? filteredTrending.slice(0, 12).map((p) => ({
-        id: p.id,
-        title: p.title,
-        channel: p.authorName || t("home.channelStudio"),
-        likesCount: p.likedBy?.length ?? 0,
-        dislikesCount: p.dislikedBy?.length ?? 0,
-        commentsCount: 0,
-        imageUrl: p.imageUrl as string | undefined,
-      }))
-    : filteredNewContent.slice(0, 12).map((p) => ({
-        id: p.id,
-        title: p.title,
-        channel: p.authorName || t("home.channelStudio"),
-        likesCount: p.likedBy?.length ?? 0,
-        dislikesCount: p.dislikedBy?.length ?? 0,
-        commentsCount: 0,
-        imageUrl: p.imageUrl as string | undefined,
-      }));
-  const sohbetListFallback = sohbetList.length === 0 ? Array.from({ length: 8 }, (_, i) => ({
-    id: `sb${i + 1}`,
-    title: `${t("home.fallbackSohbet")} #${i + 1}`,
-    channel: t("home.channelStudio"),
-    likesCount: (i + 1) * 14,
-    dislikesCount: (i + 1) * 2,
-    commentsCount: (i + 1) * 3,
-  })) : sohbetList;
-
-  const digerList = filteredNewContent.length > 0
-    ? filteredNewContent.slice(0, 12).map((p) => ({
-        id: p.id,
-        title: p.title,
-        channel: p.authorName || t("home.channelStudio"),
-        likesCount: p.likedBy?.length ?? 0,
-        dislikesCount: p.dislikedBy?.length ?? 0,
-        commentsCount: 0,
-        imageUrl: p.imageUrl as string | undefined,
-      }))
-    : filteredTrending.slice(0, 12).map((p) => ({
-        id: p.id,
-        title: p.title,
-        channel: p.authorName || t("home.channelStudio"),
-        likesCount: p.likedBy?.length ?? 0,
-        dislikesCount: p.dislikedBy?.length ?? 0,
-        commentsCount: 0,
-        imageUrl: p.imageUrl as string | undefined,
-      }));
-  const digerListFallback = digerList.length === 0 ? Array.from({ length: 8 }, (_, i) => ({
-    id: `dg${i + 1}`,
-    title: `${t("home.fallbackDiger")} #${i + 1}`,
-    channel: t("home.channelStudio"),
-    likesCount: (i + 1) * 11,
-    dislikesCount: (i + 1) * 1,
-    commentsCount: (i + 1) * 2,
-  })) : digerList;
-
   const shortsList = (filteredByCategory.shorts?.length ?? 0) > 0 ? filteredByCategory.shorts.map(toCard) : videos;
 
   const contentBySource = useMemo(
@@ -461,11 +405,11 @@ export function HomePage() {
         />
       )}
       <AIBackground />
-      <div className="relative z-10 hidden lg:block">
+      <div className="relative z-10 hidden sm:block">
         <Sidebar user={user} />
       </div>
 
-      <div className="relative z-10 flex-1 min-w-0 lg:ml-56 flex flex-col min-h-screen text-white">
+      <div className="relative z-10 flex-1 min-w-0 sm:ml-56 flex flex-col min-h-screen text-white">
         {/* Header: YouTube tarzı arama */}
         <header className="h-14 sm:h-16 px-3 sm:px-6 flex items-center gap-2 sm:gap-4 border-b border-white/10 shrink-0">
           <Link href="/" className="flex flex-col items-center gap-1 shrink-0 hover:opacity-90 transition-opacity">
@@ -969,86 +913,6 @@ export function HomePage() {
                   dislikesCount={l.dislikesCount}
                   commentsCount={l.commentsCount}
                   imageUrl={(l as { imageUrl?: string }).imageUrl}
-                />
-              ))}
-            </ScrollableCarousel>
-          </section>
-
-          {/* Sohbet & Metin - Sol sidebar’daki sohbet uygulamaları burada */}
-          <section className="shrink-0">
-            <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-1">
-              <div className="flex flex-wrap items-center gap-3">
-                <h2 className="text-lg font-bold text-white/90">{t(SECTION_APPS[6].titleKey)}</h2>
-                <div className="flex items-center gap-2 flex-wrap">
-                  {SECTION_APPS[6].apps.map((app) => (
-                    <a
-                      key={app.name}
-                      href={app.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title={`${app.name} ${t("home.createWith")}`}
-                      className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs bg-white/5 hover:bg-white/15 border border-white/10 transition-colors"
-                    >
-                      {app.logo ? (
-                        <img src={app.logo} alt="" className="w-4 h-4 rounded" />
-                      ) : null}
-                      <span>{app.name}</span>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <ScrollableCarousel className="px-4 sm:px-6" contentClassName="gap-4 sm:gap-6 py-4" speed={55}>
-              {[...sohbetListFallback, ...sohbetListFallback].map((c, i) => (
-                <ContentCard
-                  key={`sohbet-${c.id}-${i}`}
-                  id={c.id}
-                  title={c.title}
-                  channel={c.channel}
-                  likesCount={c.likesCount}
-                  dislikesCount={c.dislikesCount}
-                  commentsCount={c.commentsCount}
-                  imageUrl={(c as { imageUrl?: string }).imageUrl}
-                />
-              ))}
-            </ScrollableCarousel>
-          </section>
-
-          {/* Diğer Araçlar - Sol sidebar’daki kalan uygulamalar */}
-          <section className="shrink-0">
-            <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-1">
-              <div className="flex flex-wrap items-center gap-3">
-                <h2 className="text-lg font-bold text-white/90">{t(SECTION_APPS[7].titleKey)}</h2>
-                <div className="flex items-center gap-2 flex-wrap">
-                  {SECTION_APPS[7].apps.map((app) => (
-                    <a
-                      key={app.name}
-                      href={app.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title={`${app.name} ${t("home.createWith")}`}
-                      className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs bg-white/5 hover:bg-white/15 border border-white/10 transition-colors"
-                    >
-                      {app.logo ? (
-                        <img src={app.logo} alt="" className="w-4 h-4 rounded" />
-                      ) : null}
-                      <span>{app.name}</span>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <ScrollableCarousel className="px-4 sm:px-6" contentClassName="gap-4 sm:gap-6 py-4" speed={55}>
-              {[...digerListFallback, ...digerListFallback].map((c, i) => (
-                <ContentCard
-                  key={`diger-${c.id}-${i}`}
-                  id={c.id}
-                  title={c.title}
-                  channel={c.channel}
-                  likesCount={c.likesCount}
-                  dislikesCount={c.dislikesCount}
-                  commentsCount={c.commentsCount}
-                  imageUrl={(c as { imageUrl?: string }).imageUrl}
                 />
               ))}
             </ScrollableCarousel>

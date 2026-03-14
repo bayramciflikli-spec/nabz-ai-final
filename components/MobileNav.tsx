@@ -2,42 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, Library, User } from "lucide-react";
+import { Home, Search, Plus, Library, User } from "lucide-react";
 import { useLocale } from "@/components/LocaleProvider";
 
 const navItemKeys = [
   { icon: Home, href: "/", labelKey: "nav.home" },
   { icon: Search, href: "/", labelKey: "nav.search" },
-  { icon: null, href: "/dream", labelKey: "nav.dream", isCenterLogo: true },
+  { icon: Plus, href: "/create", labelKey: "nav.create", special: true },
   { icon: Library, href: "/library", labelKey: "nav.library" },
   { icon: User, href: "/", labelKey: "nav.profile", isProfile: true },
 ];
-
-function HalfMoonText() {
-  return (
-    <svg
-      viewBox="0 0 140 32"
-      className="w-[100px] h-6 flex-shrink-0"
-      aria-hidden
-    >
-      <defs>
-        <path
-          id="arcPath"
-          d="M 12 26 A 58 58 0 0 1 128 26"
-          fill="none"
-        />
-      </defs>
-      <text
-        className="fill-white/90 text-[10px] font-semibold tracking-wide"
-        style={{ fontFamily: "system-ui, sans-serif" }}
-      >
-        <textPath href="#arcPath" startOffset="0%">
-          hayal et, paylaş
-        </textPath>
-      </text>
-    </svg>
-  );
-}
 
 interface MobileNavProps {
   user?: { uid?: string } | null;
@@ -55,55 +29,36 @@ export const MobileNav = ({ user }: MobileNavProps) => {
   };
 
   return (
-    <nav
-      className="fixed left-0 right-0 bottom-0 z-50 lg:hidden bg-black/95 backdrop-blur-xl border-t border-white/10"
-      style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom, 0px))" }}
-      aria-label="Ana menü"
-    >
-      <div className="flex items-end justify-around h-16 px-1">
-        {navItems.map((item) => {
-          const href = getHref(item);
-          const isActive =
-            pathname === href ||
-            (item.href === "/" && pathname === "/") ||
-            (item.href === "/dream" && pathname === "/dream");
+    <div className="fixed left-1/2 -translate-x-1/2 w-[90%] max-w-md h-16 bg-black/40 backdrop-blur-2xl border border-white/10 rounded-full flex items-center justify-around px-6 z-50 shadow-[0_10px_40px_rgba(0,0,0,0.5)] lg:hidden" style={{ bottom: "calc(1.5rem + env(safe-area-inset-bottom, 0px))" }}>
+      {navItems.map((item) => {
+        const Icon = item.icon;
+        const href = getHref(item);
+        const isActive = pathname === href || (item.href === "/" && pathname === "/");
 
-          if (item.isCenterLogo) {
-            return (
-              <Link
-                key={item.labelKey}
-                href={href}
-                className="flex flex-col items-center justify-end -mb-1 gap-0.5 active:scale-95 transition-transform"
-                aria-label={t("nav.dream")}
-              >
-                <div className="w-12 h-12 rounded-full overflow-hidden bg-white/10 border-2 border-white/20 flex items-center justify-center flex-shrink-0">
-                  <img
-                    src="/nabz-ai-logo.png"
-                    alt=""
-                    className="w-8 h-8 object-contain"
-                  />
-                </div>
-                <HalfMoonText />
-              </Link>
-            );
-          }
-
-          const Icon = item.icon!;
+        if (item.special) {
           return (
             <Link
-              key={item.labelKey}
-              href={href}
-              className={`flex flex-col items-center justify-center gap-1 py-2 px-3 min-w-[56px] rounded-lg transition-colors ${
-                isActive ? "text-white" : "text-white/50 hover:text-white/80"
-              }`}
+              key={item.label}
+              href={item.href}
+              className="relative -top-8 w-16 h-16 bg-gradient-to-tr from-purple-600 to-green-400 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.6)] border-4 border-black/50 hover:scale-105 active:scale-95 transition-transform duration-200"
               aria-label={item.label}
             >
-              <Icon className="w-6 h-6" />
-              <span className="text-[10px] font-medium">{item.label}</span>
+              <Plus className="text-white w-8 h-8" />
             </Link>
           );
-        })}
-      </div>
-    </nav>
+        }
+
+        return (
+          <Link
+            key={item.label}
+            href={href}
+            className={`p-2 rounded-full transition-all duration-200 active:scale-90 ${isActive ? "text-white" : "text-gray-400 hover:text-white"}`}
+            aria-label={item.label}
+          >
+            <Icon className="w-6 h-6" />
+          </Link>
+        );
+      })}
+    </div>
   );
 };

@@ -21,11 +21,16 @@ export async function GET(request: NextRequest) {
     orientation: "any",
     categories: ["entertainment", "video"],
     icons: (() => {
-      const prefix = base || "";
+      const iconBase = base ? `${base}/api/pwa-icon` : "/api/pwa-icon";
       return [
-        { src: `${prefix}/icon-192.png`, sizes: "192x192", type: "image/png", purpose: "any maskable" },
-        { src: `${prefix}/icon-512.png`, sizes: "512x512", type: "image/png", purpose: "any maskable" },
-        { src: `${prefix}/apple-touch-icon.png`, sizes: "180x180", type: "image/png", purpose: "any" },
+        { src: `${iconBase}/32`, sizes: "32x32", type: "image/png", purpose: "any" },
+        { src: `${iconBase}/72`, sizes: "72x72", type: "image/png", purpose: "any" },
+        { src: `${iconBase}/96`, sizes: "96x96", type: "image/png", purpose: "any" },
+        { src: `${iconBase}/128`, sizes: "128x128", type: "image/png", purpose: "any" },
+        { src: `${iconBase}/144`, sizes: "144x144", type: "image/png", purpose: "any" },
+        { src: `${iconBase}/192`, sizes: "192x192", type: "image/png", purpose: "any maskable" },
+        { src: `${iconBase}/384`, sizes: "384x384", type: "image/png", purpose: "any" },
+        { src: `${iconBase}/512`, sizes: "512x512", type: "image/png", purpose: "any maskable" },
       ];
     })(),
   };

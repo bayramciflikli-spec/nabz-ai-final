@@ -43,8 +43,9 @@ function parseRssItems(xml: string): { title: string; url: string; date: string 
     .map((i) => ({
       ...i,
       date: new Date(i.date).toISOString().slice(0, 10),
-    }));
-  return fresh.slice(0, 20);
+    }))
+    .sort((a, b) => b.date.localeCompare(a.date));
+  return fresh.slice(0, 30);
 }
 
 function decodeEntities(s: string): string {

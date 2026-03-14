@@ -19,9 +19,7 @@ import { useLocale } from "./LocaleProvider";
 import { ProfileSetupModal, shouldShowProfileSetup } from "./ProfileSetupModal";
 import { ContentCard } from "./ContentCard";
 import { ScrollableCarousel } from "./ScrollableCarousel";
-
-type SondakikaItem = { title?: string; url: string; date: string };
-const REFRESH_NEWS_MS = 5 * 60 * 1000;
+import { SondakikaTicker } from "./SondakikaTicker";
 import { isSearchViolation, sanitizeSearchInput, SAFE_SEARCH_ALTERNATIVES } from "@/lib/searchGuard";
 import { getWatchHistory } from "@/lib/engagement";
 import { isAdmin } from "@/lib/isAdmin";
@@ -376,26 +374,6 @@ export function HomePage() {
     [videos, shortsList, enlerFallback, videoListFallback, musicList, animasyonList, logoTasarimList]
   );
 
-  const [sondakikaHaberler, setSondakikaHaberler] = useState<SondakikaItem[]>([]);
-
-  useEffect(() => {
-    const fetchNews = async () => {
-      try {
-        const res = await fetch("/api/ai-news");
-        if (!res.ok) return;
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
-          setSondakikaHaberler(data.map((n: { title: string; url: string; date: string }) => ({ title: n.title, url: n.url, date: n.date })));
-        }
-      } catch {
-        // fallback: keep static
-      }
-    };
-    fetchNews();
-    const id = setInterval(fetchNews, REFRESH_NEWS_MS);
-    return () => clearInterval(id);
-  }, []);
-
   return (
     <div className="relative flex min-h-screen min-w-full overflow-hidden">
       {showProfileSetupModal && user && (
@@ -606,50 +584,8 @@ export function HomePage() {
           </div>
         </header>
 
-        {/* Sondakika AI - Sağdan sola kayan haber bandı + Tümü sekmesi */}
-        <div className="shrink-0 h-12 flex items-center border-b border-white/10 bg-black/30 overflow-hidden">
-          <div
-            className="flex-1 min-w-0 overflow-hidden"
-            onMouseEnter={(e) => {
-              const marquee = e.currentTarget.querySelector(".sondakika-marquee");
-              if (marquee) (marquee as HTMLElement).style.animationPlayState = "paused";
-            }}
-            onMouseLeave={(e) => {
-              const marquee = e.currentTarget.querySelector(".sondakika-marquee");
-              if (marquee) (marquee as HTMLElement).style.animationPlayState = "running";
-            }}
-          >
-            <div className="flex w-max animate-sondakika-scroll sondakika-marquee">
-              {[...sondakikaHaberler, ...sondakikaHaberler].map((haber, i) => (
-                <a
-                  key={i}
-                  href={haber.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 text-sm text-white/90 flex items-center gap-3 shrink-0 whitespace-nowrap hover:bg-white/5 transition-colors"
-                  onClick={(e) => e.stopPropagation()}
-                  title={haber.title}
-                >
-                  <span className="shrink-0 px-2 py-0.5 rounded bg-red-500/80 text-xs font-bold text-white">
-                    {t("home.breakingNews")}
-                  </span>
-                  <span className="shrink-0 text-white/60 text-xs tabular-nums">
-                    {haber.date.split("-")[2]} {t(`home.month${parseInt(haber.date.split("-")[1], 10)}`)} {haber.date.split("-")[0]}
-                  </span>
-                  <span className="truncate max-w-[200px] sm:max-w-[300px]">
-                    {haber.title}
-                  </span>
-                </a>
-              ))}
-            </div>
-          </div>
-          <Link
-            href="/haberler"
-            className="shrink-0 px-4 py-2 h-full flex items-center bg-white/5 hover:bg-white/10 border-l border-white/10 text-sm font-semibold text-white/90 transition-colors"
-          >
-            Tümü
-          </Link>
-        </div>
+        {/* Sondakika AI – en güncel haberler, dokununca durur / sürükleyince kayar, tıklanınca habere gider */}
+        <SondakikaTicker />
 
         <main className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col pb-8">
           {/* Sizin için önerilen - giriş yapmış kullanıcılar için */}

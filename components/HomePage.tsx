@@ -410,8 +410,8 @@ export function HomePage() {
       </div>
 
       <div className="relative z-10 flex-1 min-w-0 lg:ml-56 flex flex-col min-h-screen text-white">
-        {/* Header: YouTube tarzı arama */}
-        <header className="h-14 sm:h-16 px-3 sm:px-6 flex items-center gap-2 sm:gap-4 border-b border-white/10 shrink-0">
+        {/* Header: sadece masaüstünde (mobilde kaldırıldı – altta sekme + üstte yalnızca Sondakika) */}
+        <header className="hidden lg:flex h-14 sm:h-16 px-3 sm:px-6 items-center gap-2 sm:gap-4 border-b border-white/10 shrink-0">
           <Link href="/" className="flex flex-col items-center gap-1 shrink-0 hover:opacity-90 transition-opacity">
             <span className="overflow-hidden shrink-0 w-11 h-9 sm:w-14 sm:h-11 flex items-center justify-center bg-black/40" style={{ borderRadius: "50%" }}>
               <img src="/logo.png" alt="" className="w-full h-full object-contain mix-blend-screen" />
@@ -655,7 +655,7 @@ export function HomePage() {
           {/* Sizin için önerilen - giriş yapmış kullanıcılar için */}
           {user && filteredRecommended.length > 0 && (
             <section className="shrink-0">
-              <div className="px-4 sm:px-6 pt-[60px] pb-1">
+              <div className="px-4 sm:px-6 pt-4 sm:pt-6 lg:pt-[60px] pb-1">
                 <h2 className="text-lg font-bold text-white/90 flex items-center gap-2">
                   {t("home.recommended")}
                 </h2>
@@ -682,7 +682,7 @@ export function HomePage() {
             const sourceMap = contentBySource as Record<string, typeof contentBySource.trending>;
             const list = sourceMap[cat.contentSource] ?? contentBySource.trending ?? [];
             const isShorts = cat.contentSource === "shorts";
-            const ptClass = idx === 0 ? "pt-[60px] pb-1" : "pt-4 sm:pt-6 pb-1";
+            const ptClass = idx === 0 ? "pt-4 sm:pt-6 lg:pt-[60px] pb-1" : "pt-4 sm:pt-6 pb-1";
             return (
               <section key={cat.labelKey} className="shrink-0">
                 <div className={`px-4 sm:px-6 ${ptClass}`}>

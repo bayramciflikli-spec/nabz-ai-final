@@ -10,7 +10,7 @@ function isSize(s: string): s is string & `${Size}` {
 }
 
 /**
- * PWA ikonu: oval logo + altında "NABZ-AI" yazısı.
+ * PWA ikonu: görseldeki logo (N + nabız çizgisi + play) + altında "Nabz-AI" yazısı.
  * Mobil ve masaüstü ana ekrana eklendiğinde bu ikon kullanılır.
  */
 export async function GET(
@@ -62,7 +62,7 @@ export async function GET(
     <g clip-path="url(#oval)">
       <image xlink:href="data:image/png;base64,${logoBase64}" href="data:image/png;base64,${logoBase64}" x="${cx - logoW / 2}" y="${logoY}" width="${logoW}" height="${logoH}" preserveAspectRatio="xMidYMid meet"/>
     </g>
-    <text x="${cx}" y="${textY}" text-anchor="middle" fill="white" font-family="Arial Black, Arial, sans-serif" font-size="${fontSize}" font-weight="900" letter-spacing="0.05em">NABZ-AI</text>
+    <text x="${cx}" y="${textY}" text-anchor="middle" fill="white" font-family="Arial Black, Arial, sans-serif" font-size="${fontSize}" font-weight="900" letter-spacing="0.05em">Nabz-AI</text>
   </g>
 </svg>`;
 

@@ -76,6 +76,17 @@ export const CATEGORY_SECTIONS: CategorySectionConfig[] = [
     ],
   },
   {
+    labelKey: "section.animasyon",
+    query: "AI animasyon hareketli görsel",
+    contentSource: "animasyon",
+    apps: [
+      { name: "Runway", href: "https://runwayml.com", logo: favicon("runwayml.com") },
+      { name: "Kling", href: "https://www.klingai.com", logo: favicon("klingai.com") },
+      { name: "Pika", href: "https://pika.art", logo: favicon("pika.art") },
+      { name: "Luma", href: "https://lumalabs.ai", logo: favicon("lumalabs.ai") },
+    ],
+  },
+  {
     labelKey: "category.videoAI",
     query: "AI video üretim montaj youtube",
     contentSource: "video",

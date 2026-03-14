@@ -10,7 +10,7 @@ function isSize(s: string): s is string & `${Size}` {
 }
 
 /**
- * PWA ikonu: görseldeki logo (N + nabız + play) + altında "Nabz-AI" yazısı.
+ * PWA ikonu: oval logo + altında "NABZ-AI" yazısı.
  * Mobil ve masaüstü ana ekrana eklendiğinde bu ikon kullanılır.
  */
 export async function GET(
@@ -38,20 +38,37 @@ export async function GET(
     // Maskable safe zone: içerik merkezin %80'inde (Android/iOS maskesinde kesilmez)
     const safe = 0.8;
     const pad = (1 - safe) / 2;
-    const innerW = w * safe;
-    const innerH = h * safe;
-    const cx = innerW / 2;
-    // Logo üstte ~%70, altında "Nabz-AI" yazısı
-    const logoAreaH = innerH * 0.72;
-    const textY = innerH * 0.88;
-    const fontSize = Math.max(12, Math.floor(size * 0.08));
+    const vw = w;
+    const vh = h;
+    const cx = vw / 2;
+    const cy = Math.floor(vh * 0.38);
+    const rx = Math.floor(vw * 0.38);
+    const ry = Math.floor(vh * 0.28);
+    const logoY = Math.floor(cy - ry - 4);
+    const logoH = ry * 2 + 8;
+    const logoW = Math.floor(logoH * (5.5 / 4));
+    const textY = Math.floor(cy + ry + (vh * 0.22));
+    const fontSize = Math.max(14, Math.floor(size * 0.09));
+    const radius = Math.floor(Math.min(w, h) * 0.22);
 
     const svg = `
 <svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-  <rect width="${w}" height="${h}" fill="#0a0a0a"/>
-  <g transform="translate(${w * pad}, ${h * pad})">
-    <image xlink:href="data:image/png;base64,${logoBase64}" href="data:image/png;base64,${logoBase64}" x="0" y="0" width="${innerW}" height="${logoAreaH}" preserveAspectRatio="xMidYMid meet"/>
-    <text x="${cx}" y="${textY}" text-anchor="middle" fill="white" font-family="Arial Black, Arial, sans-serif" font-size="${fontSize}" font-weight="900" letter-spacing="0.04em">Nabz-AI</text>
+  <defs>
+    <clipPath id="ovalLogo">
+      <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"/>
+    </clipPath>
+    <clipPath id="ovalEdges">
+      <rect width="${w}" height="${h}" rx="${radius}" ry="${radius}" fill="white"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#ovalEdges)">
+    <rect width="${w}" height="${h}" fill="#0a0a0a"/>
+    <g transform="translate(${w * pad}, ${h * pad}) scale(${safe})">
+      <g clip-path="url(#ovalLogo)">
+        <image xlink:href="data:image/png;base64,${logoBase64}" href="data:image/png;base64,${logoBase64}" x="${cx - logoW / 2}" y="${logoY}" width="${logoW}" height="${logoH}" preserveAspectRatio="xMidYMid meet"/>
+      </g>
+      <text x="${cx}" y="${textY}" text-anchor="middle" fill="white" font-family="Arial Black, Arial, sans-serif" font-size="${fontSize}" font-weight="900" letter-spacing="0.05em">Nabz-AI</text>
+    </g>
   </g>
 </svg>`;
 

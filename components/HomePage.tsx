@@ -361,6 +361,62 @@ export function HomePage() {
     commentsCount: (i + 1) * 2,
   }));
 
+  const sohbetList = filteredTrending.length > 0
+    ? filteredTrending.slice(0, 12).map((p) => ({
+        id: p.id,
+        title: p.title,
+        channel: p.authorName || t("home.channelStudio"),
+        likesCount: p.likedBy?.length ?? 0,
+        dislikesCount: p.dislikedBy?.length ?? 0,
+        commentsCount: 0,
+        imageUrl: p.imageUrl as string | undefined,
+      }))
+    : filteredNewContent.slice(0, 12).map((p) => ({
+        id: p.id,
+        title: p.title,
+        channel: p.authorName || t("home.channelStudio"),
+        likesCount: p.likedBy?.length ?? 0,
+        dislikesCount: p.dislikedBy?.length ?? 0,
+        commentsCount: 0,
+        imageUrl: p.imageUrl as string | undefined,
+      }));
+  const sohbetListFallback = sohbetList.length === 0 ? Array.from({ length: 8 }, (_, i) => ({
+    id: `sb${i + 1}`,
+    title: `${t("home.fallbackSohbet")} #${i + 1}`,
+    channel: t("home.channelStudio"),
+    likesCount: (i + 1) * 14,
+    dislikesCount: (i + 1) * 2,
+    commentsCount: (i + 1) * 3,
+  })) : sohbetList;
+
+  const digerList = filteredNewContent.length > 0
+    ? filteredNewContent.slice(0, 12).map((p) => ({
+        id: p.id,
+        title: p.title,
+        channel: p.authorName || t("home.channelStudio"),
+        likesCount: p.likedBy?.length ?? 0,
+        dislikesCount: p.dislikedBy?.length ?? 0,
+        commentsCount: 0,
+        imageUrl: p.imageUrl as string | undefined,
+      }))
+    : filteredTrending.slice(0, 12).map((p) => ({
+        id: p.id,
+        title: p.title,
+        channel: p.authorName || t("home.channelStudio"),
+        likesCount: p.likedBy?.length ?? 0,
+        dislikesCount: p.dislikedBy?.length ?? 0,
+        commentsCount: 0,
+        imageUrl: p.imageUrl as string | undefined,
+      }));
+  const digerListFallback = digerList.length === 0 ? Array.from({ length: 8 }, (_, i) => ({
+    id: `dg${i + 1}`,
+    title: `${t("home.fallbackDiger")} #${i + 1}`,
+    channel: t("home.channelStudio"),
+    likesCount: (i + 1) * 11,
+    dislikesCount: (i + 1) * 1,
+    commentsCount: (i + 1) * 2,
+  })) : digerList;
+
   const shortsList = (filteredByCategory.shorts?.length ?? 0) > 0 ? filteredByCategory.shorts.map(toCard) : videos;
 
   const contentBySource = useMemo(
@@ -943,16 +999,16 @@ export function HomePage() {
               </div>
             </div>
             <ScrollableCarousel className="px-4 sm:px-6" contentClassName="gap-4 sm:gap-6 py-4" speed={55}>
-              {[...filteredTrending.slice(0, 12), ...filteredTrending.slice(0, 12)].map((p, i) => (
+              {[...sohbetListFallback, ...sohbetListFallback].map((c, i) => (
                 <ContentCard
-                  key={`sohbet-${p.id}-${i}`}
-                  id={p.id}
-                  title={p.title}
-                  channel={p.authorName || t("home.channelStudio")}
-                  likesCount={p.likedBy?.length ?? 0}
-                  dislikesCount={p.dislikedBy?.length ?? 0}
-                  commentsCount={0}
-                  imageUrl={p.imageUrl}
+                  key={`sohbet-${c.id}-${i}`}
+                  id={c.id}
+                  title={c.title}
+                  channel={c.channel}
+                  likesCount={c.likesCount}
+                  dislikesCount={c.dislikesCount}
+                  commentsCount={c.commentsCount}
+                  imageUrl={(c as { imageUrl?: string }).imageUrl}
                 />
               ))}
             </ScrollableCarousel>
@@ -983,16 +1039,16 @@ export function HomePage() {
               </div>
             </div>
             <ScrollableCarousel className="px-4 sm:px-6" contentClassName="gap-4 sm:gap-6 py-4" speed={55}>
-              {[...filteredTrending.slice(0, 12), ...filteredTrending.slice(0, 12)].map((p, i) => (
+              {[...digerListFallback, ...digerListFallback].map((c, i) => (
                 <ContentCard
-                  key={`diger-${p.id}-${i}`}
-                  id={p.id}
-                  title={p.title}
-                  channel={p.authorName || t("home.channelStudio")}
-                  likesCount={p.likedBy?.length ?? 0}
-                  dislikesCount={p.dislikedBy?.length ?? 0}
-                  commentsCount={0}
-                  imageUrl={p.imageUrl}
+                  key={`diger-${c.id}-${i}`}
+                  id={c.id}
+                  title={c.title}
+                  channel={c.channel}
+                  likesCount={c.likesCount}
+                  dislikesCount={c.dislikesCount}
+                  commentsCount={c.commentsCount}
+                  imageUrl={(c as { imageUrl?: string }).imageUrl}
                 />
               ))}
             </ScrollableCarousel>

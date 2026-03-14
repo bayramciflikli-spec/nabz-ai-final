@@ -19,7 +19,13 @@ import { PwaInstallBanner } from "@/components/PwaInstallBanner";
 import { BannedTermsLoader } from "@/components/BannedTermsLoader";
 import { ToastProvider } from "@/components/ToastContext";
 
+const appUrl =
+  process.env.NEXT_PUBLIC_APP_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
+  "http://localhost:3000";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(appUrl),
   title: "Nabız - AI Video Platformu",
   description: "Kelimelerinizi saniyeler içinde sinematik videolara dönüştürün. Yapay zeka destekli video üretim platformu.",
   manifest: "/manifest.webmanifest",

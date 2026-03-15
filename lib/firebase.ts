@@ -13,11 +13,6 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Hata fırlatmak yerine konsola yazdıralım ki site çökmesin
-if (!firebaseConfig.apiKey) {
-  console.warn("DİKKAT: Firebase API Key okunamadı! Vercel ayarlarını kontrol et.");
-}
-
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);

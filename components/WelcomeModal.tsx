@@ -11,7 +11,6 @@ import {
   signUpWithEmail,
   signInWithEmail,
   resetPassword,
-  getAuthConfigStatus,
 } from "@/lib/firebase-auth";
 import { getAuthErrorMessage } from "@/lib/authErrors";
 
@@ -108,17 +107,6 @@ export function WelcomeModal({
   const handleOAuth = async (provider: (typeof PROVIDERS)[number]) => {
     setLoading(true);
     setError("");
-    const configStatus = getAuthConfigStatus();
-    if (!configStatus.ok) {
-      const isDeploy = typeof window !== "undefined" && (window.location.hostname.includes("vercel.app") || window.location.hostname !== "localhost");
-      setError(
-        isDeploy
-          ? `Eksik: ${configStatus.missing.join(", ")}. Vercel Dashboard → Proje → Settings → Environment Variables bölümüne ekleyip Redeploy yapın. (Yerelde .env.local kullanılmaz.)`
-          : `Eksik: ${configStatus.missing.join(", ")}. Proje kökündeki .env.local dosyasında bu değişkenleri doldurun, .next klasörünü silin (rm -r .next) ve sunucuyu yeniden başlatın (npm run dev).`
-      );
-      setLoading(false);
-      return;
-    }
     try {
       const fn = provider.id === "google" && standalone ? signInWithGoogle : provider.signIn;
       const result = await (fn as () => Promise<unknown>)();
@@ -128,10 +116,11 @@ export function WelcomeModal({
       if (redirectAfterSuccess) window.location.href = redirectAfterSuccess;
     } catch (err) {
       const msg = getAuthErrorMessage(err);
-      setError(msg);
-      if (provider.id === "google" && (msg.includes("popup") || msg.includes("engellendi"))) {
-        setError("Açılır pencere engellendi. Aşağıdaki link ile aynı sekmede giriş yapabilirsiniz.");
-      }
+      setError(
+        provider.id === "google" && (msg.includes("popup") || msg.includes("engellendi"))
+          ? "Açılır pencere engellendi. Aşağıdaki link ile aynı sekmede giriş yapabilirsiniz."
+          : msg
+      );
     } finally {
       setLoading(false);
     }

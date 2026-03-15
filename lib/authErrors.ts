@@ -5,7 +5,7 @@ export const AUTH_ERROR_MESSAGES: Record<string, string> = {
   "auth/configuration-not-found": "Giriş yapılandırılmamış. Firebase Console → Authentication → Sign-in method bölümünden Google vb. sağlayıcıları etkinleştirin.",
   "auth/unauthorized-domain": "Bu alan adı Firebase'de yetkili değil. Firebase Console → Authentication → Settings → Authorized domains listesine bu sitenin adresini ekleyin (örn. localhost veya vercel.app).",
   "auth/invalid-api-key": "Firebase API anahtarı geçersiz veya eksik. .env.local içindeki NEXT_PUBLIC_FIREBASE_* değerlerini kontrol edin.",
-  "auth/argument-error": "Giriş ayarlarında eksik veya hatalı değer var. .env.local'de authDomain ve apiKey doğru mu kontrol edin.",
+  "auth/argument-error": "Giriş ayarlarında eksik veya hatalı değer var. Yerelde: proje kökünde .env.local dosyasında NEXT_PUBLIC_FIREBASE_API_KEY, NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN, NEXT_PUBLIC_FIREBASE_PROJECT_ID tanımlı olmalı. authDomain sadece 'PROJE_ID.firebaseapp.com' formatında olmalı (https:// veya sonunda / yok). Değişiklikten sonra .next silinip sunucu yeniden başlatılmalı. Vercel'de: Dashboard → Proje → Settings → Environment Variables'a ekleyip Redeploy yapın.",
   "auth/email-already-in-use": "Bu e-posta adresi zaten kullanılıyor. Giriş yapmayı deneyin.",
   "auth/invalid-email": "Geçersiz e-posta adresi.",
   "auth/operation-not-allowed": "Bu giriş yöntemi etkin değil. Firebase Console → Authentication → Sign-in method'tan Google (veya kullandığınız sağlayıcıyı) etkinleştirin.",

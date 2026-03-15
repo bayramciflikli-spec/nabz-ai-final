@@ -11,6 +11,7 @@ import {
   signUpWithEmail,
   signInWithEmail,
   resetPassword,
+  getAuthConfigStatus,
 } from "@/lib/firebase";
 import { getAuthErrorMessage } from "@/lib/authErrors";
 
@@ -107,6 +108,14 @@ export function WelcomeModal({
   const handleOAuth = async (provider: (typeof PROVIDERS)[number]) => {
     setLoading(true);
     setError("");
+    const configStatus = getAuthConfigStatus();
+    if (!configStatus.ok) {
+      setError(
+        `Eksik: ${configStatus.missing.join(", ")}. .env.local'de bu değişkenleri doldurup sunucuyu yeniden başlatın (npm run dev).`
+      );
+      setLoading(false);
+      return;
+    }
     try {
       const fn = provider.id === "google" && standalone ? signInWithGoogle : provider.signIn;
       const result = await (fn as () => Promise<unknown>)();

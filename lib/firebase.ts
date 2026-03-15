@@ -21,14 +21,25 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getEcosystemOwnerUid, ECOSYSTEM_OWNER_FIELD } from "./ecosystem";
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY ?? "",
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ?? "",
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? "",
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ?? "",
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ?? "",
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID ?? "",
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID ?? "",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
+
+/** Giriş (Google vb.) için gerekli değerlerin durumu; boşsa hangi alanlar eksik. */
+export function getAuthConfigStatus(): { ok: boolean; missing: string[] } {
+  const missing: string[] = [];
+  const apiKey = (firebaseConfig.apiKey || "").trim();
+  const authDomain = (firebaseConfig.authDomain || "").trim();
+  if (!apiKey) missing.push("NEXT_PUBLIC_FIREBASE_API_KEY");
+  if (!authDomain) missing.push("NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN");
+  if (!(firebaseConfig.projectId || "").trim()) missing.push("NEXT_PUBLIC_FIREBASE_PROJECT_ID");
+  return { ok: missing.length === 0, missing };
+}
 
 // Config eksikse uyarı ver, uygulama yine de açılsın
 if (!firebaseConfig.projectId || !firebaseConfig.apiKey) {

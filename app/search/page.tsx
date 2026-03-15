@@ -9,6 +9,7 @@ import { onAuthStateChanged, type User as AuthUser } from "firebase/auth";
 import { searchAitube } from "@/lib/searchAitube";
 import { isSearchViolation, SAFE_SEARCH_ALTERNATIVES, sanitizeSearchInput } from "@/lib/searchGuard";
 import { getSearchHistory, addSearchHistory, removeSearchHistory } from "@/lib/searchHistory";
+import { getInstantSuggestions, normalizeQuery } from "@/lib/searchUtils";
 import { Sidebar } from "@/components/Sidebar";
 import { Search, Video, User, History, X, Mic } from "lucide-react";
 
@@ -23,13 +24,27 @@ function SearchContent() {
   const [searchInput, setSearchInput] = useState(q);
   const [results, setResults] = useState<{ videos: any[]; channels: any[] } | null>(null);
   const [loading, setLoading] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [listening, setListening] = useState(false);
   const [micError, setMicError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const refreshHistory = () => setSearchHistory(getSearchHistory());
+
+  // YouTube tarzı: yazarken eşleşen geçmiş + akıllı öneriler
+  const normalizedInput = normalizeQuery(searchInput);
+  const matchingHistory = searchInput.trim()
+    ? searchHistory.filter((h) => {
+        const n = normalizeQuery(h);
+        return n.includes(normalizedInput) || normalizedInput.includes(n) || n.startsWith(normalizedInput) || normalizedInput.startsWith(n);
+      }).slice(0, 8)
+    : searchHistory.slice(0, 10);
+  const rawSuggestions = searchInput.trim() ? getInstantSuggestions(searchInput) : [];
+  const historySet = new Set(matchingHistory.map((h) => normalizeQuery(h)));
+  const instantSuggestions = rawSuggestions.filter((s) => !historySet.has(normalizeQuery(s)));
+  const defaultSuggestions = !searchInput.trim() ? ["video", "müzik", "shorts", "animasyon", "yapay zeka"] : [];
+  const hasSuggestions = matchingHistory.length > 0 || instantSuggestions.length > 0 || defaultSuggestions.length > 0 || attemptedForbidden;
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, setUser);
@@ -42,7 +57,7 @@ function SearchContent() {
 
   useEffect(() => {
     refreshHistory();
-  }, [showHistory, q]);
+  }, [showSuggestions, q]);
 
   const searchViolation = isSearchViolation(q);
   const [attemptedForbidden, setAttemptedForbidden] = useState(false);
@@ -71,9 +86,15 @@ function SearchContent() {
     const v = val.trim();
     if (v && !isSearchViolation(v)) {
       addSearchHistory(v);
-      setShowHistory(false);
+      setShowSuggestions(false);
       router.push(`/search?q=${encodeURIComponent(v)}`);
     }
+  };
+
+  const selectSuggestion = (s: string) => {
+    setSearchInput(s);
+    setShowSuggestions(false);
+    runSearch(s);
   };
 
   const startVoiceSearch = async () => {
@@ -154,8 +175,8 @@ function SearchContent() {
               type="text"
               value={searchInput}
               onChange={(e) => handleSearchInputChange(e.target.value)}
-              onFocus={() => setShowHistory(true)}
-              onBlur={() => setTimeout(() => setShowHistory(false), 180)}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
               onPaste={(e) => {
                 e.preventDefault();
                 const pasted = e.clipboardData.getData("text");
@@ -189,39 +210,84 @@ function SearchContent() {
             <p className="mt-2 text-xs text-red-400">{micError}</p>
           )}
 
-          {/* Arama geçmişi – input odaktayken ve boşken altta (YouTube tarzı) */}
-          {showHistory && searchHistory.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-2 py-2 bg-[#1a1d24] border border-white/10 rounded-xl shadow-xl z-30 max-h-72 overflow-y-auto max-w-2xl">
-              <div className="flex items-center gap-2 px-4 py-2 border-b border-white/10">
-                <History size={16} className="text-white/50" />
-                <span className="text-sm text-white/60">Arama geçmişi</span>
-              </div>
-              {searchHistory.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => {
-                    setSearchInput(item);
-                    setShowHistory(false);
-                    runSearch(item);
-                  }}
-                  className="w-full flex items-center justify-between px-4 py-3 text-left text-sm hover:bg-white/10 transition group"
-                >
-                  <span className="truncate flex-1">{item}</span>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeSearchHistory(item);
-                      refreshHistory();
-                    }}
-                    className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full hover:bg-white/20 transition"
-                    aria-label="Kaldır"
-                  >
-                    <X size={16} />
-                  </button>
-                </button>
-              ))}
+          {/* YouTube tarzı: odakta açılır – eski aramalar + yazarken benzer/akıllı öneriler */}
+          {showSuggestions && hasSuggestions && (
+            <div className="absolute top-full left-0 right-0 mt-2 py-2 bg-[#1a1d24] border border-white/10 rounded-xl shadow-xl z-30 max-h-80 overflow-y-auto max-w-2xl">
+              {attemptedForbidden ? (
+                <div className="px-2 pb-2">
+                  <p className="text-[10px] text-white/50 uppercase font-semibold px-4 py-2">Öneriler</p>
+                  {SAFE_SEARCH_ALTERNATIVES.slice(0, 6).map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => { setSearchInput(s); setAttemptedForbidden(false); selectSuggestion(s); }}
+                      className="w-full text-left px-4 py-2.5 text-sm hover:bg-white/10 rounded-lg flex items-center gap-3"
+                    >
+                      <Search size={16} className="text-white/40 shrink-0" />
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <>
+                  {matchingHistory.length > 0 && (
+                    <div className="pb-2">
+                      <div className="flex items-center gap-2 px-4 py-2 border-b border-white/10">
+                        <History size={16} className="text-white/50" />
+                        <span className="text-xs text-white/50 uppercase font-semibold">
+                          {searchInput.trim() ? "Eşleşen aramalar" : "Arama geçmişi"}
+                        </span>
+                      </div>
+                      {matchingHistory.map((item) => (
+                        <button
+                          key={item}
+                          type="button"
+                          onClick={() => selectSuggestion(item)}
+                          className="w-full flex items-center justify-between px-4 py-2.5 text-left text-sm hover:bg-white/10 transition group"
+                        >
+                          <span className="truncate flex-1 flex items-center gap-3">
+                            <History size={14} className="text-white/40 shrink-0" />
+                            {item}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeSearchHistory(item);
+                              refreshHistory();
+                            }}
+                            className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full hover:bg-white/20 transition"
+                            aria-label="Kaldır"
+                          >
+                            <X size={14} />
+                          </button>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {(instantSuggestions.length > 0 || defaultSuggestions.length > 0) && (
+                    <div>
+                      <div className="flex items-center gap-2 px-4 py-2 border-b border-white/10">
+                        <Search size={16} className="text-white/50" />
+                        <span className="text-xs text-white/50 uppercase font-semibold">
+                          {searchInput.trim() ? "Benzer aramalar" : "Önerilen aramalar"}
+                        </span>
+                      </div>
+                      {(instantSuggestions.length > 0 ? instantSuggestions : defaultSuggestions).map((s) => (
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => selectSuggestion(s)}
+                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-white/10 rounded-lg flex items-center gap-3"
+                        >
+                          <Search size={14} className="text-white/40 shrink-0" />
+                          <span className="truncate">{s}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           )}
 

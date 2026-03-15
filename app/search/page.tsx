@@ -12,6 +12,9 @@ import { getSearchHistory, addSearchHistory, removeSearchHistory } from "@/lib/s
 import { Sidebar } from "@/components/Sidebar";
 import { Search, Video, User, History, X, Mic } from "lucide-react";
 
+type SpeechResultItem = { isFinal: boolean; 0?: { transcript?: string } };
+type SpeechResultEvent = { results: Array<SpeechResultItem> };
+
 function SearchContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -76,8 +79,8 @@ function SearchContent() {
   const startVoiceSearch = async () => {
     if (typeof window === "undefined") return;
     setMicError(null);
-    const SR = (window as Window & { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).SpeechRecognition
-      || (window as Window & { webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition;
+    const SR = (window as Window & { SpeechRecognition?: new () => unknown; webkitSpeechRecognition?: new () => unknown }).SpeechRecognition
+      || (window as Window & { webkitSpeechRecognition?: new () => unknown }).webkitSpeechRecognition;
     if (!SR) {
       setMicError("Sesli arama bu tarayıcıda desteklenmiyor.");
       return;
@@ -87,12 +90,21 @@ function SearchContent() {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach((t) => t.stop());
       setListening(true);
-      const recognition = new SR();
+      const recognition = new SR() as {
+        lang: string;
+        interimResults: boolean;
+        maxAlternatives: number;
+        onresult: (event: SpeechResultEvent) => void;
+        onerror: (e: { error?: string }) => void;
+        onend: () => void;
+        start: () => void;
+      };
       recognition.lang = "tr-TR";
       recognition.interimResults = true;
       recognition.maxAlternatives = 1;
-      recognition.onresult = (event: { results: { length: number; [i: number]: { isFinal: boolean; [j: number]: { transcript?: string } } }) => {
-        const last = event.results[event.results.length - 1];
+      recognition.onresult = (event: SpeechResultEvent) => {
+        const res = event.results;
+        const last = res[res.length - 1];
         const text = (last?.[0]?.transcript ?? "").trim();
         if (text) handleSearchInputChange(text);
         if (last?.isFinal && text) {

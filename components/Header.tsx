@@ -19,7 +19,7 @@ export function Header() {
     return () => unsub();
   }, []);
 
-  if (pathname === "/landing" || pathname === "/" || pathname?.startsWith("/search") || pathname === "/mall" || pathname?.startsWith("/project/")) return null;
+  if (pathname === "/landing" || pathname === "/" || pathname?.startsWith("/search") || pathname === "/mall" || pathname?.startsWith("/project/") || pathname?.startsWith("/shorts/")) return null;
 
   return (
     <header className="border-b border-slate-800 bg-slate-900/50 sticky top-0 z-10">

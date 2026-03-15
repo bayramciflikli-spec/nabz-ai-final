@@ -122,17 +122,24 @@ export default function ProjectDetail() {
 
   return (
     <div className="min-h-screen bg-[#030303] text-white">
-      {/* Sol üst: yalnızca geri oku – tıklanınca veya telefon geri tuşu ile geri gider */}
+      {/* Sol üst: yalnızca geri oku – mobil safe area + büyük tıklanır alan */}
       <button
         type="button"
         onClick={() => router.back()}
-        className="fixed top-4 left-4 z-[100] p-2 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm text-white transition-colors"
+        className="fixed z-[100] p-3 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white transition-colors touch-manipulation"
+        style={{
+          top: "max(0.75rem, env(safe-area-inset-top, 0.75rem))",
+          left: "max(0.75rem, env(safe-area-inset-left, 0.75rem))",
+        }}
         aria-label="Geri"
       >
-        <ArrowLeft size={24} />
+        <ArrowLeft size={26} />
       </button>
 
-      <div className="flex flex-col lg:flex-row max-w-[1700px] mx-auto p-6 pt-14 gap-6">
+      <div
+        className="flex flex-col lg:flex-row max-w-[1700px] mx-auto p-4 sm:p-6 gap-6"
+        style={{ paddingTop: "calc(3.5rem + env(safe-area-inset-top, 0px))" }}
+      >
         <div className="flex-1 min-w-0">
           <div className="aspect-video w-full bg-[#111] rounded-xl border border-[#222] overflow-hidden flex items-center justify-center">
             {project.videoUrl ? (

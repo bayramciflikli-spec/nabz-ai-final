@@ -44,7 +44,14 @@ export function SondakikaTicker() {
   const tick = useCallback(() => {
     const el = containerRef.current;
     const content = contentRef.current;
-    if (!el || !content || paused) return;
+    if (paused) {
+      rafRef.current = requestAnimationFrame(tick);
+      return;
+    }
+    if (!el || !content) {
+      rafRef.current = requestAnimationFrame(tick);
+      return;
+    }
     const half = content.scrollWidth / 2;
     if (half <= 0) {
       rafRef.current = requestAnimationFrame(tick);

@@ -30,10 +30,9 @@ export function GlobalLoginModal() {
   return (
     <>
       <WelcomeModal
-        title="Giriş Yap veya Kaydol"
-        onSuccess={(isNewUser) => {
-          handleSuccess(auth.currentUser);
-        }}
+        title="Giriş yap"
+        onClose={() => setShowLoginModal(false)}
+        onSuccess={() => handleSuccess(auth.currentUser)}
         onShowProfileSetup={() => setShowLoginModal(false)}
       />
       {showProfileSetup && user && (

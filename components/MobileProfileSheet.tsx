@@ -27,6 +27,7 @@ import {
   Copy,
   Check,
   Trash2,
+  Search,
 } from "lucide-react";
 import type { User as FirebaseUser } from "firebase/auth";
 import { useAuth } from "@/components/AuthProvider";
@@ -56,7 +57,17 @@ export function MobileProfileSheet({ open, onClose, user }: MobileProfileSheetPr
   const [copiedUid, setCopiedUid] = useState(false);
   const [rtbfConfirm, setRtbfConfirm] = useState(false);
   const [rtbfLoading, setRtbfLoading] = useState(false);
+  const [languageSearch, setLanguageSearch] = useState("");
   const toast = useToast();
+
+  const filteredLocales = !languageSearch.trim()
+    ? LOCALES
+    : LOCALES.filter(
+        (loc) =>
+          loc.native.toLowerCase().includes(languageSearch.toLowerCase()) ||
+          loc.name.toLowerCase().includes(languageSearch.toLowerCase()) ||
+          loc.code.toLowerCase().includes(languageSearch.toLowerCase())
+      );
 
   useEffect(() => {
     if (!user?.uid) {
@@ -284,17 +295,30 @@ export function MobileProfileSheet({ open, onClose, user }: MobileProfileSheetPr
                     )}
                     <div className="px-4">
                       <p className="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-1.5">{t("settings.language")}</p>
+                      <div className="relative mb-2">
+                        <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+                        <input
+                          type="text"
+                          value={languageSearch}
+                          onChange={(e) => setLanguageSearch(e.target.value)}
+                          placeholder="Dil ara..."
+                          className="w-full pl-8 pr-2 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-white placeholder-white/40 focus:outline-none focus:border-cyan-500/50"
+                        />
+                      </div>
                       <label className="flex items-center gap-3 py-2 text-sm hover:bg-white/10 cursor-pointer rounded-lg px-2">
                         <input type="radio" name="sheet-locale" checked={isAuto} onChange={() => setLocale(locale, true)} className="accent-cyan-500" />
                         <Globe size={16} className="text-white/60" />
                         {t("settings.autoLanguage")}
                       </label>
-                      {LOCALES.slice(0, 8).map((loc) => (
-                        <label key={loc.code} className="flex items-center gap-3 py-2 text-sm hover:bg-white/10 cursor-pointer rounded-lg px-2">
-                          <input type="radio" name="sheet-locale" checked={!isAuto && locale === loc.code} onChange={() => setLocale(loc.code, false)} className="accent-cyan-500" />
-                          <span>{loc.native}</span>
-                        </label>
-                      ))}
+                      <div className="max-h-[40vh] overflow-y-auto">
+                        {filteredLocales.map((loc) => (
+                          <label key={loc.code} className="flex items-center gap-3 py-2 text-sm hover:bg-white/10 cursor-pointer rounded-lg px-2">
+                            <input type="radio" name="sheet-locale" checked={!isAuto && locale === loc.code} onChange={() => setLocale(loc.code, false)} className="accent-cyan-500" />
+                            <span>{loc.native} ({loc.name})</span>
+                          </label>
+                        ))}
+                        {filteredLocales.length === 0 && <p className="text-white/50 text-xs py-2">Eşleşen dil yok</p>}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -396,18 +420,33 @@ export function MobileProfileSheet({ open, onClose, user }: MobileProfileSheetPr
                 </button>
                 {openSection === "settings" && (
                   <div className="pb-2">
-                    <div className="px-4 py-2 text-xs font-bold text-white/50 uppercase tracking-wider">{t("settings.language")}</div>
-                    <label className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/10 cursor-pointer">
-                      <input type="radio" name="sheet-locale-out" checked={isAuto} onChange={() => setLocale(locale, true)} className="accent-cyan-500" />
-                      <Globe size={16} className="text-white/60" />
-                      {t("settings.autoLanguage")}
-                    </label>
-                    {LOCALES.slice(0, 8).map((loc) => (
-                      <label key={loc.code} className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/10 cursor-pointer">
-                        <input type="radio" name="sheet-locale-out" checked={!isAuto && locale === loc.code} onChange={() => setLocale(loc.code, false)} className="accent-cyan-500" />
-                        <span>{loc.native}</span>
+                    <div className="px-4">
+                      <p className="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-1.5">{t("settings.language")}</p>
+                      <div className="relative mb-2">
+                        <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+                        <input
+                          type="text"
+                          value={languageSearch}
+                          onChange={(e) => setLanguageSearch(e.target.value)}
+                          placeholder="Dil ara..."
+                          className="w-full pl-8 pr-2 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-white placeholder-white/40 focus:outline-none focus:border-cyan-500/50"
+                        />
+                      </div>
+                      <label className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/10 cursor-pointer">
+                        <input type="radio" name="sheet-locale-out" checked={isAuto} onChange={() => setLocale(locale, true)} className="accent-cyan-500" />
+                        <Globe size={16} className="text-white/60" />
+                        {t("settings.autoLanguage")}
                       </label>
-                    ))}
+                      <div className="max-h-[40vh] overflow-y-auto">
+                        {filteredLocales.map((loc) => (
+                          <label key={loc.code} className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/10 cursor-pointer">
+                            <input type="radio" name="sheet-locale-out" checked={!isAuto && locale === loc.code} onChange={() => setLocale(loc.code, false)} className="accent-cyan-500" />
+                            <span>{loc.native} ({loc.name})</span>
+                          </label>
+                        ))}
+                        {filteredLocales.length === 0 && <p className="text-white/50 text-xs py-2 px-4">Eşleşen dil yok</p>}
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

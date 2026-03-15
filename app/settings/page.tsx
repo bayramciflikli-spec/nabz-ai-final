@@ -7,7 +7,7 @@ import { onAuthStateChanged, type User as AuthUser } from "firebase/auth";
 import { Sidebar } from "@/components/Sidebar";
 import { useLocale } from "@/components/LocaleProvider";
 import { LOCALES, type Locale } from "@/lib/i18n/types";
-import { Globe, User, Copy, Check, Shield, ShieldAlert, Trash2 } from "lucide-react";
+import { Globe, User, Copy, Check, Shield, ShieldAlert, Trash2, Search } from "lucide-react";
 import { isAdmin } from "@/lib/isAdmin";
 import { useToast } from "@/components/ToastContext";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
@@ -18,7 +18,18 @@ export default function SettingsPage() {
   const [copied, setCopied] = useState<"uid" | "env" | null>(null);
   const [rtbfLoading, setRtbfLoading] = useState(false);
   const [rtbfConfirm, setRtbfConfirm] = useState(false);
+  const [languageSearch, setLanguageSearch] = useState("");
+  const [languageSectionOpen, setLanguageSectionOpen] = useState(false);
   const { t, locale, setLocale, isAuto } = useLocale();
+
+  const filteredLocales = languageSearch.trim()
+    ? LOCALES.filter(
+        (loc) =>
+          loc.native.toLowerCase().includes(languageSearch.toLowerCase()) ||
+          loc.name.toLowerCase().includes(languageSearch.toLowerCase()) ||
+          loc.code.toLowerCase().includes(languageSearch.toLowerCase())
+      )
+    : LOCALES;
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, setUser);
@@ -181,44 +192,63 @@ export default function SettingsPage() {
           </section>
         )}
 
-        {/* Dil seçimi */}
+        {/* Dil seçimi – başlığa tıklanınca arama çubuğu açılır, tüm diller listelenir */}
         <section className="mb-8">
-          <div className="flex items-center gap-2 mb-3">
-            <Globe size={20} className="text-cyan-400" />
+          <button
+            type="button"
+            onClick={() => setLanguageSectionOpen((o) => !o)}
+            className="flex items-center gap-2 mb-3 w-full text-left"
+          >
+            <Globe size={20} className="text-cyan-400 shrink-0" />
             <h2 className="text-lg font-bold">{t("settings.language")}</h2>
-          </div>
-          <p className="text-gray-400 text-sm mb-4">{t("settings.languageDescription")}</p>
-
-          <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-2">
-            <label className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 cursor-pointer border border-white/10">
-              <input
-                type="radio"
-                name="locale"
-                checked={isAuto}
-                onChange={() => handleLocaleChange(locale, true)}
-                className="accent-cyan-500"
-              />
-              <span>{t("settings.autoLanguage")}</span>
-            </label>
-
-            {LOCALES.map((loc) => (
-              <label
-                key={loc.code}
-                className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 cursor-pointer border border-white/10"
-              >
+          </button>
+          {languageSectionOpen && (
+            <>
+              <p className="text-gray-400 text-sm mb-3">{t("settings.languageDescription")}</p>
+              <div className="relative mb-3">
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
                 <input
-                  type="radio"
-                  name="locale"
-                  checked={!isAuto && locale === loc.code}
-                  onChange={() => handleLocaleChange(loc.code, false)}
-                  className="accent-cyan-500"
+                  type="text"
+                  value={languageSearch}
+                  onChange={(e) => setLanguageSearch(e.target.value)}
+                  placeholder="Dil ara (örn. Türkçe, English...)"
+                  className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder-white/40 focus:outline-none focus:border-cyan-500/50"
                 />
-                <span>
-                  {loc.native} ({loc.name})
-                </span>
-              </label>
-            ))}
-          </div>
+              </div>
+              <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-2">
+                <label className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 cursor-pointer border border-white/10">
+                  <input
+                    type="radio"
+                    name="locale"
+                    checked={isAuto}
+                    onChange={() => handleLocaleChange(locale, true)}
+                    className="accent-cyan-500"
+                  />
+                  <span>{t("settings.autoLanguage")}</span>
+                </label>
+                {filteredLocales.map((loc) => (
+                  <label
+                    key={loc.code}
+                    className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 cursor-pointer border border-white/10"
+                  >
+                    <input
+                      type="radio"
+                      name="locale"
+                      checked={!isAuto && locale === loc.code}
+                      onChange={() => handleLocaleChange(loc.code, false)}
+                      className="accent-cyan-500"
+                    />
+                    <span>
+                      {loc.native} ({loc.name})
+                    </span>
+                  </label>
+                ))}
+                {filteredLocales.length === 0 && (
+                  <p className="text-white/50 text-sm py-4 text-center">Eşleşen dil yok</p>
+                )}
+              </div>
+            </>
+          )}
         </section>
 
         <Link href="/" className="text-cyan-400 hover:underline">

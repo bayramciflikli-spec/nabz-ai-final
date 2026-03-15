@@ -13,7 +13,21 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+let app: ReturnType<typeof getApp>;
+try {
+  app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+} catch {
+  app = getApps().length > 0 ? getApp() : initializeApp({
+    apiKey: "dummy-key",
+    authDomain: "dummy.firebaseapp.com",
+    projectId: "dummy-project",
+    storageBucket: "dummy.appspot.com",
+    messagingSenderId: "",
+    appId: "1:0:web:0",
+    measurementId: "",
+  });
+}
+
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);

@@ -23,6 +23,7 @@ import { useToast } from "@/components/ToastContext";
 import { useAuth } from "@/components/AuthProvider";
 import { hasMallStore } from "@/lib/mallStores";
 import { getProgressPercent } from "@/lib/watchProgress";
+import { VerticalSimilarStrip } from "@/components/VerticalSimilarStrip";
 
 export default function ProjectDetail() {
   const { id } = useParams();
@@ -69,7 +70,7 @@ export default function ProjectDetail() {
         id as string,
         project.kategori,
         project.tool,
-        6
+        14
       );
       setSimilar(list);
     };
@@ -371,48 +372,11 @@ export default function ProjectDetail() {
         />
         </div>
 
-        {/* Öneri paneli - sidebar */}
+        {/* Sağda aşağıdan yukarı kayan benzer içerikler; üzerine gelince durur, tıklanınca izleme sayfasına gider */}
         {similar.length > 0 && (
-          <aside className="w-full lg:w-[400px] shrink-0 flex flex-col gap-3">
-            {similar.map((p) => {
-              const views = ((p.likedBy?.length ?? 0) * 100).toLocaleString("tr-TR");
-              const hasShop = hasMallStore(p.tool);
-              const progressPct = getProgressPercent(p.id);
-              return (
-                <Link
-                  key={p.id}
-                  href={`/project/${p.id}`}
-                  className="flex gap-2 hover:translate-x-1 transition-transform"
-                >
-                  <div className="w-[168px] h-[94px] bg-[#1a1a1a] rounded-lg shrink-0 overflow-hidden relative">
-                    <img
-                      src={p.imageUrl || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=336"}
-                      alt={p.title}
-                      className="w-full h-full object-cover"
-                    />
-                    {progressPct != null && (
-                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20">
-                        <div
-                          className="h-full bg-red-500"
-                          style={{ width: `${progressPct}%` }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold line-clamp-2 leading-snug">{p.title}</p>
-                    <p className="text-xs text-gray-400 mt-1">{p.authorName || "NABZ-AI"}</p>
-                    <p className="text-xs text-gray-400">{views} görüntüleme</p>
-                    {hasShop && (
-                      <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 border border-blue-500/50">
-                        BAĞLI MAĞAZA
-                      </span>
-                    )}
-                  </div>
-                </Link>
-              );
-            })}
-          </aside>
+          <div className="w-full lg:w-[380px] shrink-0">
+            <VerticalSimilarStrip items={similar} currentId={id as string} />
+          </div>
         )}
       </div>
     </div>

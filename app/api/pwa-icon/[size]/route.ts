@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readFile } from "fs/promises";
-import path from "path";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 
 const SIZES = [32, 72, 96, 128, 144, 180, 192, 384, 512] as const;
 type Size = (typeof SIZES)[number];

@@ -128,7 +128,7 @@ export default function ProjectDetail() {
       <button
         type="button"
         onClick={() => router.back()}
-        className="fixed z-[100] p-3 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white transition-colors touch-manipulation"
+        className="fixed z-[110] p-3 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white transition-colors touch-manipulation"
         style={{
           top: "max(0.75rem, env(safe-area-inset-top, 0.75rem))",
           left: "max(0.75rem, env(safe-area-inset-left, 0.75rem))",

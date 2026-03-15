@@ -176,7 +176,7 @@ export default function ShortsPage() {
 
   return (
     <div
-      className="fixed inset-0 z-[100] bg-black flex flex-col overflow-hidden touch-pan-y"
+      className="fixed inset-0 z-[110] bg-black flex flex-col overflow-hidden touch-pan-y"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
@@ -184,10 +184,14 @@ export default function ShortsPage() {
       <button
         type="button"
         onClick={() => (showInfoSheet ? setShowInfoSheet(false) : router.back())}
-        className="absolute top-4 left-4 z-20 p-2 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-sm text-white transition-colors"
+        className="absolute z-20 p-3 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white transition-colors touch-manipulation"
+        style={{
+          top: "max(0.75rem, env(safe-area-inset-top, 0.75rem))",
+          left: "max(0.75rem, env(safe-area-inset-left, 0.75rem))",
+        }}
         aria-label="Geri"
       >
-        <ArrowLeft size={24} />
+        <ArrowLeft size={26} />
       </button>
 
       {/* VİDEO – tam ekran, içeriği bozmaz */}

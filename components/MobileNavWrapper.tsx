@@ -20,6 +20,8 @@ export const MobileNavWrapper = () => {
   }, []);
 
   if (pathname === "/landing") return null;
+  // İzleme sayfalarında alt nav gizle: tam ekran / geri ile çıkış
+  if (pathname?.startsWith("/project/") || (pathname?.startsWith("/shorts/") && pathname !== "/shorts")) return null;
 
   return <MobileNav user={user} />;
 };

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc, collection, query, where, getCountFromServer } from "firebase/firestore";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { ThumbsUp, ThumbsDown, MessageCircle, Clock, Bookmark, Flag, ListPlus, ArrowLeft } from "lucide-react";
 import VideoComments from "@/components/VideoComments";
 import { ContentShareActions } from "@/components/ContentShareActions";
@@ -28,7 +28,9 @@ import { VerticalSimilarStrip } from "@/components/VerticalSimilarStrip";
 export default function ProjectDetail() {
   const { id } = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t } = useLocale();
+  const forceEmptySimilar = searchParams.get("benzer") === "0" || searchParams.get("test") === "empty";
   const toast = useToast();
   const { setShowLoginModal } = useAuth();
   const [project, setProject] = useState<any>(null);
@@ -384,15 +386,15 @@ export default function ProjectDetail() {
         />
         </div>
 
-        {/* Sağda benzer içerikler (kartlar boş olsa da alan gösterilir) */}
+        {/* Sağda benzer içerikler (kartlar boş olsa da alan gösterilir; test: ?benzer=0 veya ?test=empty) */}
         <div className="w-full lg:w-[380px] shrink-0">
-          {similar.length > 0 ? (
+          {!forceEmptySimilar && similar.length > 0 ? (
             <VerticalSimilarStrip items={similar} currentId={id as string} />
           ) : (
             <div className="flex flex-col">
               <h3 className="text-sm font-bold text-white/80 mb-2 px-1">Benzer içerikler</h3>
-              <div className="min-h-[320px] rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/50 text-sm px-4">
-                Şu an benzer içerik yok
+              <div className="min-h-[320px] rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/50 text-sm px-4 text-center">
+                {forceEmptySimilar ? "Test: Benzer içerik listesi boş gösteriliyor." : "Şu an benzer içerik yok"}
               </div>
             </div>
           )}

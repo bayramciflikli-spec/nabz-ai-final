@@ -26,9 +26,14 @@ import {
   ShieldCheck,
   ChevronDown,
   ChevronRight,
+  Copy,
+  Check,
+  Trash2,
 } from "lucide-react";
 import { useAuth } from "./AuthProvider";
 import { useLocale } from "./LocaleProvider";
+import { useToast } from "./ToastContext";
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import { LOCALES } from "@/lib/i18n/types";
 import { isPlatformSubscribed } from "@/lib/subscription";
 import { getUserAccess } from "@/lib/userAccess";
@@ -45,6 +50,10 @@ export function UserMenu({ user }: UserMenuProps) {
   const { countryRule } = useCountry();
   const [open, setOpen] = useState(false);
   const [openSection, setOpenSection] = useState<string | null>("account");
+  const [copiedUid, setCopiedUid] = useState(false);
+  const [rtbfConfirm, setRtbfConfirm] = useState(false);
+  const [rtbfLoading, setRtbfLoading] = useState(false);
+  const toast = useToast();
   const menuRef = useRef<HTMLDivElement>(null);
   const [subscribed, setSubscribed] = useState<boolean | null>(null);
   const [projectCount, setProjectCount] = useState<number | null>(null);
@@ -202,23 +211,85 @@ export function UserMenu({ user }: UserMenuProps) {
                   {openSection === "settings" ? <ChevronDown size={18} className="text-white/60" /> : <ChevronRight size={18} className="text-white/60" />}
                 </button>
                 {openSection === "settings" && (
-                  <div className="pb-1">
+                  <div className="pb-1 space-y-2">
                     <Link href="/settings" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/10">
                       <Settings size={18} className="text-white/60" />
                       {t("nav.settings")}
                     </Link>
-                    <div className="px-4 py-1.5 text-xs font-bold text-white/60 uppercase tracking-wider">{t("settings.language")}</div>
-                    <label className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/10 cursor-pointer">
-                      <input type="radio" name="menu-locale" checked={isAuto} onChange={() => setLocale(locale, true)} className="accent-cyan-500" />
-                      <Globe size={16} className="text-white/60" />
-                      {t("settings.autoLanguage")}
-                    </label>
-                    {LOCALES.slice(0, 8).map((loc) => (
-                      <label key={loc.code} className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/10 cursor-pointer">
-                        <input type="radio" name="menu-locale" checked={!isAuto && locale === loc.code} onChange={() => setLocale(loc.code, false)} className="accent-cyan-500" />
-                        <span>{loc.native}</span>
+                    {user?.uid && (
+                      <>
+                        <div className="px-4">
+                          <p className="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-1">Hesap bilgisi</p>
+                          <div className="flex items-center gap-2">
+                            <code className="text-xs text-cyan-300 break-all flex-1 truncate">{user.uid}</code>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (user.uid) {
+                                  navigator.clipboard.writeText(user.uid);
+                                  setCopiedUid(true);
+                                  setTimeout(() => setCopiedUid(false), 2000);
+                                  toast.success("UID kopyalandı");
+                                }
+                              }}
+                              className="shrink-0 p-1.5 rounded-lg bg-white/10 hover:bg-white/20"
+                              title="Kopyala"
+                            >
+                              {copiedUid ? <Check size={14} className="text-green-400" /> : <Copy size={14} className="text-white/60" />}
+                            </button>
+                          </div>
+                        </div>
+                        <div className="px-4">
+                          <p className="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-1">Silinme hakkı (GDPR)</p>
+                          <p className="text-xs text-white/60 mb-1.5">Hesabınızı kalıcı silebilirsiniz.</p>
+                          <label className="flex items-center gap-2 mb-1.5 cursor-pointer">
+                            <input type="checkbox" checked={rtbfConfirm} onChange={(e) => setRtbfConfirm(e.target.checked)} className="rounded border-red-500/50 accent-red-500" />
+                            <span className="text-xs text-white/70">Anladım ve onaylıyorum</span>
+                          </label>
+                          <button
+                            type="button"
+                            disabled={!rtbfConfirm || rtbfLoading}
+                            onClick={async () => {
+                              if (!rtbfConfirm || !user?.uid) return;
+                              setRtbfLoading(true);
+                              try {
+                                const res = await fetchWithAuth("/api/right-to-be-forgotten", { method: "POST", body: JSON.stringify({}) });
+                                const data = await res.json();
+                                if (data.ok) {
+                                  toast.success("Hesabınız anonimleştirildi. Çıkış yapılıyor.");
+                                  setOpen(false);
+                                  auth.signOut();
+                                  window.location.href = "/";
+                                } else {
+                                  toast.error(data.error || "İşlem başarısız");
+                                }
+                              } catch (e) {
+                                toast.error(e instanceof Error ? e.message : "İşlem başarısız");
+                              } finally {
+                                setRtbfLoading(false);
+                              }
+                            }}
+                            className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {rtbfLoading ? "İşleniyor..." : "Hesabımı sil"}
+                          </button>
+                        </div>
+                      </>
+                    )}
+                    <div className="px-4">
+                      <p className="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-1">{t("settings.language")}</p>
+                      <label className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/10 cursor-pointer">
+                        <input type="radio" name="menu-locale" checked={isAuto} onChange={() => setLocale(locale, true)} className="accent-cyan-500" />
+                        <Globe size={16} className="text-white/60" />
+                        {t("settings.autoLanguage")}
                       </label>
-                    ))}
+                      {LOCALES.slice(0, 8).map((loc) => (
+                        <label key={loc.code} className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/10 cursor-pointer">
+                          <input type="radio" name="menu-locale" checked={!isAuto && locale === loc.code} onChange={() => setLocale(loc.code, false)} className="accent-cyan-500" />
+                          <span>{loc.native}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

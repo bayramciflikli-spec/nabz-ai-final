@@ -83,12 +83,28 @@ export async function hasDisliked(projectId: string): Promise<boolean> {
   return dislikedBy.includes(uid);
 }
 
-/** İzleme geçmişini getir (öneri için) */
+export type WatchHistoryEntry = {
+  projectId: string;
+  at: string;
+  title?: string;
+  imageUrl?: string;
+  authorName?: string;
+};
+
+/** İzleme geçmişini getir (öneri için) - sadece id listesi */
 export async function getWatchHistory(uid: string): Promise<string[]> {
   const userRef = doc(db, "users", uid);
   const snap = await getDoc(userRef);
   const history = (snap.data()?.watchHistory as Array<{ projectId: string }>) || [];
   return history.map((h) => h.projectId).filter(Boolean);
+}
+
+/** İzleme geçmişini tam (at, title, imageUrl, authorName ile) getir - kütüphane görüntüleme için */
+export async function getWatchHistoryFull(uid: string): Promise<WatchHistoryEntry[]> {
+  const userRef = doc(db, "users", uid);
+  const snap = await getDoc(userRef);
+  const history = (snap.data()?.watchHistory as WatchHistoryEntry[]) || [];
+  return history.filter((h) => h.projectId);
 }
 
 /** İzleme geçmişine ekle */

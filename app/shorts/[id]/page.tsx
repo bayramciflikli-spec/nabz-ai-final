@@ -180,10 +180,10 @@ export default function ShortsPage() {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Geri butonu */}
+      {/* Geri butonu: panel açıksa kapat, kapalıysa önceki sayfaya dön */}
       <button
         type="button"
-        onClick={() => router.back()}
+        onClick={() => (showInfoSheet ? setShowInfoSheet(false) : router.back())}
         className="absolute top-4 left-4 z-20 p-2 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-sm text-white transition-colors"
         aria-label="Geri"
       >

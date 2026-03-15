@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc, collection, query, where, getCountFromServer } from "firebase/firestore";
-import { useParams } from "next/navigation";
-import { ThumbsUp, ThumbsDown, MessageCircle, Clock, Bookmark, Flag, ListPlus } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { ThumbsUp, ThumbsDown, MessageCircle, Clock, Bookmark, Flag, ListPlus, ArrowLeft } from "lucide-react";
 import VideoComments from "@/components/VideoComments";
 import { ContentShareActions } from "@/components/ContentShareActions";
 import { LoadingPulse } from "@/components/LoadingPulse";
@@ -27,6 +27,7 @@ import { VerticalSimilarStrip } from "@/components/VerticalSimilarStrip";
 
 export default function ProjectDetail() {
   const { id } = useParams();
+  const router = useRouter();
   const { t } = useLocale();
   const toast = useToast();
   const { setShowLoginModal } = useAuth();
@@ -121,13 +122,17 @@ export default function ProjectDetail() {
 
   return (
     <div className="min-h-screen bg-[#030303] text-white">
-      <header className="h-14 px-4 flex items-center border-b border-[#222] sticky top-0 bg-[#030303] z-[100]">
-        <Link href="/" className="font-black tracking-widest hover:text-blue-400 transition-colors">
-          NABZ<span className="text-blue-500">-AI</span>
-        </Link>
-      </header>
+      {/* Sol üst: yalnızca geri oku – tıklanınca veya telefon geri tuşu ile geri gider */}
+      <button
+        type="button"
+        onClick={() => router.back()}
+        className="fixed top-4 left-4 z-[100] p-2 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm text-white transition-colors"
+        aria-label="Geri"
+      >
+        <ArrowLeft size={24} />
+      </button>
 
-      <div className="flex flex-col lg:flex-row max-w-[1700px] mx-auto p-6 gap-6">
+      <div className="flex flex-col lg:flex-row max-w-[1700px] mx-auto p-6 pt-14 gap-6">
         <div className="flex-1 min-w-0">
           <div className="aspect-video w-full bg-[#111] rounded-xl border border-[#222] overflow-hidden flex items-center justify-center">
             {project.videoUrl ? (
@@ -372,12 +377,19 @@ export default function ProjectDetail() {
         />
         </div>
 
-        {/* Sağda aşağıdan yukarı kayan benzer içerikler; üzerine gelince durur, tıklanınca izleme sayfasına gider */}
-        {similar.length > 0 && (
-          <div className="w-full lg:w-[380px] shrink-0">
+        {/* Sağda benzer içerikler (kartlar boş olsa da alan gösterilir) */}
+        <div className="w-full lg:w-[380px] shrink-0">
+          {similar.length > 0 ? (
             <VerticalSimilarStrip items={similar} currentId={id as string} />
-          </div>
-        )}
+          ) : (
+            <div className="flex flex-col">
+              <h3 className="text-sm font-bold text-white/80 mb-2 px-1">Benzer içerikler</h3>
+              <div className="min-h-[320px] rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/50 text-sm px-4">
+                Şu an benzer içerik yok
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

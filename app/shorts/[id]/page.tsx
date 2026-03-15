@@ -12,6 +12,7 @@ import { toggleLike, toggleDislike, hasLiked, hasDisliked, addToHistory } from "
 import { ReportModal } from "@/components/ReportModal";
 import { useLocale } from "@/components/LocaleProvider";
 import { useToast } from "@/components/ToastContext";
+import { useAuth } from "@/components/AuthProvider";
 import { fetchSimilarContent, getShortsFeedFromStorage } from "@/lib/contentDiscovery";
 
 const SWIPE_THRESHOLD = 80;
@@ -21,6 +22,7 @@ export default function ShortsPage() {
   const router = useRouter();
   const { t } = useLocale();
   const toast = useToast();
+  const { setShowLoginModal } = useAuth();
   const id = params?.id as string;
   const [short, setShort] = useState<any>(null);
   const [liked, setLiked] = useState(false);
@@ -102,6 +104,10 @@ export default function ShortsPage() {
   };
 
   const handleLike = async () => {
+    if (!auth.currentUser) {
+      setShowLoginModal(true);
+      return;
+    }
     try {
       await toggleLike(id);
       setLiked(!liked);
@@ -119,6 +125,10 @@ export default function ShortsPage() {
   };
 
   const handleDislike = async () => {
+    if (!auth.currentUser) {
+      setShowLoginModal(true);
+      return;
+    }
     try {
       await toggleDislike(id);
       setDisliked(!disliked);

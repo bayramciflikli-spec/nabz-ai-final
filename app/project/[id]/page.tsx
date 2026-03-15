@@ -20,6 +20,7 @@ import { AddToPlaylistModal } from "@/components/AddToPlaylistModal";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { useLocale } from "@/components/LocaleProvider";
 import { useToast } from "@/components/ToastContext";
+import { useAuth } from "@/components/AuthProvider";
 import { hasMallStore } from "@/lib/mallStores";
 import { getProgressPercent } from "@/lib/watchProgress";
 
@@ -27,6 +28,7 @@ export default function ProjectDetail() {
   const { id } = useParams();
   const { t } = useLocale();
   const toast = useToast();
+  const { setShowLoginModal } = useAuth();
   const [project, setProject] = useState<any>(null);
   const [copied, setCopied] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
@@ -186,6 +188,10 @@ export default function ProjectDetail() {
           <button
             type="button"
             onClick={async () => {
+              if (!auth.currentUser) {
+                setShowLoginModal(true);
+                return;
+              }
               try {
                 await toggleLike(id as string);
                 const uid = auth.currentUser?.uid;
@@ -219,6 +225,10 @@ export default function ProjectDetail() {
           <button
             type="button"
             onClick={async () => {
+              if (!auth.currentUser) {
+                setShowLoginModal(true);
+                return;
+              }
               try {
                 await toggleDislike(id as string);
                 const uid = auth.currentUser?.uid;
@@ -248,6 +258,10 @@ export default function ProjectDetail() {
             <button
               type="button"
               onClick={async () => {
+                if (!auth.currentUser) {
+                  setShowLoginModal(true);
+                  return;
+                }
                 try {
                   const ok = await toggleWatchLater(id as string);
                   setWatchLater(ok);
@@ -263,6 +277,10 @@ export default function ProjectDetail() {
             <button
               type="button"
               onClick={async () => {
+                if (!auth.currentUser) {
+                  setShowLoginModal(true);
+                  return;
+                }
                 try {
                   const ok = await toggleSaved(id as string);
                   setSaved(ok);

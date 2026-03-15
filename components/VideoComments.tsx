@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { db, auth } from "@/lib/firebase";
 import { useLocale } from "@/components/LocaleProvider";
+import { useAuth } from "@/components/AuthProvider";
 import {
   collection,
   addDoc,
@@ -33,6 +34,7 @@ export default function VideoComments({
   videoData?: VideoData;
 }) {
   const { t } = useLocale();
+  const { setShowLoginModal } = useAuth();
   const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState("");
   const [user, setUser] = useState<User | null>(null);
@@ -144,8 +146,15 @@ export default function VideoComments({
           </div>
         </form>
       ) : (
-        <div className="bg-white/5 p-4 rounded-xl mb-10 text-center text-gray-400">
-          {t("comment.loginRequired")}
+        <div className="bg-white/5 p-4 rounded-xl mb-10 text-center">
+          <p className="text-gray-400 mb-3">{t("comment.loginRequired")}</p>
+          <button
+            type="button"
+            onClick={() => setShowLoginModal(true)}
+            className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white text-sm font-medium transition-colors"
+          >
+            {t("user.signInOrSignUp")}
+          </button>
         </div>
       )}
 

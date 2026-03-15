@@ -28,6 +28,7 @@ function SearchContent() {
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [listening, setListening] = useState(false);
   const [micError, setMicError] = useState<string | null>(null);
+  const [attemptedForbidden, setAttemptedForbidden] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const refreshHistory = () => setSearchHistory(getSearchHistory());
@@ -60,7 +61,6 @@ function SearchContent() {
   }, [showSuggestions, q]);
 
   const searchViolation = isSearchViolation(q);
-  const [attemptedForbidden, setAttemptedForbidden] = useState(false);
 
   const handleSearchInputChange = (next: string) => {
     if (isSearchViolation(next)) {

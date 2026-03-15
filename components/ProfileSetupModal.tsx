@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { auth, updateUserProfile, uploadProfilePhoto } from "@/lib/firebase";
+import { auth } from "@/lib/firebase";
+import { updateUserProfile, uploadProfilePhoto } from "@/lib/firebase-auth";
 import { isAdmin } from "@/lib/isAdmin";
 
 const PROFILE_SETUP_KEY = "nabz-profile-setup-done";

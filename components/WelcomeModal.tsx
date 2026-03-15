@@ -12,7 +12,7 @@ import {
   signInWithEmail,
   resetPassword,
   getAuthConfigStatus,
-} from "@/lib/firebase";
+} from "@/lib/firebase-auth";
 import { getAuthErrorMessage } from "@/lib/authErrors";
 
 const WELCOME_KEY = "nabz-welcome-seen";
@@ -110,8 +110,11 @@ export function WelcomeModal({
     setError("");
     const configStatus = getAuthConfigStatus();
     if (!configStatus.ok) {
+      const isDeploy = typeof window !== "undefined" && (window.location.hostname.includes("vercel.app") || window.location.hostname !== "localhost");
       setError(
-        `Eksik: ${configStatus.missing.join(", ")}. .env.local'de bu değişkenleri doldurup sunucuyu yeniden başlatın (npm run dev).`
+        isDeploy
+          ? `Eksik: ${configStatus.missing.join(", ")}. Vercel Dashboard → Proje → Settings → Environment Variables bölümüne ekleyip Redeploy yapın. (Yerelde .env.local kullanılmaz.)`
+          : `Eksik: ${configStatus.missing.join(", ")}. Proje kökündeki .env.local dosyasında bu değişkenleri doldurun, .next klasörünü silin (rm -r .next) ve sunucuyu yeniden başlatın (npm run dev).`
       );
       setLoading(false);
       return;

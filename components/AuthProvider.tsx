@@ -1,7 +1,8 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { auth, ensureUserInEcosystem, handleRedirectResult } from "@/lib/firebase";
+import { auth } from "@/lib/firebase";
+import { ensureUserInEcosystem, handleRedirectResult } from "@/lib/firebase-auth";
 import { onAuthStateChanged, User } from "firebase/auth";
 
 interface AuthContextValue {

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, Plus, Library, User } from "lucide-react";
+import { Home, Search, Library, User } from "lucide-react";
 import type { User as FirebaseUser } from "firebase/auth";
 import { useLocale } from "@/components/LocaleProvider";
 import { HayalEtPaylasModal } from "@/components/HayalEtPaylasModal";
@@ -12,7 +12,7 @@ import { MobileProfileSheet } from "@/components/MobileProfileSheet";
 const navItemKeys = [
   { icon: Home, href: "/", labelKey: "nav.home" },
   { icon: Search, href: "/search", labelKey: "nav.search" },
-  { icon: Plus, href: "/create", labelKey: "nav.create", special: true },
+  { icon: Home, href: "/", labelKey: "nav.create", special: true },
   { icon: Library, href: "/library", labelKey: "nav.library" },
   { icon: User, href: "/", labelKey: "nav.profile", isProfile: true },
 ];
@@ -26,8 +26,6 @@ export const MobileNav = ({ user }: MobileNavProps) => {
   const { t } = useLocale();
   const [hayalModalOpen, setHayalModalOpen] = useState(false);
   const [profileSheetOpen, setProfileSheetOpen] = useState(false);
-  const isHome = pathname === "/";
-
   const navItems = navItemKeys.map((item) => ({ ...item, label: t(item.labelKey) }));
 
   const getHref = (item: (typeof navItems)[0]) => {
@@ -56,7 +54,7 @@ export const MobileNav = ({ user }: MobileNavProps) => {
           const active = isActive(item);
           const isCenter = item.special;
 
-          if (isCenter && isHome) {
+          if (isCenter) {
             return (
               <button
                 key={item.label}
@@ -72,22 +70,6 @@ export const MobileNav = ({ user }: MobileNavProps) => {
                   {t("home.hayalEtPaylas").split(",")[0]}
                 </span>
               </button>
-            );
-          }
-
-          if (isCenter) {
-            return (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="flex flex-col items-center justify-center flex-1 min-w-0 py-2 gap-0.5 rounded-lg active:scale-95 transition-transform"
-                aria-label={item.label}
-              >
-                <span className={`rounded-full p-2 ${pathname === "/create" ? "bg-white/15 text-white" : "text-gray-400"}`}>
-                  <Plus className="w-6 h-6" />
-                </span>
-                <span className="text-[10px] font-medium text-white/80 truncate">{item.label}</span>
-              </Link>
             );
           }
 

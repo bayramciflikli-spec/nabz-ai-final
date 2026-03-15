@@ -2,6 +2,8 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import {
   getAuth,
+  initializeAuth,
+  browserLocalPersistence,
   connectAuthEmulator,
   GoogleAuthProvider,
   OAuthProvider,
@@ -50,7 +52,18 @@ const app =
         });
 export const db = getFirestore(app);
 export const storage = getStorage(app);
-export const auth = getAuth(app);
+
+// Tarayıcıda kalıcı oturum (YouTube gibi): çıkış yapana veya hesap değiştirene kadar hatırla
+const isBrowser = typeof window !== "undefined";
+export const auth = isBrowser
+  ? (() => {
+      try {
+        return initializeAuth(app, { persistence: browserLocalPersistence });
+      } catch {
+        return getAuth(app);
+      }
+    })()
+  : getAuth(app);
 
 // Emulator: NEXT_PUBLIC_USE_AUTH_EMULATOR=true ile tüm giriş yöntemleri anında çalışır
 if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_USE_AUTH_EMULATOR === "true") {

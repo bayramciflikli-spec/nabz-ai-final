@@ -89,6 +89,35 @@ export default function SettingsPage() {
       <main className="flex-1 sm:ml-56 flex flex-col p-8 max-w-2xl">
         <h1 className="text-3xl font-black mb-6">{t("settings.title")}</h1>
 
+        {/* Senin UID'n – en üstte, hep görünsün */}
+        {user && (
+          <section className="mb-8 p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/30">
+            <p className="text-cyan-300 font-semibold text-sm mb-2">Senin UID numaran</p>
+            <p className="text-white/60 text-xs mb-2">
+              Admin paneli için .env.local dosyasına <code className="bg-black/30 px-1 rounded">NEXT_PUBLIC_ADMIN_UIDS=</code> yazıp bu UID&apos;yi yapıştırın.
+            </p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <code className="text-sm text-cyan-200 break-all flex-1 min-w-0 font-mono">{user.uid}</code>
+              <button
+                type="button"
+                onClick={copyUid}
+                className="shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg bg-cyan-500/30 hover:bg-cyan-500/50 text-cyan-200 transition-colors text-sm"
+              >
+                {copied === "uid" ? <Check size={16} className="text-green-400" /> : <Copy size={16} />}
+                {copied === "uid" ? "Kopyalandı!" : "UID kopyala"}
+              </button>
+              <button
+                type="button"
+                onClick={copyEnvLine}
+                className="shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 transition-colors text-sm"
+              >
+                {copied === "env" ? <Check size={16} className="text-green-400" /> : <Copy size={16} />}
+                {copied === "env" ? "Kopyalandı!" : "Satırı kopyala"}
+              </button>
+            </div>
+          </section>
+        )}
+
         {/* Admin Durumu */}
         {user && (
           <section className="mb-8">

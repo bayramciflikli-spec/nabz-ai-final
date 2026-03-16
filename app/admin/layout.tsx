@@ -8,6 +8,8 @@ import { isAdmin } from "@/lib/isAdmin";
 import { useAuth } from "@/components/AuthProvider";
 import { AdminShell } from "@/components/AdminShell";
 
+const AUTH_READY_TIMEOUT_MS = 5000;
+
 export default function AdminLayout({
   children,
 }: {
@@ -18,11 +20,24 @@ export default function AdminLayout({
   const { setShowLoginModal } = useAuth();
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => {
-      setUser(u);
+    let unsub: (() => void) | undefined;
+    try {
+      unsub = onAuthStateChanged(auth, (u) => {
+        setUser(u);
+        setReady(true);
+      });
+    } catch (err) {
+      console.error("[Admin layout] Firebase auth init error:", err);
       setReady(true);
-    });
-    return () => unsub();
+    }
+    const t = setTimeout(() => {
+      console.warn("[Admin layout] Auth ready timeout – showing UI.");
+      setReady(true);
+    }, AUTH_READY_TIMEOUT_MS);
+    return () => {
+      unsub?.();
+      clearTimeout(t);
+    };
   }, []);
 
   if (!ready) {

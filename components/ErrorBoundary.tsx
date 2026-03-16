@@ -1,6 +1,7 @@
 "use client";
 
 import { Component, ReactNode } from "react";
+import { ErrorFallback } from "./ErrorBoundaryFallback";
 
 interface Props {
   children: ReactNode;
@@ -22,7 +23,8 @@ export class ErrorBoundary extends Component<Props, State> {
     return { hasError: true };
   }
 
-  componentDidCatch() {
+  componentDidCatch(err: Error) {
+    console.error("[ErrorBoundary] caught:", err?.message, err?.stack, err);
     this.props.onError?.();
   }
 
@@ -34,15 +36,9 @@ export class ErrorBoundary extends Component<Props, State> {
             <div className="text-center">
               <h1 className="text-xl font-bold mb-4">Bir hata oluştu</h1>
               <p className="text-gray-400 mb-6">
-                Sayfayı yenileyerek tekrar deneyin.
+                Tekrar dene veya ana sayfaya dön.
               </p>
-              <button
-                type="button"
-                onClick={() => window.location.reload()}
-                className="px-6 py-2 bg-red-500 rounded-lg hover:bg-red-600 transition-colors"
-              >
-                Yenile
-              </button>
+              <ErrorFallback />
             </div>
           </div>
         )

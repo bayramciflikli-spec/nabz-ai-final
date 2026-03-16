@@ -15,8 +15,17 @@ export default function AdminError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("Admin error:", error);
+    console.error("[Admin Error] message:", error?.message, "digest:", error?.digest, "stack:", error?.stack, error);
   }, [error]);
+
+  const handleReset = () => {
+    try {
+      reset();
+    } catch (e) {
+      console.error("[Admin Error] reset failed:", e);
+      window.location.href = "/admin";
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white p-8">
@@ -28,7 +37,7 @@ export default function AdminError({
         <div className="flex flex-wrap gap-3 justify-center">
           <button
             type="button"
-            onClick={() => reset()}
+            onClick={handleReset}
             className="px-6 py-2 bg-cyan-600 rounded-lg hover:bg-cyan-500 transition-colors"
           >
             Tekrar Dene

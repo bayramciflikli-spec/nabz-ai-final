@@ -2,6 +2,7 @@
   "dev":"next dev",
   "dev:clean":"npm run clean && next dev",
   "clean":"node -e \"try{require('fs').rmSync('.next',{recursive:true,force:true});console.log('.next silindi');}catch(e){}\"",
+  "fullclean":"node -e \"const fs=require('fs');['.next','node_modules'].forEach(p=>{try{fs.rmSync(p,{recursive:true,force:true});console.log(p+' silindi');}catch(e){}});try{fs.unlinkSync('package-lock.json');console.log('package-lock.json silindi');}catch(e){}\"",
   "build":"next build",
   "start":"next start",
   "lint":"next lint"

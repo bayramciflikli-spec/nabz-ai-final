@@ -1,10 +1,16 @@
 /**
  * Admin yetki kontrolü.
- * Sadece .env.local içindeki NEXT_PUBLIC_ADMIN_UIDS'deki UID'ler admin (senin Gmail hesabının UID'si).
+ * NEXT_PUBLIC_ADMIN_UIDS'deki UID'ler admin. Tırnak ve boşluk hatalarını (Vercel/Firebase) kod tarafında temizler.
  */
-export function isAdmin(uid: string | undefined, request?: Request): boolean {
+function cleanUid(value: string): string {
+  return value.replace(/['"]+/g, "").trim();
+}
+
+export function isAdmin(uid: string | undefined, _request?: Request): boolean {
   if (!uid) return false;
-  const uids = process.env.NEXT_PUBLIC_ADMIN_UIDS?.trim();
-  if (!uids) return false;
-  return uids.split(",").map((x) => x.trim()).filter(Boolean).includes(uid);
+  const raw = process.env.NEXT_PUBLIC_ADMIN_UIDS ?? "";
+  if (!raw.trim()) return false;
+  const cleanAllowed = raw.split(",").map((id) => cleanUid(id)).filter(Boolean);
+  const cleanUserUid = cleanUid(uid);
+  return cleanAllowed.includes(cleanUserUid);
 }

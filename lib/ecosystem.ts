@@ -1,12 +1,16 @@
 /**
  * Ekosistem: Tek bir admin UID altında tüm kullanıcıların ve içeriğin toplanması.
- * NEXT_PUBLIC_ADMIN_UIDS'deki ilk UID = ekosistem sahibi.
+ * NEXT_PUBLIC_ADMIN_UIDS'deki ilk UID = ekosistem sahibi. Tırnak/boşluk temizlenir.
  */
 
+function cleanUid(value: string): string {
+  return value.replace(/['"]+/g, "").trim();
+}
+
 export function getEcosystemOwnerUid(): string | null {
-  const uids = process.env.NEXT_PUBLIC_ADMIN_UIDS?.trim();
-  if (!uids) return null;
-  const first = uids.split(",").map((x) => x.trim()).filter(Boolean)[0];
+  const raw = process.env.NEXT_PUBLIC_ADMIN_UIDS ?? "";
+  if (!raw.trim()) return null;
+  const first = raw.split(",").map((id) => cleanUid(id)).filter(Boolean)[0];
   return first ?? null;
 }
 

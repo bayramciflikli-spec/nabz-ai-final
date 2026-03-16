@@ -3,17 +3,12 @@ import { Resend } from "resend";
 import { getAdminFirestore } from "@/lib/firebase-admin";
 import { getContentViews, GLOBAL_PROMOTION_VIEWS_THRESHOLD } from "@/lib/contentDistribution";
 import { verifyApiAuth } from "@/lib/apiAuth";
+import { isAdmin } from "@/lib/isAdmin";
 
 function getResend() {
   const key = process.env.RESEND_API_KEY;
   if (!key) return null;
   return new Resend(key);
-}
-
-function isAdminUid(uid: string): boolean {
-  const uids = process.env.NEXT_PUBLIC_ADMIN_UIDS?.trim();
-  if (!uids) return false; // Env boşsa kimse admin olamaz
-  return uids.split(",").map((x) => x.trim()).filter(Boolean).includes(uid);
 }
 
 async function sendNotifyEmail() {
@@ -116,7 +111,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const verified = await verifyApiAuth(request);
-    if (!verified || !isAdminUid(verified.uid)) {
+    if (!verified || !isAdmin(verified.uid)) {
       return NextResponse.json({ ok: false, error: "Yetkisiz" }, { status: 401 });
     }
 

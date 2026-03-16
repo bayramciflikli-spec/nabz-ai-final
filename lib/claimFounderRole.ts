@@ -5,6 +5,7 @@
  */
 
 import { getAdminFirestore } from "./firebase-admin";
+import { isAdmin } from "./isAdmin";
 
 export interface ClaimResult {
   ok: boolean;
@@ -21,8 +22,7 @@ export async function claimFounderRole(uid: string): Promise<ClaimResult> {
     return { ok: false, error: "Firestore yapılandırılmamış" };
   }
 
-  const adminUids = process.env.NEXT_PUBLIC_ADMIN_UIDS?.trim();
-  if (!adminUids || !adminUids.split(",").map((x) => x.trim()).includes(uid)) {
+  if (!isAdmin(uid)) {
     return { ok: false, error: "Bu işlem için önceden tanımlı admin UID gerekir" };
   }
 

@@ -4,12 +4,12 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { useAuth } from "@/components/AuthProvider";
 import { AdminShell } from "@/components/AdminShell";
-import { AdminCodeGate } from "@/components/AdminCodeGate";
 import { signInWithGoogle } from "@/lib/firebase-auth";
 
-const AUTH_READY_TIMEOUT_MS = 2000;
-/** Giriş yoksa Google ile otomatik yönlendirme gecikmesi (ms). Bir kez giriş yaptıktan sonra tarayıcı sizi tanır. */
-const AUTO_SIGNIN_DELAY_MS = 1500;
+/** Oturum (Gmail) yüklenene kadar bekleme süresi – Firebase aynı sekmede girişi tanısın diye. */
+const AUTH_READY_TIMEOUT_MS = 5000;
+/** Giriş yoksa Google ile otomatik yönlendirme gecikmesi (ms). */
+const AUTO_SIGNIN_DELAY_MS = 2000;
 
 /** Vercel Environment Variables ile Firebase config eşleşmesini kontrol et; eksikse konsola uyarı yaz. */
 function logFirebaseConfigCheck() {
@@ -43,6 +43,7 @@ export default function AdminLayout({
     logFirebaseConfigCheck();
   }, []);
 
+  // Önce Firebase oturumunu bekle (Gmail ile giriş yaptıysanız aynı sekmede tanınır).
   useEffect(() => {
     if (!authLoading) setReady(true);
     const t = setTimeout(() => {
@@ -67,7 +68,8 @@ export default function AdminLayout({
     return (
       <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center gap-6 p-6">
         <div className="w-12 h-12 border-2 border-cyan-500/50 border-t-cyan-400 rounded-full animate-spin" />
-        <p className="text-white/90 font-medium">Kontrol Kulesi yükleniyor...</p>
+        <p className="text-white/90 font-medium">Oturum kontrol ediliyor...</p>
+        <p className="text-white/60 text-sm">Gmail ile giriş yaptıysanız burada tanınacaksınız.</p>
         {showFallback && (
           <div className="flex flex-col sm:flex-row gap-3 mt-4">
             <button
@@ -151,42 +153,12 @@ export default function AdminLayout({
     console.log("DEBUG: Guvenlik gecici olarak devre disi birakildi. Giris yapan UID:", user.uid);
   }
 
+  // Giriş yapılmışsa ek doğrulama yok – uygulamaya bağladığınız Gmail ile doğrudan panele alınıyorsunuz.
   if (deviceVerified === null) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center gap-6 p-6">
         <div className="w-12 h-12 border-2 border-cyan-500/50 border-t-cyan-400 rounded-full animate-spin" />
-        <p className="text-white/90 font-medium">Doğrulama kontrol ediliyor...</p>
-      </div>
-    );
-  }
-
-  if (deviceVerified === false) {
-    return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center pb-8">
-        {authError && (
-          <div className="w-full max-w-md p-4 mx-4 mt-6 rounded-xl bg-red-500/20 border border-red-500/50 text-red-300 text-center text-sm font-medium">
-            {authError}
-            <p className="text-red-300/80 text-xs mt-2">
-              Vercel Environment Variables içinde NEXT_PUBLIC_FIREBASE_* ve NEXT_PUBLIC_ADMIN_UIDS değerlerini kontrol edin.
-            </p>
-          </div>
-        )}
-        {/* Acil Durum: Firebase Auth başarılıysa cihaz kontrolü hata verse bile panele girilebilir */}
-        <div className="w-full max-w-md p-4 mx-4 mt-4 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-200 text-center text-sm">
-          <p className="font-medium mb-2">Acil Durum geçişi</p>
-          <p className="text-amber-200/80 text-xs mb-3">Firebase Auth başarılı; cihaz doğrulaması atlandı. Geçici olarak panele girebilirsiniz.</p>
-          <button
-            type="button"
-            onClick={() => { setDeviceVerified(true); setAuthError(null); }}
-            className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-semibold text-sm"
-          >
-            Panele gir
-          </button>
-        </div>
-        <div className="w-full max-w-md mt-6 px-4">
-          <p className="text-white/50 text-xs text-center mb-3">veya e-posta kodu ile doğrula:</p>
-          <AdminCodeGate onVerified={() => { setDeviceVerified(true); setAuthError(null); }} />
-        </div>
+        <p className="text-white/90 font-medium">Panele alınıyorsunuz...</p>
       </div>
     );
   }

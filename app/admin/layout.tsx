@@ -2,46 +2,33 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { auth } from "@/lib/firebase";
-import { onAuthStateChanged, type User } from "firebase/auth";
 import { isAdmin } from "@/lib/isAdmin";
 import { useAuth } from "@/components/AuthProvider";
 import { AdminShell } from "@/components/AdminShell";
 import { AdminCodeGate } from "@/components/AdminCodeGate";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
-const AUTH_READY_TIMEOUT_MS = 5000;
+const AUTH_READY_TIMEOUT_MS = 2000;
+const DEVICE_STATUS_TIMEOUT_MS = 6000;
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [user, setUser] = useState<User | null>(null);
+  const { user, loading: authLoading, setShowLoginModal } = useAuth();
   const [ready, setReady] = useState(false);
   const [deviceVerified, setDeviceVerified] = useState<boolean | null>(null);
-  const { setShowLoginModal } = useAuth();
+  const [showFallback, setShowFallback] = useState(false);
 
   useEffect(() => {
-    let unsub: (() => void) | undefined;
-    try {
-      unsub = onAuthStateChanged(auth, (u) => {
-        setUser(u);
-        setReady(true);
-      });
-    } catch (err) {
-      console.error("[Admin layout] Firebase auth init error:", err);
-      setReady(true);
-    }
+    if (!authLoading) setReady(true);
     const t = setTimeout(() => {
-      console.warn("[Admin layout] Auth ready timeout – showing UI.");
       setReady(true);
+      setShowFallback(true);
     }, AUTH_READY_TIMEOUT_MS);
-    return () => {
-      unsub?.();
-      clearTimeout(t);
-    };
-  }, []);
+    return () => clearTimeout(t);
+  }, [authLoading]);
 
   useEffect(() => {
     if (!user || !isAdmin(user.uid)) {
@@ -49,15 +36,23 @@ export default function AdminLayout({
       return;
     }
     let cancelled = false;
+    const timeoutId = setTimeout(() => {
+      if (!cancelled) setDeviceVerified(false);
+    }, DEVICE_STATUS_TIMEOUT_MS);
+
     fetchWithAuth("/api/admin/verify-device/status", { credentials: "include" })
-      .then((res) => res.json().catch(() => ({})))
+      .then((res) => (res.ok ? res.json() : { verified: false }))
       .then((data) => {
-        if (!cancelled) setDeviceVerified(data.verified === true);
+        if (!cancelled) setDeviceVerified(data?.verified === true);
       })
       .catch(() => {
         if (!cancelled) setDeviceVerified(false);
-      });
-    return () => { cancelled = true; };
+      })
+      .finally(() => clearTimeout(timeoutId));
+
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   if (!ready) {
@@ -65,6 +60,30 @@ export default function AdminLayout({
       <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center gap-6 p-6">
         <div className="w-12 h-12 border-2 border-cyan-500/50 border-t-cyan-400 rounded-full animate-spin" />
         <p className="text-white/90 font-medium">Kontrol Kulesi yükleniyor...</p>
+        {showFallback && (
+          <div className="flex flex-col sm:flex-row gap-3 mt-4">
+            <button
+              type="button"
+              onClick={() => setShowLoginModal(true)}
+              className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-medium"
+            >
+              Giriş yap
+            </button>
+            <Link
+              href="/"
+              className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm text-center"
+            >
+              Ana sayfa
+            </Link>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 text-sm"
+            >
+              Yenile
+            </button>
+          </div>
+        )}
       </div>
     );
   }

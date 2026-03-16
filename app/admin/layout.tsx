@@ -6,7 +6,10 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { isAdmin } from "@/lib/isAdmin";
 import { useAuth } from "@/components/AuthProvider";
-import { AdminShell } from "@/components/AdminShell";
+import { AdminShell } from "@/admin/components/AdminShell";
+import { AdminDeviceVerify } from "@/admin/components/AdminDeviceVerify";
+import { getDeviceId } from "@/admin/lib/adminDevice";
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 const AUTH_READY_TIMEOUT_MS = 5000;
 
@@ -17,6 +20,7 @@ export default function AdminLayout({
 }) {
   const [user, setUser] = useState<User | null>(null);
   const [ready, setReady] = useState(false);
+  const [deviceTrusted, setDeviceTrusted] = useState<boolean | null>(null);
   const { setShowLoginModal } = useAuth();
 
   useEffect(() => {
@@ -39,6 +43,29 @@ export default function AdminLayout({
       clearTimeout(t);
     };
   }, []);
+
+  useEffect(() => {
+    if (!user || !isAdmin(user.uid)) {
+      setDeviceTrusted(null);
+      return;
+    }
+    const deviceId = getDeviceId();
+    if (!deviceId) {
+      setDeviceTrusted(false);
+      return;
+    }
+    let cancelled = false;
+    fetchWithAuth(`/api/admin/verify-device/status?deviceId=${encodeURIComponent(deviceId)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled && data?.ok === true) setDeviceTrusted(!!data.trusted);
+        else if (!cancelled) setDeviceTrusted(false);
+      })
+      .catch(() => {
+        if (!cancelled) setDeviceTrusted(false);
+      });
+    return () => { cancelled = true; };
+  }, [user?.uid]);
 
   if (!ready) {
     return (
@@ -109,6 +136,19 @@ export default function AdminLayout({
         </div>
       </div>
     );
+  }
+
+  if (deviceTrusted === null) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center gap-6 p-6">
+        <div className="w-12 h-12 border-2 border-amber-500/50 border-t-amber-400 rounded-full animate-spin" />
+        <p className="text-white/90 font-medium">Cihaz kontrol ediliyor...</p>
+      </div>
+    );
+  }
+
+  if (deviceTrusted === false) {
+    return <AdminDeviceVerify onVerified={() => setDeviceTrusted(true)} />;
   }
 
   return <AdminShell>{children}</AdminShell>;

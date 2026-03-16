@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { isAdmin } from "@/lib/isAdmin";
 import { useAuth } from "@/components/AuthProvider";
 import { AdminShell } from "@/components/AdminShell";
 import { AdminCodeGate } from "@/components/AdminCodeGate";
+import { signInWithGoogle } from "@/lib/firebase-auth";
 
 const AUTH_READY_TIMEOUT_MS = 2000;
+/** Giriş yoksa Google ile otomatik yönlendirme gecikmesi (ms). Bir kez giriş yaptıktan sonra tarayıcı sizi tanır. */
+const AUTO_SIGNIN_DELAY_MS = 1500;
 
 /** Vercel Environment Variables ile Firebase config eşleşmesini kontrol et; eksikse konsola uyarı yaz. */
 function logFirebaseConfigCheck() {
@@ -34,6 +36,8 @@ export default function AdminLayout({
   const [deviceVerified, setDeviceVerified] = useState<boolean | null>(null);
   const [showFallback, setShowFallback] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [autoRedirecting, setAutoRedirecting] = useState(false);
+  const autoRedirectDone = useRef(false);
 
   useEffect(() => {
     logFirebaseConfigCheck();
@@ -92,35 +96,51 @@ export default function AdminLayout({
     );
   }
 
+  // Giriş yoksa: bir kez Google ile giriş yaptıktan sonra bu tarayıcı sizi tanır; otomatik yönlendirme ile tek tıkla giriş
+  useEffect(() => {
+    if (user || authLoading || autoRedirectDone.current) return;
+    autoRedirectDone.current = true;
+    const t = setTimeout(() => {
+      setAutoRedirecting(true);
+      signInWithGoogle().catch(() => setAutoRedirecting(false));
+    }, AUTO_SIGNIN_DELAY_MS);
+    return () => clearTimeout(t);
+  }, [user, authLoading]);
+
   if (!user) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center gap-6 p-6 text-center">
-        <p className="text-white/90 font-medium text-lg">Kontrol Kulesi için giriş yapın</p>
-        <p className="text-white/60 text-sm max-w-sm">
-          Bir kez giriş yaptıktan sonra tarayıcı sizi hatırlar; çıkış yapana kadar tekrar giriş gerekmez.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <button
-            type="button"
-            onClick={() => setShowLoginModal(true)}
-            className="px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white font-semibold transition-colors"
-          >
-            Giriş yap
-          </button>
-          <Link
-            href="/"
-            className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold transition-colors border border-white/20 text-center"
-          >
-            Ana sayfaya git
-          </Link>
-          <button
-            type="button"
-            onClick={() => window.location.reload()}
-            className="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white/80 font-medium transition-colors border border-white/10 text-sm"
-          >
-            Yenile
-          </button>
-        </div>
+        {autoRedirecting ? (
+          <>
+            <div className="w-12 h-12 border-2 border-cyan-500/50 border-t-cyan-400 rounded-full animate-spin" />
+            <p className="text-white/90 font-medium text-lg">Google ile giriş sayfasına yönlendiriliyorsunuz...</p>
+            <p className="text-white/60 text-sm max-w-sm">
+              bayramciflikli@gmail.com veya kullandığınız hesabı seçin. Bir kez giriş yaptıktan sonra bu tarayıcı sizi otomatik tanır.
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="text-white/90 font-medium text-lg">Kontrol Kulesi için giriş yapın</p>
+            <p className="text-white/60 text-sm max-w-sm">
+              Birkaç saniye içinde Google ile giriş sayfasına yönlendirileceksiniz. Bir kez giriş yaptıktan sonra tarayıcı sizi hatırlar.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                type="button"
+                onClick={() => { setAutoRedirecting(true); signInWithGoogle().catch(() => setAutoRedirecting(false)); }}
+                className="px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white font-semibold transition-colors"
+              >
+                Şimdi Google ile giriş yap
+              </button>
+              <Link
+                href="/"
+                className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold transition-colors border border-white/20 text-center"
+              >
+                Ana sayfaya git
+              </Link>
+            </div>
+          </>
+        )}
       </div>
     );
   }

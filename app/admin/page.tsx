@@ -2,11 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Sidebar } from "@/components/Sidebar";
 import { auth } from "@/lib/firebase";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import { onAuthStateChanged, type User } from "firebase/auth";
-import { GripVertical, CheckCircle, XCircle, Monitor } from "lucide-react";
+import { CheckCircle, XCircle, Monitor } from "lucide-react";
 
 interface PendingItem {
   id: string;
@@ -97,48 +96,7 @@ export default function AdminPage() {
   const displayName = user?.displayName || "Kurucu";
 
   return (
-    <div className="flex min-h-screen bg-[#0a0a0a] text-white">
-      <div className="hidden sm:block">
-        <Sidebar user={user} />
-      </div>
-
-      <div className="flex-1 sm:ml-56 flex">
-        {/* Sol panel */}
-        <aside className="w-[260px] bg-[#111] border-r border-white/10 flex flex-col p-6 shrink-0">
-          <div className="font-['Orbitron'] font-black text-xl mb-12 bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-            NABZ-AI CTRL
-          </div>
-          <nav className="flex flex-col gap-2">
-            {[
-              { label: "Kontrol Kulesi", href: "/admin", active: true },
-              { label: "Ekosistemim", href: "/admin/ecosystem", active: false },
-              { label: "Global Onay Kuyruğu", href: "/admin/global-control", active: false },
-              { label: "Kullanıcı Yönetimi", href: "/admin/users", active: false },
-              { label: "Financial Hub", href: "/admin/financial", active: false },
-              { label: "Şeffaflık Raporu", href: "/admin/transparency", active: false },
-              { label: "Aktif Sponsorlar", href: "/admin/financial", active: false },
-              { label: "Hukuki Filtreler", href: "/admin/legal-filters", active: false },
-              { label: "Yasaklı Kelime/İçerik", href: "/admin/banned-content", active: false },
-              { label: "Sanal AVM Analitik", href: "/mall", active: false },
-            ].map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className={`px-4 py-3 rounded-lg transition-colors flex items-center gap-2 ${
-                  item.active
-                    ? "bg-cyan-500/10 text-cyan-400"
-                    : "hover:bg-white/5 text-white/70"
-                }`}
-              >
-                <GripVertical size={14} className="opacity-50" />
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </aside>
-
-        {/* Ana içerik */}
-        <main className="flex-1 p-8 overflow-y-auto">
+    <div className="p-8">
           <header className="flex justify-between items-center border-b border-white/10 pb-4 mb-6">
             <h2 className="text-2xl font-bold">
               <span className="text-green-400">NABZ-AI</span>{" "}
@@ -269,8 +227,6 @@ export default function AdminPage() {
               </div>
             )}
           </section>
-        </main>
-      </div>
     </div>
   );
 }

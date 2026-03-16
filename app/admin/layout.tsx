@@ -5,6 +5,7 @@ import Link from "next/link";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { isAdmin } from "@/lib/isAdmin";
+import { AdminShell } from "@/components/AdminShell";
 
 export default function AdminLayout({
   children,
@@ -72,5 +73,5 @@ export default function AdminLayout({
     );
   }
 
-  return <>{children}</>;
+  return <AdminShell>{children}</AdminShell>;
 }

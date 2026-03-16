@@ -2,11 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Sidebar } from "@/components/Sidebar";
 import { auth } from "@/lib/firebase";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import { onAuthStateChanged, type User } from "firebase/auth";
-import { GripVertical, Users, FileVideo, ExternalLink } from "lucide-react";
+import { Users, FileVideo, ExternalLink } from "lucide-react";
 
 interface EcosystemUser {
   id: string;
@@ -63,42 +62,7 @@ export default function AdminEcosystemPage() {
   }, [user]);
 
   return (
-    <div className="flex min-h-screen bg-[#0a0a0a] text-white">
-      <div className="hidden sm:block">
-        <Sidebar user={user} />
-      </div>
-
-      <div className="flex-1 sm:ml-56 flex">
-        <aside className="w-[260px] bg-[#111] border-r border-white/10 flex flex-col p-6 shrink-0">
-          <div className="font-['Orbitron'] font-black text-xl mb-12 bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-            NABZ-AI CTRL
-          </div>
-          <nav className="flex flex-col gap-2">
-            {[
-              { label: "Kontrol Kulesi", href: "/admin", active: false },
-              { label: "Ekosistemim", href: "/admin/ecosystem", active: true },
-              { label: "Global Onay Kuyruğu", href: "/admin/global-control", active: false },
-              { label: "Kullanıcı Yönetimi", href: "/admin/users", active: false },
-              { label: "Financial Hub", href: "/admin/financial", active: false },
-              { label: "Şeffaflık Raporu", href: "/admin/transparency", active: false },
-              { label: "Hukuki Filtreler", href: "/admin/legal-filters", active: false },
-              { label: "Yasaklı Kelime/İçerik", href: "/admin/banned-content", active: false },
-            ].map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className={`px-4 py-3 rounded-lg transition-colors flex items-center gap-2 ${
-                  item.active ? "bg-cyan-500/10 text-cyan-400" : "hover:bg-white/5 text-white/70"
-                }`}
-              >
-                <GripVertical size={14} className="opacity-50" />
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </aside>
-
-        <main className="flex-1 p-8 overflow-y-auto">
+    <div className="p-8">
           <h1 className="text-2xl font-bold mb-2 flex items-center gap-2">
             <Users size={28} className="text-cyan-400" />
             Ekosistemim
@@ -195,8 +159,6 @@ export default function AdminEcosystemPage() {
               Kullanıcı Yönetimi
             </Link>
           </div>
-        </main>
-      </div>
     </div>
   );
 }

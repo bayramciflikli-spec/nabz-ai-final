@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Sidebar } from "@/components/Sidebar";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
-import { GripVertical, Ban, Shield, Plus, Trash2, Database } from "lucide-react";
+import { Ban, Shield, Plus, Trash2, Database } from "lucide-react";
 import { SEARCH_BLACKLIST, SAFE_SEARCH_ALTERNATIVES } from "@/lib/searchGuard";
 import { CONTENT_RULES } from "@/lib/contentRules";
 
@@ -132,33 +131,7 @@ export default function AdminBannedContentPage() {
     : displayTerms;
 
   return (
-    <div className="flex min-h-screen bg-[#050505] text-white">
-      <div className="hidden sm:block">
-        <Sidebar user={user} />
-      </div>
-
-      <div className="flex-1 sm:ml-56 flex">
-        <aside className="w-[260px] bg-[#111] border-r border-white/10 flex flex-col p-6 shrink-0">
-          <div className="font-['Orbitron'] font-black text-xl mb-12 bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-            NABZ-AI CTRL
-          </div>
-          <nav className="flex flex-col gap-2">
-            {navItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className={`px-4 py-3 rounded-lg transition-colors flex items-center gap-2 ${
-                  item.active ? "bg-cyan-500/10 text-cyan-400" : "hover:bg-white/5 text-white/70"
-                }`}
-              >
-                <GripVertical size={14} className="opacity-50" />
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </aside>
-
-        <main className="flex-1 p-8 overflow-y-auto">
+    <div className="p-8">
           <h1 className="text-2xl font-bold mb-8 flex items-center gap-2">
             <Ban size={28} className="text-red-400" />
             Yasaklı Kelime ve İçerik
@@ -269,8 +242,6 @@ export default function AdminBannedContentPage() {
               Ana Sayfa
             </Link>
           </div>
-        </main>
-      </div>
     </div>
   );
 }

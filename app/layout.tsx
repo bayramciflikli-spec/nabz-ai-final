@@ -1,23 +1,17 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AdSenseWithConsent } from "@/components/AdSenseWithConsent";
-import { CookieConsentBanner } from "@/components/CookieConsentBanner";
-import { Header } from "@/components/Header";
-import { MobileNavWrapper } from "@/components/MobileNavWrapper";
-import { SplashWrapper } from "@/components/SplashWrapper";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { LegalFooter } from "@/components/LegalFooter";
 import { AuthProvider } from "@/components/AuthProvider";
 import { LocaleProvider } from "@/components/LocaleProvider";
 import { CountryProvider } from "@/components/CountryProvider";
-import { GlobalLoginModal } from "@/components/GlobalLoginModal";
 import { SearchOverlayProvider } from "@/components/SearchOverlayContext";
-import { SearchOverlay } from "@/components/SearchOverlay";
 import { AdminManifest } from "@/components/AdminManifest";
 import { PwaRegister } from "@/components/PwaRegister";
 import { PwaInstallBanner } from "@/components/PwaInstallBanner";
 import { BannedTermsLoader } from "@/components/BannedTermsLoader";
 import { ToastProvider } from "@/components/ToastContext";
+import { AppShell } from "@/components/AppShell";
 
 export const metadata: Metadata = {
   title: "Nabız - AI Video Platformu",
@@ -57,23 +51,15 @@ export default function RootLayout({
         <BannedTermsLoader />
         <ErrorBoundary>
           <ToastProvider>
-          <AuthProvider>
-            <LocaleProvider>
-              <CountryProvider>
-                <SearchOverlayProvider>
-                  <SearchOverlay />
-                  <SplashWrapper>
-                    <Header />
-                    {children}
-                    <LegalFooter />
-                    <MobileNavWrapper />
-                    <GlobalLoginModal />
-                  </SplashWrapper>
-                  <CookieConsentBanner />
-                </SearchOverlayProvider>
-              </CountryProvider>
-            </LocaleProvider>
-          </AuthProvider>
+            <AuthProvider>
+              <LocaleProvider>
+                <CountryProvider>
+                  <SearchOverlayProvider>
+                    <AppShell>{children}</AppShell>
+                  </SearchOverlayProvider>
+                </CountryProvider>
+              </LocaleProvider>
+            </AuthProvider>
           </ToastProvider>
         </ErrorBoundary>
       </body>

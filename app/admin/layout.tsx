@@ -5,6 +5,7 @@ import Link from "next/link";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { isAdmin } from "@/lib/isAdmin";
+import { useAuth } from "@/components/AuthProvider";
 import { AdminShell } from "@/components/AdminShell";
 
 export default function AdminLayout({
@@ -14,6 +15,7 @@ export default function AdminLayout({
 }) {
   const [user, setUser] = useState<User | null>(null);
   const [ready, setReady] = useState(false);
+  const { setShowLoginModal } = useAuth();
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
@@ -35,23 +37,30 @@ export default function AdminLayout({
   if (!user) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center gap-6 p-6 text-center">
-        <p className="text-white/90 font-medium text-lg">Kontrol Kulesi için giriş yapmanız gerekiyor.</p>
+        <p className="text-white/90 font-medium text-lg">Kontrol Kulesi için giriş yapın</p>
         <p className="text-white/60 text-sm max-w-sm">
-          Önce ana sayfaya gidip sağ üstten Gmail ile giriş yapın. Girişten sonra bu sayfayı açın veya ana sayfadaki &quot;Kontrol Kulesi&quot;ne tıklayın.
+          Bir kez giriş yaptıktan sonra tarayıcı sizi hatırlar; çıkış yapana kadar tekrar giriş gerekmez.
         </p>
         <div className="flex flex-col sm:flex-row gap-3">
-          <Link
-            href="/"
+          <button
+            type="button"
+            onClick={() => setShowLoginModal(true)}
             className="px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white font-semibold transition-colors"
           >
-            Ana sayfaya git ve giriş yap
+            Giriş yap
+          </button>
+          <Link
+            href="/"
+            className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold transition-colors border border-white/20 text-center"
+          >
+            Ana sayfaya git
           </Link>
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold transition-colors border border-white/20"
+            className="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white/80 font-medium transition-colors border border-white/10 text-sm"
           >
-            Sayfayı yenile
+            Yenile
           </button>
         </div>
       </div>
@@ -60,15 +69,29 @@ export default function AdminLayout({
 
   if (!isAdmin(user.uid)) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center gap-6 p-6 text-center">
-        <p className="text-white/90 font-medium text-lg">Bu sayfaya erişim yetkiniz yok.</p>
-        <p className="text-white/60 text-sm">Sadece admin hesabı (Gmail) ile giriş yapıldığında Kontrol Kulesi açılır.</p>
-        <Link
-          href="/"
-          className="px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white font-semibold transition-colors"
-        >
-          Ana sayfaya dön
-        </Link>
+      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center gap-6 p-6 text-center max-w-md">
+        <p className="text-white/90 font-medium text-lg">Bu sayfaya erişim yetkiniz yok</p>
+        <p className="text-white/60 text-sm">
+          Sadece yetkili admin hesabıyla giriş yapıldığında Kontrol Kulesi açılır. Bir kez giriş yaptıktan sonra tarayıcı sizi hatırlar.
+        </p>
+        <p className="text-white/40 text-xs">
+          Giriş yaptıysanız, UID&apos;nizin proje ayarlarındaki <code className="bg-white/10 px-1 rounded">NEXT_PUBLIC_ADMIN_UIDS</code> listesinde olduğundan emin olun.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            type="button"
+            onClick={() => setShowLoginModal(true)}
+            className="px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white font-semibold transition-colors"
+          >
+            Farklı hesapla giriş yap
+          </button>
+          <Link
+            href="/"
+            className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold transition-colors border border-white/20 text-center"
+          >
+            Ana sayfaya dön
+          </Link>
+        </div>
       </div>
     );
   }

@@ -1,5 +1,7 @@
 # Yerel vs Production – Hangi Ortam, Ne Yapılır?
 
+**Stabilizasyon (404 Static Chunks / 500 Manifest):** Tüm asset ve API yolları ana dizinden (`/`). Manifest route hata verirse bile geçerli JSON döner. Chunk 404 alırsanız `npm run dev:clean` ile başlatın.
+
 ## Hangi ortam nerede?
 
 | Ortam        | Adres / Kullanım        | Ayar dosyası / Kaynak      |

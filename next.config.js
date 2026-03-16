@@ -1,10 +1,9 @@
 /** @type {import('next').NextConfig} */
-// Yerel: .env.local + npm run dev (veya npm run dev:clean ile cache temiz başlatma)
-// Production (www.nabz-ai.com): Vercel env + Git deploy; her deploy temiz build.
+// Yerel: .env.local + npm run dev:clean. Production: Vercel env + deploy.
+// Tüm asset ve API yolları ana dizinden (/) – basePath/assetPrefix yok.
 const nextConfig = {
-  // Geliştirmede cache bozulması (chunk 404, pack.gz ENOENT) yaşanırsa: npm run dev:clean
+  // basePath ve assetPrefix yok; chunk/static yolları her zaman /_next/... ile root'tan
   experimental: {
-    // Geliştirme sırasında webpack cache bazen bozuluyor; optimizePackageImports ile yük hafifler
     optimizePackageImports: ["lucide-react"],
   },
 };

@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "@/lib/firebase";
 import { ensureUserInEcosystem, handleRedirectResult } from "@/lib/firebase-auth";
-import { onAuthStateChanged, User } from "firebase/auth";
+import { onAuthStateChanged, setPersistence, browserLocalPersistence, User } from "firebase/auth";
 
 interface AuthContextValue {
   user: User | null;
@@ -25,7 +25,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
-    // Önce dinleyiciyi bağla; redirect sonrası kullanıcı kaçmasın
+    // Tarayıcıda kalıcı oturum: bir kez giriş yaptıktan sonra çıkış yapana kadar hatırlanır
+    setPersistence(auth, browserLocalPersistence).catch(() => {});
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);

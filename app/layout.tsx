@@ -12,6 +12,7 @@ import { PwaInstallBanner } from "@/components/PwaInstallBanner";
 import { BannedTermsLoader } from "@/components/BannedTermsLoader";
 import { ToastProvider } from "@/components/ToastContext";
 import { AppShell } from "@/components/AppShell";
+import { GlobalLoginModal } from "@/components/GlobalLoginModal";
 
 export const metadata: Metadata = {
   title: "Nabız - AI Video Platformu",
@@ -56,6 +57,7 @@ export default function RootLayout({
                 <CountryProvider>
                   <SearchOverlayProvider>
                     <AppShell>{children}</AppShell>
+                    <GlobalLoginModal />
                   </SearchOverlayProvider>
                 </CountryProvider>
               </LocaleProvider>

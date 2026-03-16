@@ -4,7 +4,6 @@ import { usePathname } from "next/navigation";
 import { Header } from "@/components/Header";
 import { MobileNavWrapper } from "@/components/MobileNavWrapper";
 import { LegalFooter } from "@/components/LegalFooter";
-import { GlobalLoginModal } from "@/components/GlobalLoginModal";
 import { SearchOverlay } from "@/components/SearchOverlay";
 import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { SplashWrapper } from "@/components/SplashWrapper";
@@ -29,7 +28,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {children}
         <LegalFooter />
         <MobileNavWrapper />
-        <GlobalLoginModal />
       </SplashWrapper>
       <CookieConsentBanner />
     </>

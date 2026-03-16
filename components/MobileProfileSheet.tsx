@@ -140,6 +140,14 @@ export function MobileProfileSheet({ open, onClose, user }: MobileProfileSheetPr
         <div className="flex-1 overflow-y-auto py-2">
           {user ? (
             <>
+              {isAdmin(user.uid) && (
+                <div className="px-4 pb-3 mb-1 border-b border-amber-500/20">
+                  <Link href="/admin" onClick={onClose} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 transition-colors">
+                    <ShieldCheck size={22} className="shrink-0" />
+                    <span className="font-semibold">Kontrol Kulesi</span>
+                  </Link>
+                </div>
+              )}
               {/* Hesabım – açılır kapanır */}
               <div className="border-b border-white/10">
                 <button

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AdSenseWithConsent } from "@/components/AdSenseWithConsent";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { PathAwareErrorFallback } from "@/components/PathAwareErrorFallback";
 import { AuthProvider } from "@/components/AuthProvider";
 import { LocaleProvider } from "@/components/LocaleProvider";
 import { CountryProvider } from "@/components/CountryProvider";
@@ -50,7 +51,7 @@ export default function RootLayout({
         <PwaRegister />
         <PwaInstallBanner />
         <BannedTermsLoader />
-        <ErrorBoundary>
+        <ErrorBoundary fallback={<PathAwareErrorFallback />}>
           <ToastProvider>
             <AuthProvider>
               <LocaleProvider>

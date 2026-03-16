@@ -24,15 +24,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  // Aynı tarayıcıda kalıcı oturum: bayramciflikli@gmail.com ile bir kez giriş → çıkış yapana kadar otomatik tanınır
+  // Aynı tarayıcıda kalıcı oturum: bir kez giriş → çıkış yapana kadar otomatik tanınır
   useEffect(() => {
     setPersistence(auth, browserLocalPersistence).catch(() => {});
     const unsub = onAuthStateChanged(auth, (u) => {
-      setUser(u);
-      setLoading(false);
-      if (u) {
-        setShowLoginModal(false);
-        ensureUserInEcosystem(u.uid).catch(() => {});
+      try {
+        setUser(u);
+        setLoading(false);
+        if (u) {
+          setShowLoginModal(false);
+          ensureUserInEcosystem(u.uid).catch(() => {});
+        }
+      } catch (err) {
+        console.error("[AuthProvider] onAuthStateChanged callback error:", err);
+        setLoading(false);
       }
     });
     handleRedirectResult().catch(() => {});

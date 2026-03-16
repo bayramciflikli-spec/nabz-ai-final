@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { useAuth } from "@/components/AuthProvider";
 import { AdminShell } from "@/components/AdminShell";
-import { signInWithGoogle } from "@/lib/firebase-auth";
+import { signInWithGoogle, getAuthConfigStatus } from "@/lib/firebase-auth";
 
 /** Oturum (Gmail) yüklenene kadar bekleme süresi – Firebase aynı sekmede girişi tanısın diye. */
 const AUTH_READY_TIMEOUT_MS = 5000;
@@ -98,9 +98,11 @@ export default function AdminLayout({
     );
   }
 
-  // Giriş yoksa: bir kez Google ile giriş yaptıktan sonra bu tarayıcı sizi tanır; otomatik yönlendirme ile tek tıkla giriş
+  // Giriş yoksa: config geçerliyse Google ile otomatik yönlendirme (hatayla karşılaşmamak için)
   useEffect(() => {
     if (user || authLoading || autoRedirectDone.current) return;
+    const { ok } = getAuthConfigStatus();
+    if (!ok) return; // Firebase config yoksa redirect tetikleme
     autoRedirectDone.current = true;
     const t = setTimeout(() => {
       setAutoRedirecting(true);
@@ -129,7 +131,11 @@ export default function AdminLayout({
             <div className="flex flex-col sm:flex-row gap-3">
               <button
                 type="button"
-                onClick={() => { setAutoRedirecting(true); signInWithGoogle().catch(() => setAutoRedirecting(false)); }}
+                onClick={() => {
+                  if (!getAuthConfigStatus().ok) return;
+                  setAutoRedirecting(true);
+                  signInWithGoogle().catch(() => setAutoRedirecting(false));
+                }}
                 className="px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white font-semibold transition-colors"
               >
                 Şimdi Google ile giriş yap

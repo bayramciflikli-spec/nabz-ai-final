@@ -1,46 +1,44 @@
-# Admin paneli güvenlik ve güncelleme
+# Admin paneli güvenlik ve kullanım
 
-## Admin NABZ-AI uygulamasının içinde (dosya ayrı)
+## NABZ-AI içinde admin paneli
 
-- Admin paneli **aynı proje içinde**, ama admin’e özel kod **ayrı klasörde**:
-  - **`admin/`** – Admin bileşenleri ve lib (AdminShell, AdminDeviceVerify, adminDevice).
-  - **`app/admin/`** – Admin sayfa route’ları.
-  - **`app/api/admin/`** – Admin API route’ları.
-- Uygulama tek; sadece dosya yapısı böyle ayrıldı (bakım ve ileride bölmek için).
-- Sadece **admin kullanıcıda** görünür: Hesabım menüsü (UserMenu) ve mobil profil (MobileProfileSheet) içinde "Kontrol Kulesi" / "Admin Panel" linki yalnızca `NEXT_PUBLIC_ADMIN_UIDS` içindeki UID’ye sahip kullanıcıda gösterilir.
+- Admin paneli uygulamanın **içinde** yer alır: `/admin` ve alt sayfalar.
+- Giriş linki (Kontrol Kulesi / Admin Panel) **sadece** `NEXT_PUBLIC_ADMIN_UIDS` içindeki UID’ye sahip kullanıcılara gösterilir (Header, Sidebar, UserMenu, MobileProfileSheet, HomePage, Dashboard, Settings).
+- Başka kullanıcılar admin linkini görmez; `/admin` adresini bilseler bile giriş yapsalar yetkisiz mesajı alır.
 
-## Güncellemelerden izolasyon ("admini güncelle demeden etkilenmesin")
+## Cihaz doğrulama (yeni cihazda e-posta kodu)
 
-- Şu an **tek Next.js uygulaması** olduğu için her deploy hem uygulamayı hem admin’i birlikte günceller.
-- İzolasyon seçenekleri:
-  1. **Süreç**: Admin ile ilgili değişiklikleri ayrı commit’lerde yapıp sadece ihtiyaç olduğunda "admin tarafı" deploy edebilirsiniz (aynı repo, aynı build; sadece ne zaman deploy ettiğinizi yönetirsiniz).
-  2. **İleride ayrı deploy**: Admin’i tamamen ayırmak isterseniz, `app/admin` ve `app/api/admin` ayrı bir projeye taşınıp ayrı bir Vercel/proje olarak deploy edilebilir; böylece "admini güncelle" dediğinizde sadece o proje güncellenir.
+- **Yeni cihazdan** admin panele girildiğinde:
+  1. E-posta (Gmail vb.) adresine **6 haneli doğrulama kodu** gönderilir (Resend).
+  2. Kullanıcı uygulamada açılan **“Kodu gir”** ekranına bu kodu yazar ve onaylar.
+  3. Doğru kod girilince cihaz **oturumla eşleştirilir** (çerez + Firestore oturumu, 30 gün).
+- Aynı cihazda tekrar girişte kod istenmez (çerez geçerli olduğu sürece).
+- **Koruma:** Hesap çalınsa bile yeni cihazda kod olmadan admin panele girilemez.
 
-## Yeni cihaz doğrulama (e-posta kodu)
+### Teknik
 
-- Admin panele **yeni cihazdan** ilk girişte:
-  1. Cihaz kimliği (localStorage’da) sunucuda "güvenilir" listede yoksa, **"Kodu gir"** ekranı açılır.
-  2. "E-postaya kod gönder" ile **6 haneli kod** hesabınızdaki e-posta adresine (Resend ile) gönderilir.
-  3. Kodu uygulamada girip "Onayla" demeden admin paneline **erişilemez**.
-  4. Kod onaylanınca bu cihaz `admin_trusted_devices` koleksiyonuna eklenir; bir daha aynı cihazda kod istenmez.
+- Kod gönderme: `POST /api/admin/verify-device/send` (admin token gerekli).
+- Kod doğrulama: `POST /api/admin/verify-device/confirm` (body: `{ code }`), başarıda `nabz_admin_session` çerezi set edilir.
+- Durum: `GET /api/admin/verify-device/status` → `{ verified: true|false }`.
+- Firestore: `adminVerificationCodes` (geçici kodlar), `adminSessions` (cihaz oturumları).
+- Rate limit: Kod isteği en az 60 sn arayla; 5 yanlış kod denemesi sonrası 15 dk kilidi.
 
-Firestore:
+## Admin’in güncellemelerden etkilenmemesi
 
-- `admin_trusted_devices/{uid}`: `deviceIds` dizisi (onaylanmış cihaz kimlikleri).
-- `admin_verification_codes/{uid}_{deviceId}`: `code`, `expiresAt` (10 dakika TTL).
+- “Admini güncelle demeden güncellemelerden etkilenmesin” için:
+  - Admin sayfaları ve API’ler mümkün olduğunca **ayrı tutulur**; ana uygulama güncellemelerinde admin rotalarına gereksiz dokunulmaz.
+  - İsterseniz Vercel’de sadece belirli path’leri (örn. `/admin` dışı) deploy eden veya admin’i ayrı branch’te tutan bir iş akışı kullanılabilir.
+- Tarayıcı önbelleği: Gerekirse `next.config.js` içinde `/admin` için ayrı cache header’ları eklenebilir; şu an varsayılan Next davranışı kullanılıyor.
 
 ## Ek güvenlik önerileri
 
-1. **E-posta**: Admin hesabında mutlaka doğrulanmış, güvenilir bir e-posta kullanın (kod bu adrese gider).
-2. **RESEND / e-posta**: `RESEND_API_KEY` ve `RESEND_FROM` production’da doğru tanımlı olsun; kod e-postası düzgün gitsin.
-3. **2FA (TOTP)**: İleride Google Authenticator vb. ile ikinci faktör eklenebilir.
-4. **Admin API rate limit**: `/api/admin/*` isteklerine rate limit koyulabilir (Vercel / middleware veya API tarafında).
-5. **Audit log**: Admin işlemlerini (kim, ne, ne zaman) Firestore’da veya başka bir yerde loglayabilirsiniz.
-6. **Cihaz listesi**: İleride "Güvenilen cihazlar" sayfası eklenip, cihaz silme (cihazı listeden çıkarma) yapılabilir.
-7. **Oturum süresi**: Belirli bir süre sonra admin tarafında tekrar kod isteyebilirsiniz (örn. 30 günde bir).
+1. **Oturum süresi:** Cihaz çerezi 30 gün. Daha kısa süre (örn. 7 gün) için `lib/adminDeviceVerify.ts` içindeki `ADMIN_SESSION_MAX_AGE_DAYS` değeri düşürülebilir.
+2. **Admin giriş logu:** Önemli admin işlemleri (ve isteğe bağlı her admin girişi) Firestore’da bir `adminAuditLog` koleksiyonuna tarih, UID, işlem adı vb. yazılabilir.
+3. **IP kısıtı:** Sadece belirli IP’lerden admin erişimine izin vermek için middleware veya API route’larda IP kontrolü eklenebilir.
+4. **2FA:** İleride Firebase App Check veya TOTP (Google Authenticator) ile ikinci faktör eklenebilir; şu an e-posta kodu tek faktör.
+5. **RESEND / e-posta:** Kod e-postası için `RESEND_API_KEY` ve `RESEND_FROM` (ve gerekirse `ADMIN_EMAIL`) ayarlarının doğru ve güvenli olduğundan emin olun.
 
-## Ortam değişkenleri
+## Gerekli ortam değişkenleri
 
-- `NEXT_PUBLIC_ADMIN_UIDS`: Virgülle ayrılmış admin UID listesi.
-- `RESEND_API_KEY`, `RESEND_FROM`: E-posta (doğrulama kodu) gönderimi.
-- `FIREBASE_SERVICE_ACCOUNT_KEY`: Admin API’lerinde kullanıcı e-postası ve Firestore erişimi için.
+- **Admin UID:** `NEXT_PUBLIC_ADMIN_UIDS` (virgülle ayrılmış UID listesi).
+- **E-posta kodu:** `RESEND_API_KEY`, `RESEND_FROM`; Firebase Admin tarafı için `FIREBASE_SERVICE_ACCOUNT_KEY` (kod/oturum Firestore’a yazılıyor).

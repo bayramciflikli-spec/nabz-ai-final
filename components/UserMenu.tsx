@@ -142,14 +142,6 @@ export function UserMenu({ user }: UserMenuProps) {
         <div className="absolute top-full right-0 mt-2 py-2 w-72 max-w-[calc(100vw-2rem)] max-h-[calc(100vh-6rem)] overflow-y-auto bg-black/95 border border-white/15 rounded-2xl shadow-2xl z-50 overflow-x-hidden animate-in fade-in zoom-in-95 duration-150 origin-top-right">
           {user ? (
             <>
-              {isAdmin(user?.uid) && (
-                <div className="px-3 pb-2 mb-2 border-b border-amber-500/20">
-                  <Link href="/admin" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 transition-colors">
-                    <ShieldCheck size={20} className="shrink-0" />
-                    <span className="font-semibold text-sm">Kontrol Kulesi</span>
-                  </Link>
-                </div>
-              )}
               <div className="border-b border-white/10">
                 <button type="button" onClick={() => setOpenSection(openSection === "account" ? null : "account")} className="w-full flex items-center justify-between px-4 py-2.5 text-left hover:bg-white/5">
                   <span className="font-semibold text-sm text-white">Hesabım</span>

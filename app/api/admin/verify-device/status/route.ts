@@ -1,34 +1,41 @@
 import { NextResponse } from "next/server";
 import { getAdminFirestore } from "@/lib/firebase-admin";
 import { verifyAdminAuth } from "@/lib/apiAuth";
+import { ADMIN_SESSION_COOKIE, COLLECTION_SESSIONS } from "@/lib/adminDeviceVerify";
 
 export async function GET(request: Request) {
   try {
     const verified = await verifyAdminAuth(request);
     if (!verified) {
-      return NextResponse.json({ ok: false, trusted: false }, { status: 401 });
+      return NextResponse.json({ ok: false, verified: false }, { status: 401 });
     }
-    const { uid } = verified;
 
-    const url = new URL(request.url);
-    const deviceId = url.searchParams.get("deviceId")?.trim() ?? "";
-    if (!deviceId) {
-      return NextResponse.json({ ok: true, trusted: false });
+    const sessionId = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
+    if (!sessionId) {
+      return NextResponse.json({ ok: true, verified: false });
     }
 
     const db = getAdminFirestore();
     if (!db) {
-      return NextResponse.json({ ok: true, trusted: false });
+      return NextResponse.json({ ok: true, verified: false });
     }
 
-    const doc = await db.collection("admin_trusted_devices").doc(uid).get();
-    const data = doc.data();
-    const deviceIds: string[] = Array.isArray(data?.deviceIds) ? data.deviceIds : [];
-    const trusted = deviceIds.includes(deviceId);
+    const sessionRef = db.collection(COLLECTION_SESSIONS).doc(sessionId);
+    const sessionSnap = await sessionRef.get();
+    const data = sessionSnap.data();
+    const userId = data?.userId;
+    const expiresAt =
+      typeof data?.expiresAt === "number"
+        ? data.expiresAt
+        : (data?.expiresAt as { toMillis?: () => number })?.toMillis?.() ?? 0;
 
-    return NextResponse.json({ ok: true, trusted });
+    if (userId !== verified.uid || Date.now() > expiresAt) {
+      return NextResponse.json({ ok: true, verified: false });
+    }
+
+    return NextResponse.json({ ok: true, verified: true });
   } catch (e) {
     console.error("[verify-device/status]", e);
-    return NextResponse.json({ ok: false, trusted: false }, { status: 500 });
+    return NextResponse.json({ ok: false, verified: false }, { status: 500 });
   }
 }

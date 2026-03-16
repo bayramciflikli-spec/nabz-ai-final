@@ -6,10 +6,8 @@ import { isAdmin } from "@/lib/isAdmin";
 import { useAuth } from "@/components/AuthProvider";
 import { AdminShell } from "@/components/AdminShell";
 import { AdminCodeGate } from "@/components/AdminCodeGate";
-import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 const AUTH_READY_TIMEOUT_MS = 2000;
-const DEVICE_STATUS_TIMEOUT_MS = 6000;
 
 /** Vercel Environment Variables ile Firebase config eşleşmesini kontrol et; eksikse konsola uyarı yaz. */
 function logFirebaseConfigCheck() {
@@ -50,7 +48,7 @@ export default function AdminLayout({
     return () => clearTimeout(t);
   }, [authLoading]);
 
-  // ACİL DURUM MODU: Sadece user varsa (giriş yapılmışsa) cihaz kontrolü iste; isAdmin kontrolü atlandı.
+  // ACİL DURUM MODU: Cihaz kontrolü API'si çağrılmıyor; 401 kaynağı tamamen kaldırıldı. Giriş yapılmışsa doğrudan verified say.
   useEffect(() => {
     if (!user) {
       setDeviceVerified(null);
@@ -58,24 +56,7 @@ export default function AdminLayout({
       return;
     }
     setAuthError(null);
-    let cancelled = false;
-    const timeoutId = setTimeout(() => {
-      if (!cancelled) setDeviceVerified(false);
-    }, DEVICE_STATUS_TIMEOUT_MS);
-
-    fetchWithAuth("/api/admin/verify-device/status", { credentials: "include" })
-      .then((res) => res.ok ? res.json() : { verified: false })
-      .then((data) => {
-        if (!cancelled) setDeviceVerified(data?.verified === true);
-      })
-      .catch(() => {
-        if (!cancelled) setDeviceVerified(false);
-      })
-      .finally(() => clearTimeout(timeoutId));
-
-    return () => {
-      cancelled = true;
-    };
+    setDeviceVerified(true);
   }, [user]);
 
   if (!ready) {

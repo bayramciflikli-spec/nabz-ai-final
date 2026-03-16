@@ -28,9 +28,11 @@ export async function verifyApiAuth(request: Request): Promise<{ uid: string } |
   }
 }
 
-/** Admin API'leri için: token doğrula + isAdmin kontrolü */
+/** Admin API'leri için: token doğrula + isAdmin kontrolü. UID karşılaştırmada .trim() kullanılır. */
 export async function verifyAdminAuth(request: Request): Promise<{ uid: string } | null> {
   const user = await verifyApiAuth(request);
-  if (!user || !isAdmin(user.uid, request)) return null;
-  return user;
+  if (!user) return null;
+  const uidTrimmed = user.uid.trim();
+  if (!isAdmin(uidTrimmed, request)) return null;
+  return { uid: uidTrimmed };
 }

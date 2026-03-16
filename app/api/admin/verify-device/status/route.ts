@@ -1,12 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminFirestore } from "@/lib/firebase-admin";
-import { verifyAdminAuth } from "@/lib/apiAuth";
+import { verifyApiAuth } from "@/lib/apiAuth";
+import { isAdmin } from "@/lib/isAdmin";
 import { ADMIN_SESSION_COOKIE, COLLECTION_SESSIONS } from "@/lib/adminDeviceVerify";
+
+function getSystemUids(): string[] {
+  const raw = process.env.NEXT_PUBLIC_ADMIN_UIDS ?? "";
+  return raw.split(",").map((id) => id.replace(/['"]+/g, "").trim()).filter(Boolean);
+}
 
 export async function GET(request: NextRequest) {
   try {
-    const verified = await verifyAdminAuth(request);
+    const verified = await verifyApiAuth(request);
     if (!verified) {
+      return NextResponse.json({ ok: false, verified: false }, { status: 401 });
+    }
+
+    const gelenUid = verified.uid.trim();
+    if (!isAdmin(gelenUid)) {
+      const sistemdekiUids = getSystemUids();
+      console.error("[verify-device/status] UID eşleşmedi. Sistemdeki UID:", JSON.stringify(sistemdekiUids), "| Gelen UID:", JSON.stringify(gelenUid));
       return NextResponse.json({ ok: false, verified: false }, { status: 401 });
     }
 
@@ -29,7 +42,7 @@ export async function GET(request: NextRequest) {
         ? data.expiresAt
         : (data?.expiresAt as { toMillis?: () => number })?.toMillis?.() ?? 0;
 
-    if (userId !== verified.uid || Date.now() > expiresAt) {
+    if ((userId ?? "").trim() !== gelenUid || Date.now() > expiresAt) {
       return NextResponse.json({ ok: true, verified: false });
     }
 

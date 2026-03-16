@@ -190,7 +190,7 @@ export default function AdminLayout({
 
   if (deviceVerified === false) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center">
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center pb-8">
         {authError && (
           <div className="w-full max-w-md p-4 mx-4 mt-6 rounded-xl bg-red-500/20 border border-red-500/50 text-red-300 text-center text-sm font-medium">
             {authError}
@@ -199,7 +199,22 @@ export default function AdminLayout({
             </p>
           </div>
         )}
-        <AdminCodeGate onVerified={() => { setDeviceVerified(true); setAuthError(null); }} />
+        {/* Acil Durum: Firebase Auth başarılıysa cihaz kontrolü hata verse bile panele girilebilir */}
+        <div className="w-full max-w-md p-4 mx-4 mt-4 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-200 text-center text-sm">
+          <p className="font-medium mb-2">Acil Durum geçişi</p>
+          <p className="text-amber-200/80 text-xs mb-3">Firebase Auth başarılı; cihaz doğrulaması atlandı. Geçici olarak panele girebilirsiniz.</p>
+          <button
+            type="button"
+            onClick={() => { setDeviceVerified(true); setAuthError(null); }}
+            className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-semibold text-sm"
+          >
+            Panele gir
+          </button>
+        </div>
+        <div className="w-full max-w-md mt-6 px-4">
+          <p className="text-white/50 text-xs text-center mb-3">veya e-posta kodu ile doğrula:</p>
+          <AdminCodeGate onVerified={() => { setDeviceVerified(true); setAuthError(null); }} />
+        </div>
       </div>
     );
   }

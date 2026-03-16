@@ -25,6 +25,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Aynı tarayıcıda kalıcı oturum: bayramciflikli@gmail.com ile bir kez giriş → çıkış yapana kadar otomatik tanınır
+  useEffect(() => {
     setPersistence(auth, browserLocalPersistence).catch(() => {});
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);

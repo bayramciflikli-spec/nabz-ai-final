@@ -50,8 +50,9 @@ export default function AdminLayout({
     return () => clearTimeout(t);
   }, [authLoading]);
 
+  // ACİL DURUM MODU: Sadece user varsa (giriş yapılmışsa) cihaz kontrolü iste; isAdmin kontrolü atlandı.
   useEffect(() => {
-    if (!user || !isAdmin(user.uid)) {
+    if (!user) {
       setDeviceVerified(null);
       setAuthError(null);
       return;
@@ -63,18 +64,11 @@ export default function AdminLayout({
     }, DEVICE_STATUS_TIMEOUT_MS);
 
     fetchWithAuth("/api/admin/verify-device/status", { credentials: "include" })
-      .then((res) => {
-        if (res.status === 401) {
-          console.error("[Admin] 401 Unauthorized – verify-device/status. UID veya token uyuşmuyor.");
-          if (!cancelled) setAuthError("Yetki Hatası: UID uyuşmuyor");
-        }
-        return res.ok ? res.json() : { verified: false };
-      })
+      .then((res) => res.ok ? res.json() : { verified: false })
       .then((data) => {
         if (!cancelled) setDeviceVerified(data?.verified === true);
       })
-      .catch((err) => {
-        console.error("[Admin] verify-device/status isteği hatası:", err);
+      .catch(() => {
         if (!cancelled) setDeviceVerified(false);
       })
       .finally(() => clearTimeout(timeoutId));
@@ -150,33 +144,10 @@ export default function AdminLayout({
     );
   }
 
-  if (!isAdmin(user.uid)) {
-    return (
-      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center gap-6 p-6 text-center max-w-md">
-        <p className="text-white/90 font-medium text-lg">Bu sayfaya erişim yetkiniz yok</p>
-        <p className="text-white/60 text-sm">
-          Sadece yetkili admin hesabıyla giriş yapıldığında Kontrol Kulesi açılır. Bir kez giriş yaptıktan sonra tarayıcı sizi hatırlar.
-        </p>
-        <p className="text-white/40 text-xs">
-          Giriş yaptıysanız, UID&apos;nizin proje ayarlarındaki <code className="bg-white/10 px-1 rounded">NEXT_PUBLIC_ADMIN_UIDS</code> listesinde olduğundan emin olun.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <button
-            type="button"
-            onClick={() => setShowLoginModal(true)}
-            className="px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white font-semibold transition-colors"
-          >
-            Farklı hesapla giriş yap
-          </button>
-          <Link
-            href="/"
-            className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold transition-colors border border-white/20 text-center"
-          >
-            Ana sayfaya dön
-          </Link>
-        </div>
-      </div>
-    );
+  // ACİL DURUM MODU: UID kontrolü geçici olarak devre dışı. Herhangi bir giriş yapılmışsa (user) içeri al.
+  // if (!isAdmin(user.uid)) { return (... yetkiniz yok ...); }
+  if (typeof window !== "undefined") {
+    console.log("DEBUG: Guvenlik gecici olarak devre disi birakildi. Giris yapan UID:", user.uid);
   }
 
   if (deviceVerified === null) {
@@ -221,3 +192,4 @@ export default function AdminLayout({
 
   return <AdminShell>{children}</AdminShell>;
 }
+

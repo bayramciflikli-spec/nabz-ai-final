@@ -69,26 +69,44 @@ export const signInWithGoogle = async () => {
 
 export const signInWithGooglePopup = async () => {
   const result = await signInWithPopup(auth, googleProvider);
-  await saveUserToFirestore(result.user);
+  try {
+    await saveUserToFirestore(result.user);
+  } catch {
+    // Firestore hatası girişi engellemesin; kullanıcı yine giriş yapmış sayılır
+  }
   return result;
 };
 
 export async function handleRedirectResult(): Promise<void> {
   const result = await getRedirectResult(auth);
-  if (result?.user) await saveUserToFirestore(result.user);
+  if (result?.user) {
+    try {
+      await saveUserToFirestore(result.user);
+    } catch {
+      // Firestore hatası girişi engellemesin
+    }
+  }
 }
 
 export const signInWithYahoo = async () => {
   const provider = new OAuthProvider("yahoo.com");
   const result = await signInWithPopup(auth, provider);
-  await saveUserToFirestore(result.user);
+  try {
+    await saveUserToFirestore(result.user);
+  } catch {
+    // Firestore hatası girişi engellemesin
+  }
   return result;
 };
 
 export const signInWithMicrosoft = async () => {
   const provider = new OAuthProvider("microsoft.com");
   const result = await signInWithPopup(auth, provider);
-  await saveUserToFirestore(result.user);
+  try {
+    await saveUserToFirestore(result.user);
+  } catch {
+    // Firestore hatası girişi engellemesin
+  }
   return result;
 };
 
@@ -97,7 +115,11 @@ export const signInWithApple = async () => {
   provider.addScope("email");
   provider.addScope("name");
   const result = await signInWithPopup(auth, provider);
-  await saveUserToFirestore(result.user);
+  try {
+    await saveUserToFirestore(result.user);
+  } catch {
+    // Firestore hatası girişi engellemesin
+  }
   return result;
 };
 

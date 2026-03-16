@@ -107,7 +107,8 @@ export function WelcomeModal({
   const [resetSent, setResetSent] = useState(false);
   const [standalone] = useState(() => typeof window !== "undefined" && isStandalonePanel());
 
-  const useGoogleRedirect = standalone || preferRedirectForGoogle;
+  // Google için her zaman aynı sekmede yönlendirme (popup engeli / kapanma sorunu yok)
+  const useGoogleRedirect = true;
 
   const handleOAuth = async (provider: (typeof PROVIDERS)[number]) => {
     setLoading(true);

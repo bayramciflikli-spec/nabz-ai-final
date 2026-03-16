@@ -53,7 +53,7 @@ export default function AdminLayout({
     return () => clearTimeout(t);
   }, [authLoading]);
 
-  // ACİL DURUM MODU: Cihaz kontrolü API'si çağrılmıyor; 401 kaynağı tamamen kaldırıldı. Giriş yapılmışsa doğrudan verified say.
+  // ACİL DURUM MODU: Cihaz kontrolü API'si çağrılmıyor; giriş yapılmışsa doğrudan verified say.
   useEffect(() => {
     if (!user) {
       setDeviceVerified(null);
@@ -63,6 +63,19 @@ export default function AdminLayout({
     setAuthError(null);
     setDeviceVerified(true);
   }, [user]);
+
+  // Giriş yoksa: config geçerliyse Google ile otomatik yönlendirme. (Tüm hook'lar koşullu return'den ÖNCE olmalı – React #310 önleme.)
+  useEffect(() => {
+    if (user || authLoading || autoRedirectDone.current) return;
+    const { ok } = getAuthConfigStatus();
+    if (!ok) return;
+    autoRedirectDone.current = true;
+    const t = setTimeout(() => {
+      setAutoRedirecting(true);
+      signInWithGoogle().catch(() => setAutoRedirecting(false));
+    }, AUTO_SIGNIN_DELAY_MS);
+    return () => clearTimeout(t);
+  }, [user, authLoading]);
 
   if (!ready) {
     return (
@@ -97,19 +110,6 @@ export default function AdminLayout({
       </div>
     );
   }
-
-  // Giriş yoksa: config geçerliyse Google ile otomatik yönlendirme (hatayla karşılaşmamak için)
-  useEffect(() => {
-    if (user || authLoading || autoRedirectDone.current) return;
-    const { ok } = getAuthConfigStatus();
-    if (!ok) return; // Firebase config yoksa redirect tetikleme
-    autoRedirectDone.current = true;
-    const t = setTimeout(() => {
-      setAutoRedirecting(true);
-      signInWithGoogle().catch(() => setAutoRedirecting(false));
-    }, AUTO_SIGNIN_DELAY_MS);
-    return () => clearTimeout(t);
-  }, [user, authLoading]);
 
   if (!user) {
     return (

@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getAdminFirestore } from "@/lib/firebase-admin";
 import { verifyAdminAuth } from "@/lib/apiAuth";
 import { ADMIN_SESSION_COOKIE, COLLECTION_SESSIONS } from "@/lib/adminDeviceVerify";
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const verified = await verifyAdminAuth(request);
     if (!verified) {

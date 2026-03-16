@@ -63,18 +63,28 @@ export function getAuthConfigStatus(): { ok: boolean; missing: string[] } {
 }
 
 export const signInWithGoogle = async () => {
-  await signInWithRedirect(auth, googleProvider);
-  return null as unknown as Awaited<ReturnType<typeof signInWithPopup>>;
+  try {
+    await signInWithRedirect(auth, googleProvider);
+    return null as unknown as Awaited<ReturnType<typeof signInWithPopup>>;
+  } catch (err) {
+    console.error("[Firebase Auth] signInWithRedirect hatası:", err);
+    throw err;
+  }
 };
 
 export const signInWithGooglePopup = async () => {
-  const result = await signInWithPopup(auth, googleProvider);
   try {
-    await saveUserToFirestore(result.user);
-  } catch {
-    // Firestore hatası girişi engellemesin; kullanıcı yine giriş yapmış sayılır
+    const result = await signInWithPopup(auth, googleProvider);
+    try {
+      await saveUserToFirestore(result.user);
+    } catch {
+      // Firestore hatası girişi engellemesin; kullanıcı yine giriş yapmış sayılır
+    }
+    return result;
+  } catch (err) {
+    console.error("[Firebase Auth] signInWithPopup hatası:", err);
+    throw err;
   }
-  return result;
 };
 
 export async function handleRedirectResult(): Promise<void> {

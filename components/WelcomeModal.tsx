@@ -124,6 +124,7 @@ export function WelcomeModal({
       onShowProfileSetup();
       if (redirectAfterSuccess) window.location.href = redirectAfterSuccess;
     } catch (err) {
+      console.error("[Giriş hatası]", err);
       const msg = getAuthErrorMessage(err);
       setError(
         provider.id === "google" && (msg.includes("popup") || msg.includes("engellendi"))

@@ -33,6 +33,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [installPrompt, setInstallPrompt] = useState<any>(null);
   const [installed, setInstalled] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -61,14 +62,20 @@ export default function AdminPage() {
 
   useEffect(() => {
     const load = async () => {
+      if (!user) return;
       setLoading(true);
+      setAuthError(null);
       try {
         const [statsRes, pendingRes] = await Promise.all([
           fetchWithAuth("/api/admin/stats"),
           fetchWithAuth("/api/admin/global-pending"),
         ]);
-        const statsData = await statsRes.json();
-        const pendingData = await pendingRes.json();
+        if (statsRes.status === 401 || pendingRes.status === 401) {
+          console.error("[Admin] 401 Unauthorized – stats veya global-pending. UID/token uyuşmuyor.");
+          setAuthError("Yetki Hatası: UID uyuşmuyor");
+        }
+        const statsData = await statsRes.json().catch(() => ({}));
+        const pendingData = await pendingRes.json().catch(() => ({}));
         if (statsData.ok) {
           setStats(statsData.stats ?? { userCount: 0, pendingContent: 0, totalRevenue: 0 });
         }
@@ -82,21 +89,28 @@ export default function AdminPage() {
           }));
           setPending(items);
         }
-      } catch {
-        // Hata durumunda varsayılan değerler
+      } catch (err) {
+        console.error("[Admin] Dashboard yükleme hatası:", err);
+        setAuthError("Yetki Hatası: UID uyuşmuyor");
       } finally {
         setLoading(false);
       }
     };
-    if (user) {
-      load();
-    }
+    if (user) load();
   }, [user]);
 
   const displayName = user?.displayName || "Kurucu";
 
   return (
     <div className="p-8">
+          {authError && (
+            <div className="mb-6 p-4 rounded-xl bg-red-500/20 border border-red-500/50 text-red-300 text-center text-sm font-medium">
+              {authError}
+              <p className="text-red-300/80 text-xs mt-2">
+                Vercel → Environment Variables: NEXT_PUBLIC_FIREBASE_* ve NEXT_PUBLIC_ADMIN_UIDS eşleşmesini kontrol edin.
+              </p>
+            </div>
+          )}
           <header className="flex justify-between items-center border-b border-white/10 pb-4 mb-6">
             <h2 className="text-2xl font-bold">
               <span className="text-green-400">NABZ-AI</span>{" "}

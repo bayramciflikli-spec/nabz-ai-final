@@ -11,6 +11,21 @@ import { fetchWithAuth } from "@/lib/fetchWithAuth";
 const AUTH_READY_TIMEOUT_MS = 2000;
 const DEVICE_STATUS_TIMEOUT_MS = 6000;
 
+/** Vercel Environment Variables ile Firebase config eşleşmesini kontrol et; eksikse konsola uyarı yaz. */
+function logFirebaseConfigCheck() {
+  if (typeof window === "undefined") return;
+  const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+  const authDomain = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN;
+  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  const missing: string[] = [];
+  if (!apiKey?.trim()) missing.push("NEXT_PUBLIC_FIREBASE_API_KEY");
+  if (!authDomain?.trim()) missing.push("NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN");
+  if (!projectId?.trim()) missing.push("NEXT_PUBLIC_FIREBASE_PROJECT_ID");
+  if (missing.length > 0) {
+    console.warn("[Admin] Firebase config eksik (Vercel Environment Variables ile eşleşmeyi kontrol edin):", missing);
+  }
+}
+
 export default function AdminLayout({
   children,
 }: {
@@ -20,6 +35,11 @@ export default function AdminLayout({
   const [ready, setReady] = useState(false);
   const [deviceVerified, setDeviceVerified] = useState<boolean | null>(null);
   const [showFallback, setShowFallback] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  useEffect(() => {
+    logFirebaseConfigCheck();
+  }, []);
 
   useEffect(() => {
     if (!authLoading) setReady(true);
@@ -33,19 +53,28 @@ export default function AdminLayout({
   useEffect(() => {
     if (!user || !isAdmin(user.uid)) {
       setDeviceVerified(null);
+      setAuthError(null);
       return;
     }
+    setAuthError(null);
     let cancelled = false;
     const timeoutId = setTimeout(() => {
       if (!cancelled) setDeviceVerified(false);
     }, DEVICE_STATUS_TIMEOUT_MS);
 
     fetchWithAuth("/api/admin/verify-device/status", { credentials: "include" })
-      .then((res) => (res.ok ? res.json() : { verified: false }))
+      .then((res) => {
+        if (res.status === 401) {
+          console.error("[Admin] 401 Unauthorized – verify-device/status. UID veya token uyuşmuyor.");
+          if (!cancelled) setAuthError("Yetki Hatası: UID uyuşmuyor");
+        }
+        return res.ok ? res.json() : { verified: false };
+      })
       .then((data) => {
         if (!cancelled) setDeviceVerified(data?.verified === true);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("[Admin] verify-device/status isteği hatası:", err);
         if (!cancelled) setDeviceVerified(false);
       })
       .finally(() => clearTimeout(timeoutId));
@@ -160,7 +189,19 @@ export default function AdminLayout({
   }
 
   if (deviceVerified === false) {
-    return <AdminCodeGate onVerified={() => setDeviceVerified(true)} />;
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center">
+        {authError && (
+          <div className="w-full max-w-md p-4 mx-4 mt-6 rounded-xl bg-red-500/20 border border-red-500/50 text-red-300 text-center text-sm font-medium">
+            {authError}
+            <p className="text-red-300/80 text-xs mt-2">
+              Vercel Environment Variables içinde NEXT_PUBLIC_FIREBASE_* ve NEXT_PUBLIC_ADMIN_UIDS değerlerini kontrol edin.
+            </p>
+          </div>
+        )}
+        <AdminCodeGate onVerified={() => { setDeviceVerified(true); setAuthError(null); }} />
+      </div>
+    );
   }
 
   return <AdminShell>{children}</AdminShell>;

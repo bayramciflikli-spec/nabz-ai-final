@@ -3,12 +3,12 @@ import { getAdminFirestore } from "@/lib/firebase-admin";
 import { getContentViews, GLOBAL_PROMOTION_VIEWS_THRESHOLD } from "@/lib/contentDistribution";
 import { verifyAdminAuth } from "@/lib/apiAuth";
 
-/** Hafif endpoint: sadece onay bekleyen içerik sayısı. Sadece admin erişebilir. */
+/** Hafif endpoint: sadece onay bekleyen içerik sayısı. Admin değilse 200 + pendingCount: 0 (konsol 401 hatası önlenir). */
 export async function GET(request: Request) {
   try {
     const admin = await verifyAdminAuth(request);
     if (!admin) {
-      return NextResponse.json({ ok: false, error: "Yetkisiz", pendingCount: 0 }, { status: 401 });
+      return NextResponse.json({ ok: true, pendingCount: 0 });
     }
 
     const adminDb = getAdminFirestore();

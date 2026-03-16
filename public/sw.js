@@ -9,4 +9,5 @@ self.addEventListener("activate", (e) => {
   e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
 });
 
-self.addEventListener("fetch", () => {});
+// Fetch handler kaldırıldı: no-op handler tarayıcı uyarısına ve gereksiz yüklemeye yol açıyordu.
+// İleride cache-first vb. strateji eklenirse burada handle edilebilir.

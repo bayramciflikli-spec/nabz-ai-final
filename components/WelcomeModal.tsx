@@ -87,12 +87,15 @@ export function WelcomeModal({
   onShowProfileSetup,
   redirectAfterSuccess,
   title = "Giriş yap",
+  preferRedirectForGoogle = false,
 }: {
   onClose?: () => void;
   onSuccess: (isNewUser: boolean) => void;
   onShowProfileSetup: () => void;
   redirectAfterSuccess?: string;
   title?: string;
+  /** Admin sayfası vb. – Google için popup yerine aynı sekmede yönlendirme (giriş daha güvenilir) */
+  preferRedirectForGoogle?: boolean;
 }) {
   const [loginOnly] = useState(getLoginOnly);
   const [mode, setMode] = useState<"choose" | "email" | "reset">("choose");
@@ -104,11 +107,16 @@ export function WelcomeModal({
   const [resetSent, setResetSent] = useState(false);
   const [standalone] = useState(() => typeof window !== "undefined" && isStandalonePanel());
 
+  const useGoogleRedirect = standalone || preferRedirectForGoogle;
+
   const handleOAuth = async (provider: (typeof PROVIDERS)[number]) => {
     setLoading(true);
     setError("");
     try {
-      const fn = provider.id === "google" && standalone ? signInWithGoogle : provider.signIn;
+      const fn =
+        provider.id === "google" && useGoogleRedirect
+          ? signInWithGoogle
+          : provider.signIn;
       const result = await (fn as () => Promise<unknown>)();
       if (result === null) return;
       onSuccess(true);

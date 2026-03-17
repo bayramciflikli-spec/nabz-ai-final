@@ -182,3 +182,11 @@ export const uploadProfilePhoto = async (uid: string, file: File): Promise<strin
   await uploadBytes(storageRef, file);
   return getDownloadURL(storageRef);
 };
+
+/** Kanal banner’ı için görsel yükle (2560×423 px önerilir). */
+export const uploadBannerImage = async (uid: string, file: File): Promise<string> => {
+  const path = `banners/${uid}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+  const storageRef = ref(storage, path);
+  await uploadBytes(storageRef, file);
+  return getDownloadURL(storageRef);
+};

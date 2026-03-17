@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { db, auth } from "@/lib/firebase";
@@ -19,13 +19,14 @@ import {
 } from "firebase/firestore";
 import { isChannelMonetized } from "@/lib/monetization";
 import { Timestamp } from "firebase/firestore";
-import { CheckCircle, Info, Camera, Sparkles, DollarSign } from "lucide-react";
+import { CheckCircle, Info, Camera, Sparkles, DollarSign, ImagePlus } from "lucide-react";
 import { VideoCard } from "@/components/VideoCard";
 import { LoadingPulse } from "@/components/LoadingPulse";
 import { createNotification } from "@/lib/notifications";
 import { AdSlot } from "@/components/AdSlot";
 import { useToast } from "@/components/ToastContext";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
+import { uploadBannerImage, uploadProfilePhoto, updateUserProfile } from "@/lib/firebase-auth";
 
 export default function ChannelPage() {
   const params = useParams();
@@ -39,6 +40,10 @@ export default function ChannelPage() {
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isMonetized, setIsMonetized] = useState(false);
+  const [bannerUploading, setBannerUploading] = useState(false);
+  const [profilePhotoUploading, setProfilePhotoUploading] = useState(false);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
+  const profileInputRef = useRef<HTMLInputElement>(null);
 
   const isOwner = auth.currentUser?.uid === id;
 
@@ -174,6 +179,47 @@ export default function ChannelPage() {
     }
   };
 
+  const onBannerFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !file.type.startsWith("image/")) {
+      toast.error("Lütfen bir görsel seçin (JPEG, PNG, WebP).");
+      e.target.value = "";
+      return;
+    }
+    setBannerUploading(true);
+    try {
+      const url = await uploadBannerImage(id, file);
+      setNewBannerUrl(url);
+      toast.success("Görsel yüklendi. Kanalıma Uygula ile kaydedin.");
+    } catch {
+      toast.error("Yükleme başarısız.");
+    } finally {
+      setBannerUploading(false);
+      e.target.value = "";
+    }
+  };
+
+  const onProfilePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !file.type.startsWith("image/")) {
+      toast.error("Lütfen bir görsel seçin (JPEG, PNG, WebP). Önerilen: 800×800 px.");
+      e.target.value = "";
+      return;
+    }
+    setProfilePhotoUploading(true);
+    try {
+      const url = await uploadProfilePhoto(id, file);
+      await updateUserProfile(id, { photoURL: url });
+      setChannel({ ...channel, photoURL: url });
+      toast.success("Profil fotoğrafı güncellendi!");
+    } catch {
+      toast.error("Yükleme başarısız.");
+    } finally {
+      setProfilePhotoUploading(false);
+      e.target.value = "";
+    }
+  };
+
   const formatDate = (timestamp: any) => {
     if (!timestamp) return "—";
     const date = timestamp instanceof Timestamp ? timestamp.toDate() : timestamp;
@@ -222,6 +268,32 @@ export default function ChannelPage() {
             <p className="text-xs text-gray-500 mb-6">
               Önerilen boyut: <strong className="text-gray-400">2560 × 423 px</strong> (YouTube kanal arkası). Görsel bu orana göre kırpılır.
             </p>
+
+            {/* SEÇİM: AI veya kendi görselini yükle */}
+            <input
+              type="file"
+              ref={bannerInputRef}
+              accept="image/*"
+              className="hidden"
+              onChange={onBannerFileChange}
+            />
+            <div className="flex gap-2 mb-4">
+              <button
+                type="button"
+                onClick={() => bannerInputRef.current?.click()}
+                disabled={bannerUploading}
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-sm font-medium disabled:opacity-50"
+              >
+                {bannerUploading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <ImagePlus size={18} />
+                    Görsel yükle
+                  </>
+                )}
+              </button>
+            </div>
 
             {/* AI PROMPT ALANI */}
             <div className="relative mb-6">
@@ -286,11 +358,40 @@ export default function ChannelPage() {
 
       {/* 2. KANAL BİLGİ ALANI – Profil fotoğrafı Firestore’dan (cihazlar arası aynı) */}
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center md:items-start gap-6 -mt-12 relative z-10 pb-10 border-b border-white/10">
-        <img
-          src={channel.photoURL || "/default-avatar.png"}
-          alt={channel.displayName || "Kanal"}
-          className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-4 border-[#0F0F0F] object-cover bg-gray-800 shrink-0"
+        <input
+          type="file"
+          ref={profileInputRef}
+          accept="image/*"
+          className="hidden"
+          onChange={onProfilePhotoChange}
         />
+        {isOwner ? (
+          <button
+            type="button"
+            className="relative shrink-0 rounded-full border-4 border-[#0F0F0F] bg-gray-800 overflow-hidden cursor-pointer hover:ring-2 hover:ring-cyan-500/50 transition-shadow"
+            onClick={() => profileInputRef.current?.click()}
+            disabled={profilePhotoUploading}
+          >
+            <img
+              src={channel.photoURL || "/default-avatar.png"}
+              alt={channel.displayName || "Kanal"}
+              className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 object-cover"
+            />
+            <span className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity rounded-full">
+              {profilePhotoUploading ? (
+                <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <Camera className="w-8 h-8 text-white" />
+              )}
+            </span>
+          </button>
+        ) : (
+          <img
+            src={channel.photoURL || "/default-avatar.png"}
+            alt={channel.displayName || "Kanal"}
+            className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-4 border-[#0F0F0F] object-cover bg-gray-800 shrink-0"
+          />
+        )}
         <div className="flex-1 text-center md:text-left pt-14 md:pt-16">
           <div className="flex items-center justify-center md:justify-start gap-2">
             <h1 className="text-3xl md:text-4xl font-black">

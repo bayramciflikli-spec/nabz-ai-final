@@ -96,10 +96,10 @@ export default function SettingsPage() {
         <Sidebar user={user} />
       </div>
 
-      {/* YouTube Studio tarzı: sol ayar menüsü + ana alan */}
+      {/* Web ve mobil aynı: sol/dikey menü + ana alan (mobilde menü üstte dikey) */}
       <div className="flex-1 flex flex-col sm:flex-row sm:ml-56 min-h-screen">
         <aside className="w-full sm:w-56 shrink-0 bg-[#212121] border-b sm:border-b-0 sm:border-r border-white/10">
-          <div className="px-4 py-4 flex sm:flex-col gap-1 overflow-x-auto sm:overflow-visible">
+          <div className="px-4 py-4 flex flex-col gap-1">
             <div className="flex items-center gap-2 px-3 py-2 mb-2 text-gray-400 text-sm font-medium">
               <Settings size={18} />
               {t("settings.title")}
@@ -109,8 +109,8 @@ export default function SettingsPage() {
                 key={item.id}
                 type="button"
                 onClick={() => setSection(item.id)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm font-medium transition-colors shrink-0 ${
-                  section === item.id ? "bg-white/10 text-white" : "text-gray-400 hover:bg-white/5 hover:text-white"
+                className={`flex items-center gap-3 px-3 py-3 min-h-[44px] rounded-lg text-left text-sm font-medium transition-colors ${
+                  section === item.id ? "bg-white/10 text-white" : "text-gray-400 hover:bg-white/5 active:bg-white/10 text-white"
                 }`}
               >
                 {item.icon}
@@ -120,8 +120,8 @@ export default function SettingsPage() {
           </div>
         </aside>
 
-        <main className="flex-1 bg-[#181818] overflow-y-auto">
-          <div className="max-w-2xl p-6 md:p-8">
+        <main className="flex-1 bg-[#181818] overflow-y-auto min-h-screen">
+          <div className="max-w-2xl w-full p-4 sm:p-6 md:p-8 pb-24 sm:pb-8">
             {section === "account" && (
               <>
                 <h2 className="text-xl font-semibold text-white mb-6">Hesap bilgisi</h2>

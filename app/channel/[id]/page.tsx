@@ -239,8 +239,8 @@ export default function ChannelPage() {
   if (!channel) return <div className="min-h-screen bg-black flex items-center justify-center"><LoadingPulse /></div>;
 
   return (
-    <div className="min-h-screen bg-[#0F0F0F] text-white">
-      {/* YouTube-style: banner + channel info + tabs + content */}
+    <div className="min-h-screen bg-[#0F0F0F] text-white pb-20 lg:pb-0">
+      {/* Web ve mobil aynı: banner + kanal bilgisi + sekmeler + içerik */}
       {/* 1. KANAL BANNER ALANI – YouTube gibi oran (2560×423 px) */}
       <div className="group w-full bg-gradient-to-r from-[#1a1a1a] to-[#0a0a0a] relative overflow-hidden aspect-[2560/423] min-h-[120px] max-h-[280px]">
         <img
@@ -448,18 +448,18 @@ export default function ChannelPage() {
         </div>
       </div>
 
-      {/* 3. KANAL SEKMLERİ – YouTube tarzı */}
-      <div className="bg-[#212121] border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 flex gap-1 overflow-x-auto">
+      {/* 3. KANAL SEKMLERİ – Web ve mobil aynı (YouTube tarzı) */}
+      <div className="bg-[#212121] border-b border-white/10 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-2 md:px-6 flex gap-0 overflow-x-auto no-scrollbar">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`shrink-0 px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
+              className={`shrink-0 px-4 py-3 min-h-[48px] text-sm font-medium transition-colors border-b-2 -mb-px touch-manipulation ${
                 activeTab === tab.id
                   ? "text-white border-white"
-                  : "text-gray-400 border-transparent hover:text-white"
+                  : "text-gray-400 border-transparent hover:text-white active:text-white"
               }`}
             >
               {tab.label}
@@ -471,9 +471,9 @@ export default function ChannelPage() {
         </div>
       </div>
 
-      {/* 4. SEKME İÇERİĞİ – YouTube tarzı arka plan */}
+      {/* 4. SEKME İÇERİĞİ – Web ve mobil aynı arka plan */}
       <div className="bg-[#181818] min-h-[60vh]">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6">
           {activeTab === "videos" && (
             <>
               {isMonetized && (
@@ -533,8 +533,8 @@ export default function ChannelPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 border-t border-white/10 bg-[#0F0F0F]">
-        <Link href="/" className="text-gray-400 hover:text-white text-sm">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4 border-t border-white/10 bg-[#0F0F0F]">
+        <Link href="/" className="text-gray-400 hover:text-white active:text-white text-sm inline-block py-2">
           ← Ana sayfaya dön
         </Link>
       </div>

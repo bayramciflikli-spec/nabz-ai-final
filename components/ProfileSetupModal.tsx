@@ -79,7 +79,7 @@ export function ProfileSetupModal({
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !file.type.startsWith("image/")) {
-      setError("Lütfen bir görsel dosyası seçin (JPEG, PNG, WebP)");
+      setError("Önerilen: 800 × 800 px (YouTube profil). JPEG, PNG veya WebP.");
       return;
     }
     setLoading(true);
@@ -123,6 +123,7 @@ export function ProfileSetupModal({
 
           <div className="space-y-3">
             <p className="text-sm font-medium text-white/80">Profil fotoğrafı</p>
+            <p className="text-xs text-white/50">Önerilen boyut: 800×800 px (YouTube ile uyumlu, tüm cihazlarda aynı görünür)</p>
             <div className="flex gap-4">
               <button
                 type="button"

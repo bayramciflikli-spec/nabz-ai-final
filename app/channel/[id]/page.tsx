@@ -186,15 +186,15 @@ export default function ChannelPage() {
 
   return (
     <div className="min-h-screen bg-[#0F0F0F] text-white">
-      {/* 1. KANAL BANNER ALANI */}
-      <div className="group h-48 md:h-80 w-full bg-gradient-to-r from-[#1a1a1a] to-[#0a0a0a] relative overflow-hidden">
+      {/* 1. KANAL BANNER ALANI – YouTube gibi oran (2560×423 px) */}
+      <div className="group w-full bg-gradient-to-r from-[#1a1a1a] to-[#0a0a0a] relative overflow-hidden aspect-[2560/423] min-h-[120px] max-h-[280px]">
         <img
           src={
             channel.bannerUrl ||
             "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2000"
           }
           alt="Channel Banner"
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
         />
 
         {isOwner && (
@@ -216,8 +216,11 @@ export default function ChannelPage() {
             <h2 className="text-2xl font-black mb-2 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
               AI Banner Stüdyosu
             </h2>
-            <p className="text-sm text-gray-400 mb-6">
+            <p className="text-sm text-gray-400 mb-2">
               Kanalının ruhunu anlatan bir cümle yaz, AI senin için tasarlasın.
+            </p>
+            <p className="text-xs text-gray-500 mb-6">
+              Önerilen boyut: <strong className="text-gray-400">2560 × 423 px</strong> (YouTube kanal arkası). Görsel bu orana göre kırpılır.
             </p>
 
             {/* AI PROMPT ALANI */}
@@ -274,16 +277,19 @@ export default function ChannelPage() {
                 İptal
               </button>
             </div>
+            <p className="mt-4 pt-4 border-t border-white/10 text-xs text-gray-500">
+              YouTube uyumlu pixel: Banner <strong className="text-gray-400">2560×423</strong>, profil fotoğrafı <strong className="text-gray-400">800×800</strong>. Bilgisayar ve mobilde aynı görünür.
+            </p>
           </div>
         </div>
       )}
 
-      {/* 2. KANAL BİLGİ ALANI */}
+      {/* 2. KANAL BİLGİ ALANI – Profil fotoğrafı Firestore’dan (cihazlar arası aynı) */}
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center md:items-start gap-6 -mt-12 relative z-10 pb-10 border-b border-white/10">
         <img
           src={channel.photoURL || "/default-avatar.png"}
           alt={channel.displayName || "Kanal"}
-          className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-[#0F0F0F] object-cover bg-gray-800"
+          className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-4 border-[#0F0F0F] object-cover bg-gray-800 shrink-0"
         />
         <div className="flex-1 text-center md:text-left pt-14 md:pt-16">
           <div className="flex items-center justify-center md:justify-start gap-2">

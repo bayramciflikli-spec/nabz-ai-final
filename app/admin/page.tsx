@@ -59,43 +59,56 @@ export default function AdminPage() {
     return () => unsub();
   }, []);
 
-  useEffect(() => {
-    const load = async () => {
-      if (!user) return;
-      setLoading(true);
-      try {
-        const [statsRes, pendingRes] = await Promise.all([
-          fetchWithAuth("/api/admin/stats"),
-          fetchWithAuth("/api/admin/global-pending"),
-        ]);
-        const statsData = await statsRes.json().catch(() => ({}));
-        const pendingData = await pendingRes.json().catch(() => ({}));
-        if (statsData.ok) {
-          setStats(statsData.stats ?? { userCount: 0, pendingContent: 0, totalRevenue: 0 });
-        }
-        if (pendingData.ok) {
-          const items = (pendingData.pending ?? []).slice(0, 10).map((p: PendingRaw) => ({
-            id: p.id ?? "",
-            title: p.title ?? "",
-            authorName: p.authorName,
-            authorId: p.authorId,
-            status: "Beklemede",
-          }));
-          setPending(items);
-        }
-      } catch (err) {
-        console.error("[Admin] Dashboard yükleme hatası:", err);
-      } finally {
-        setLoading(false);
+  const loadData = async (showLoading = true) => {
+    if (!user) return;
+    if (showLoading) setLoading(true);
+    try {
+      const [statsRes, pendingRes] = await Promise.all([
+        fetchWithAuth("/api/admin/stats"),
+        fetchWithAuth("/api/admin/global-pending"),
+      ]);
+      const statsData = await statsRes.json().catch(() => ({}));
+      const pendingData = await pendingRes.json().catch(() => ({}));
+      if (statsData.ok) {
+        setStats(statsData.stats ?? { userCount: 0, pendingContent: 0, totalRevenue: 0 });
       }
-    };
-    if (user) load();
+      if (pendingData.ok) {
+        const items = (pendingData.pending ?? []).slice(0, 10).map((p: PendingRaw) => ({
+          id: p.id ?? "",
+          title: p.title ?? "",
+          authorName: p.authorName,
+          authorId: p.authorId,
+          status: "Beklemede",
+        }));
+        setPending(items);
+      }
+    } catch (err) {
+      console.error("[Admin] Dashboard yükleme hatası:", err);
+    } finally {
+      if (showLoading) setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user) loadData();
+  }, [user]);
+
+  // Bilgisayar ve mobilde aynı anda görünsün: sekme görünürken her 20 saniyede veriyi yenile
+  useEffect(() => {
+    if (!user) return;
+    const SYNC_INTERVAL_MS = 20000;
+    const t = setInterval(() => {
+      if (typeof document !== "undefined" && document.visibilityState === "visible") {
+        loadData(false);
+      }
+    }, SYNC_INTERVAL_MS);
+    return () => clearInterval(t);
   }, [user]);
 
   const displayName = user?.displayName || "Kurucu";
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
           <header className="flex justify-between items-center border-b border-white/10 pb-4 mb-6">
             <h2 className="text-2xl font-bold">
               <span className="text-green-400">NABZ-AI</span>{" "}

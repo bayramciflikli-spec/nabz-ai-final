@@ -87,14 +87,19 @@ export const signInWithGooglePopup = async () => {
   }
 };
 
+/** Google redirect dönüşünde çağrılmalı; mobilde girişin tamamlanması için sayfa yüklenir yüklenmez çalışsın. */
 export async function handleRedirectResult(): Promise<void> {
-  const result = await getRedirectResult(auth);
-  if (result?.user) {
-    try {
-      await saveUserToFirestore(result.user);
-    } catch {
-      // Firestore hatası girişi engellemesin
+  try {
+    const result = await getRedirectResult(auth);
+    if (result?.user) {
+      try {
+        await saveUserToFirestore(result.user);
+      } catch {
+        // Firestore hatası girişi engellemesin
+      }
     }
+  } catch (err) {
+    console.error("[Firebase Auth] getRedirectResult hatası:", err);
   }
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { auth } from "@/lib/firebase";
 import { ensureUserInEcosystem, handleRedirectResult } from "@/lib/firebase-auth";
 import { onAuthStateChanged, setPersistence, browserLocalPersistence, User } from "firebase/auth";
@@ -24,24 +24,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  // Aynı tarayıcıda kalıcı oturum: bir kez giriş → çıkış yapana kadar otomatik tanınır
+  // Aynı tarayıcıda kalıcı oturum. Mobil: Google'dan dönüşte önce redirect sonucu işlensin, giriş tamamlansın.
+  const unsubRef = useRef<(() => void) | null>(null);
   useEffect(() => {
     setPersistence(auth, browserLocalPersistence).catch(() => {});
-    const unsub = onAuthStateChanged(auth, (u) => {
-      try {
+
+    (async () => {
+      await handleRedirectResult();
+      unsubRef.current = onAuthStateChanged(auth, (u) => {
+        try {
+          setUser(u);
+          setLoading(false);
+          if (u) {
+            setShowLoginModal(false);
+            ensureUserInEcosystem(u.uid).catch(() => {});
+          }
+        } catch (err) {
+          console.error("[AuthProvider] onAuthStateChanged callback error:", err);
+          setLoading(false);
+        }
+      });
+    })().catch(() => {
+      setLoading(false);
+      unsubRef.current = onAuthStateChanged(auth, (u) => {
         setUser(u);
         setLoading(false);
-        if (u) {
-          setShowLoginModal(false);
-          ensureUserInEcosystem(u.uid).catch(() => {});
-        }
-      } catch (err) {
-        console.error("[AuthProvider] onAuthStateChanged callback error:", err);
-        setLoading(false);
-      }
+      });
     });
-    handleRedirectResult().catch(() => {});
-    return () => unsub();
+
+    return () => {
+      unsubRef.current?.();
+    };
   }, []);
 
   useEffect(() => {

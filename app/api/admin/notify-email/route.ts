@@ -63,8 +63,8 @@ async function sendNotifyEmail() {
         <li><strong>İçerik onayı:</strong> ${pendingCount} adet</li>
         <li><strong>Ödeme onayı:</strong> ${pendingPayments} adet</li>
       </ul>
-      <p><a href="${process.env.NEXT_PUBLIC_APP_URL || "https://nabz.app"}/admin/global-control">Global Kontrol</a> | 
-      <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://nabz.app"}/admin/financial">Financial Hub</a></p>
+      <p><a href="${process.env.NEXT_PUBLIC_APP_URL || "https://nabz-rmyhxkg8k-bayramciflikli-1198s-projects.vercel.app"}/admin/global-control">Global Kontrol</a> | 
+      <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://nabz-rmyhxkg8k-bayramciflikli-1198s-projects.vercel.app"}/admin/financial">Financial Hub</a></p>
       <p style="color:#888;font-size:12px;">Otomatik bildirim - NABZ-AI Admin</p>
     `;
 

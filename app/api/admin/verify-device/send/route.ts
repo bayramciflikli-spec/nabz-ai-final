@@ -85,7 +85,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "E-posta servisi yapılandırılmamış" }, { status: 503 });
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.nabz-ai.com";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nabz-rmyhxkg8k-bayramciflikli-1198s-projects.vercel.app";
     const { error } = await resend.emails.send({
       from: process.env.RESEND_FROM || "NABZ AI <onboarding@resend.dev>",
       to: email,

@@ -20,7 +20,8 @@ export function GlobalLoginModal() {
   const showProfileSetup = user && shouldShowProfileSetup(user) && !profileSetupDismissed;
   const isAdminPage = pathname?.startsWith("/admin");
 
-  if (!showLoginModal) return null;
+  // Admin panelinde giriş modalı asla açılmasın – doğrudan panele girilsin.
+  if (isAdminPage || !showLoginModal) return null;
 
   const handleSuccess = (userAfterLogin?: { uid: string } | null) => {
     markWelcomeSeen();

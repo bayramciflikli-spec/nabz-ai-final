@@ -6,11 +6,11 @@ import { auth } from "./firebase";
 
 const AUTH_UNAUTHORIZED_EVENT = "auth:unauthorized";
 
-/** 401 alındığında login modal açılsın diye tetiklenir (AuthProvider dinler). */
+/** 401 alındığında login modal açılsın diye tetiklenir (AuthProvider dinler). Admin'de asla açma. */
 export function triggerLoginModal() {
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent(AUTH_UNAUTHORIZED_EVENT));
-  }
+  if (typeof window === "undefined") return;
+  if (window.location.pathname.startsWith("/admin")) return;
+  window.dispatchEvent(new CustomEvent(AUTH_UNAUTHORIZED_EVENT));
 }
 
 export async function fetchWithAuth(

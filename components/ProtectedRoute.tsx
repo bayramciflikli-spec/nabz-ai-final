@@ -2,7 +2,7 @@
 
 import { useAuth } from "./AuthProvider";
 import { WelcomeModal, markWelcomeSeen } from "./WelcomeModal";
-import { ProfileSetupModal, shouldShowProfileSetup } from "./ProfileSetupModal";
+import { ProfileSetupModal, useProfileSetupResolved } from "./ProfileSetupModal";
 import { useState, useEffect } from "react";
 
 interface ProtectedRouteProps {
@@ -26,7 +26,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     }
   }, [user, loading]);
 
-  const showProfileSetup = user && shouldShowProfileSetup(user) && !profileSetupDismissed;
+  const { show: profileSetupShow, setDone: setProfileSetupDone } = useProfileSetupResolved(user);
+  const showProfileSetup = user && profileSetupShow && !profileSetupDismissed;
 
   if (loading) {
     return (
@@ -75,6 +76,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
             photoURL: user.photoURL ?? undefined,
           }}
           onClose={() => setProfileSetupDismissed(true)}
+          onSetupComplete={setProfileSetupDone}
         />
       )}
     </>

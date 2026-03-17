@@ -10,6 +10,8 @@ import {
   setLocale as saveLocale,
   refreshAutoLocale,
 } from "@/lib/i18n/locale";
+import { useAuth } from "@/components/AuthProvider";
+import { getUserLocale, setUserLocale } from "@/lib/userSyncFirestore";
 
 interface LocaleContextValue {
   locale: Locale;
@@ -29,6 +31,7 @@ const LocaleContext = createContext<LocaleContextValue>({
 
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const { user } = useAuth();
   const [locale, setLocaleState] = useState<Locale>("tr");
   const [isAuto, setIsAutoState] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -36,6 +39,16 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const load = async () => {
       try {
+        if (user) {
+          const stored = await getUserLocale(user.uid);
+          if (stored) {
+            setLocaleState(stored.locale);
+            setIsAutoState(stored.auto);
+            saveLocale(stored.locale, stored.auto);
+            setLoading(false);
+            return;
+          }
+        }
         const l = await Promise.race([
           getInitialLocale(),
           new Promise<Locale>((_, rej) => setTimeout(() => rej(new Error("timeout")), 6000)),
@@ -48,7 +61,7 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     };
     load();
-  }, []);
+  }, [user?.uid]);
 
   useEffect(() => {
     if (typeof document !== "undefined") {
@@ -62,9 +75,11 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
       const detected = await refreshAutoLocale();
       setLocaleState(detected);
       saveLocale(detected, true);
+      if (user) setUserLocale(user.uid, detected, true).catch(() => {});
     } else {
       setLocaleState(l);
       saveLocale(l, false);
+      if (user) setUserLocale(user.uid, l, false).catch(() => {});
     }
     router.refresh();
   };

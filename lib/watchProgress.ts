@@ -1,7 +1,15 @@
-/** Video izleme ilerlemesi - localStorage ile sakla (son izleme noktasından devam) */
+/**
+ * Video izleme ilerlemesi: giriş yapmışsa Firestore (cihazlar arası), değilse localStorage.
+ */
 const KEY_PREFIX = "nabz_progress_";
+import { setWatchProgress as setWatchProgressFirestore } from "./userSyncFirestore";
 
-export function saveProgress(projectId: string, currentTime: number, duration?: number): void {
+export function saveProgress(
+  projectId: string,
+  currentTime: number,
+  duration?: number,
+  uid?: string
+): void {
   if (typeof window === "undefined") return;
   try {
     const key = `${KEY_PREFIX}${projectId}`;
@@ -9,6 +17,9 @@ export function saveProgress(projectId: string, currentTime: number, duration?: 
     localStorage.setItem(key, data);
   } catch {
     // localStorage full veya disable
+  }
+  if (uid) {
+    setWatchProgressFirestore(uid, projectId, currentTime, duration).catch(() => {});
   }
 }
 
@@ -27,6 +38,9 @@ export function getProgress(projectId: string): number | null {
   }
 }
 
+/** Giriş yapmış kullanıcı: Firestore'dan ilerleme (bilgisayar + mobil aynı). */
+export { getWatchProgress as getProgressForUser } from "./userSyncFirestore";
+
 export function getProgressPercent(projectId: string): number | null {
   if (typeof window === "undefined") return null;
   try {
@@ -43,3 +57,6 @@ export function getProgressPercent(projectId: string): number | null {
     return null;
   }
 }
+
+/** Giriş yapmış kullanıcı: Firestore'dan yüzde (cihazlar arası). */
+export { getWatchProgressPercent as getProgressPercentForUser } from "./userSyncFirestore";

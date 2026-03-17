@@ -3,8 +3,7 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { auth } from "@/lib/firebase";
-import { onAuthStateChanged, type User } from "firebase/auth";
+import { getSearchHistoryForUser, setSearchHistoryForUser } from "@/lib/userSyncFirestore";
 import { searchAitube } from "@/lib/searchAitube";
 import { getInstantSuggestions } from "@/lib/searchUtils";
 import { fetchTrendingContent, fetchNewContent, fetchByCategory, applyLegalFilter, fetchRecommendedForUser } from "@/lib/contentDiscovery";
@@ -16,7 +15,8 @@ import { Mic, Search, Video } from "lucide-react";
 import { UserMenu } from "./UserMenu";
 import { NotificationBell } from "./NotificationBell";
 import { useLocale } from "./LocaleProvider";
-import { ProfileSetupModal, shouldShowProfileSetup } from "./ProfileSetupModal";
+import { useAuth } from "@/components/AuthProvider";
+import { ProfileSetupModal, useProfileSetupResolved } from "./ProfileSetupModal";
 import { ContentCard } from "./ContentCard";
 import { ScrollableCarousel } from "./ScrollableCarousel";
 import { SondakikaTicker } from "./SondakikaTicker";
@@ -29,13 +29,8 @@ const SEARCH_HISTORY_MAX = 20;
 
 export function HomePage() {
   const { t } = useLocale();
-  const [user, setUser] = useState<User | null>(null);
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, setUser);
-    return () => unsub();
-  }, []);
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
   const [instantSuggestions, setInstantSuggestions] = useState<string[]>([]);
   const [searchResults, setSearchResults] = useState<{ videos: any[]; channels: any[] } | null>(null);
@@ -58,25 +53,34 @@ export function HomePage() {
   const searchViolation = isSearchViolation(searchQuery);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      const raw = window.localStorage.getItem(SEARCH_HISTORY_KEY);
-      const parsed = raw ? (JSON.parse(raw) as unknown) : [];
-      if (Array.isArray(parsed)) {
-        setSearchHistory(parsed.filter((x) => typeof x === "string" && x.trim()).slice(0, SEARCH_HISTORY_MAX));
+    if (user) {
+      getSearchHistoryForUser(user.uid).then((list) =>
+        setSearchHistory(list.slice(0, SEARCH_HISTORY_MAX))
+      );
+    } else if (typeof window !== "undefined") {
+      try {
+        const raw = window.localStorage.getItem(SEARCH_HISTORY_KEY);
+        const parsed = raw ? (JSON.parse(raw) as unknown) : [];
+        if (Array.isArray(parsed)) {
+          setSearchHistory(parsed.filter((x) => typeof x === "string" && x.trim()).slice(0, SEARCH_HISTORY_MAX));
+        }
+      } catch {
+        // ignore
       }
-    } catch {
-      // ignore
     }
-  }, []);
+  }, [user?.uid]);
 
   const persistHistory = (next: string[]) => {
     setSearchHistory(next);
-    if (typeof window === "undefined") return;
-    try {
-      window.localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(next));
-    } catch {
-      // ignore
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+    }
+    if (user) {
+      setSearchHistoryForUser(user.uid, next).catch(() => {});
     }
   };
 
@@ -214,7 +218,8 @@ export function HomePage() {
 
   const [profileSetupDismissed, setProfileSetupDismissed] = useState(false);
 
-  const showProfileSetupModal = user && shouldShowProfileSetup(user) && !profileSetupDismissed;
+  const { show: profileSetupShow, setDone: setProfileSetupDone } = useProfileSetupResolved(user);
+  const showProfileSetupModal = user && profileSetupShow && !profileSetupDismissed;
 
   const [trending, setTrending] = useState<DiscoverProject[]>([]);
   const [newContent, setNewContent] = useState<DiscoverProject[]>([]);
@@ -380,6 +385,7 @@ export function HomePage() {
         <ProfileSetupModal
           user={{ uid: user.uid, email: user.email ?? undefined, displayName: user.displayName ?? undefined, photoURL: user.photoURL ?? undefined }}
           onClose={() => setProfileSetupDismissed(true)}
+          onSetupComplete={setProfileSetupDone}
         />
       )}
       <AIBackground />

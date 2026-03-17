@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Settings, PictureInPicture2 } from "lucide-react";
 import { useLocale } from "@/components/LocaleProvider";
-import { saveProgress, getProgress } from "@/lib/watchProgress";
+import { useAuth } from "@/components/AuthProvider";
+import { saveProgress, getProgress, getProgressForUser } from "@/lib/watchProgress";
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 
@@ -16,6 +17,7 @@ interface VideoPlayerProps {
 
 export function VideoPlayer({ projectId, src, poster, className = "" }: VideoPlayerProps) {
   const { t } = useLocale();
+  const { user } = useAuth();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [speed, setSpeed] = useState(1);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
@@ -24,13 +26,20 @@ export function VideoPlayer({ projectId, src, poster, className = "" }: VideoPla
   const [hasResumed, setHasResumed] = useState(false);
 
   useEffect(() => {
-    setResumeFrom(getProgress(projectId));
     setPipSupported(
       typeof document !== "undefined" &&
         "pictureInPictureEnabled" in document &&
         document.pictureInPictureEnabled
     );
-  }, [projectId]);
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      getProgressForUser(user.uid, projectId).then((t) => setResumeFrom(t));
+    } else {
+      setResumeFrom(getProgress(projectId));
+    }
+  }, [projectId, user?.uid]);
 
   useEffect(() => {
     const v = videoRef.current;
@@ -50,7 +59,7 @@ export function VideoPlayer({ projectId, src, poster, className = "" }: VideoPla
   const handleTimeUpdate = () => {
     const v = videoRef.current;
     if (!v) return;
-    saveProgress(projectId, v.currentTime, v.duration);
+    saveProgress(projectId, v.currentTime, v.duration, user?.uid);
   };
 
   const handlePip = async () => {

@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useAuth } from "./AuthProvider";
 import { WelcomeModal, markWelcomeSeen } from "./WelcomeModal";
-import { ProfileSetupModal, shouldShowProfileSetup } from "./ProfileSetupModal";
+import { ProfileSetupModal, useProfileSetupResolved } from "./ProfileSetupModal";
 import { useState } from "react";
 import { isAdmin } from "@/lib/isAdmin";
 import { auth } from "@/lib/firebase";
@@ -16,8 +16,8 @@ export function GlobalLoginModal() {
   const pathname = usePathname();
   const { user, showLoginModal, setShowLoginModal } = useAuth();
   const [profileSetupDismissed, setProfileSetupDismissed] = useState(false);
-
-  const showProfileSetup = user && shouldShowProfileSetup(user) && !profileSetupDismissed;
+  const { show: profileSetupShow, setDone: setProfileSetupDone } = useProfileSetupResolved(user);
+  const showProfileSetup = user && profileSetupShow && !profileSetupDismissed;
   const isAdminPage = pathname?.startsWith("/admin");
 
   // Admin panelinde giriş modalı asla açılmasın – doğrudan panele girilsin.
@@ -49,6 +49,7 @@ export function GlobalLoginModal() {
             photoURL: user.photoURL ?? undefined,
           }}
           onClose={() => setProfileSetupDismissed(true)}
+          onSetupComplete={setProfileSetupDone}
         />
       )}
     </>

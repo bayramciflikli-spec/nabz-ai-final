@@ -1,18 +1,41 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { auth } from "@/lib/firebase";
+import { useState, useRef, useEffect } from "react";
 import { updateUserProfile, uploadProfilePhoto } from "@/lib/firebase-auth";
 import { isAdmin } from "@/lib/isAdmin";
+import { getProfileSetupDone, setProfileSetupDone } from "@/lib/userSyncFirestore";
 
 const PROFILE_SETUP_KEY = "nabz-profile-setup-done";
+
+/** Cihazlar arası: Firestore’da profil kurulumu tamamlandı mı? (mobil/bilgisayar aynı hesap) */
+export function useProfileSetupResolved(user: { uid: string } | null): {
+  show: boolean;
+  loading: boolean;
+  setDone: () => void;
+} {
+  const [done, setDoneState] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (!user?.uid || isAdmin(user.uid)) {
+      setDoneState(true);
+      return;
+    }
+    getProfileSetupDone(user.uid).then(setDoneState);
+  }, [user?.uid]);
+  return {
+    show: done === false,
+    loading: done === null,
+    setDone: () => setDoneState(true),
+  };
+}
 
 export function ProfileSetupModal({
   user,
   onClose,
+  onSetupComplete,
 }: {
   user: { uid: string; email?: string; displayName?: string; photoURL?: string };
   onClose: () => void;
+  onSetupComplete?: () => void;
 }) {
   const [step, setStep] = useState<"choose" | "letter" | "gallery">("choose");
   const [displayName, setDisplayName] = useState(user.displayName || user.email?.split("@")[0] || "");
@@ -33,6 +56,8 @@ export function ProfileSetupModal({
       if (typeof window !== "undefined") {
         localStorage.setItem(PROFILE_SETUP_KEY, "1");
       }
+      await setProfileSetupDone(user.uid);
+      onSetupComplete?.();
       onClose();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Kaydetme başarısız");
@@ -152,10 +177,11 @@ export function ProfileSetupModal({
   );
 }
 
+/** Sync: Firestore’da yoksa localStorage’a bak. Gerçek değer useProfileSetupResolved ile alınır. */
 export function shouldShowProfileSetup(user: { uid: string; photoURL?: string | null } | null): boolean {
   if (!user) return false;
-  if (isAdmin(user.uid)) return false; // Admin doğrudan girer, profil kurulumu istemez
+  if (isAdmin(user.uid)) return false;
   if (typeof window === "undefined") return false;
   if (localStorage.getItem(PROFILE_SETUP_KEY)) return false;
-  return true; // Yeni kullanıcılar için profil kurulumu göster
+  return true;
 }

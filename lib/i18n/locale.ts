@@ -3,8 +3,8 @@ import type { Locale } from "./types";
 const STORAGE_KEY = "nabz-locale";
 const AUTO_KEY = "nabz-locale-auto";
 
-/** Desteklenen tüm locale kodları */
-const VALID_LOCALES: Locale[] = [
+/** Desteklenen tüm locale kodları (cihazlar arası sync için userSyncFirestore kullanır) */
+export const VALID_LOCALES: Locale[] = [
   "tr", "en", "es", "fr", "de", "ar", "zh", "ja", "ko", "pt", "ru",
   "hi", "id", "it", "nl", "pl", "vi", "th", "uk", "sv", "bn", "ms",
   "fa", "he", "cs", "ro", "hu", "el", "da", "fi", "no", "sk", "bg",

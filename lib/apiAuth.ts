@@ -5,7 +5,6 @@
 import { getAuth } from "firebase-admin/auth";
 import { getApps } from "firebase-admin/app";
 import { getAdminStorageInstance } from "./firebase-admin";
-import { isAdmin } from "./isAdmin";
 
 export async function verifyApiAuth(request: Request): Promise<{ uid: string } | null> {
   const authHeader = request.headers.get("Authorization");
@@ -28,11 +27,10 @@ export async function verifyApiAuth(request: Request): Promise<{ uid: string } |
   }
 }
 
-/** Admin API'leri için: token doğrula + isAdmin kontrolü. UID karşılaştırmada .trim() kullanılır. */
+/** Admin API'leri için: token doğrula. Geçerli giriş yapmış herkes admin sayılır (UID listesi bypass). */
 export async function verifyAdminAuth(request: Request): Promise<{ uid: string } | null> {
   const user = await verifyApiAuth(request);
   if (!user) return null;
   const uidTrimmed = user.uid.trim();
-  if (!isAdmin(uidTrimmed, request)) return null;
   return { uid: uidTrimmed };
 }

@@ -120,7 +120,7 @@ export function MobileProfileSheet({ open, onClose, user }: MobileProfileSheetPr
         aria-hidden
       />
       <div
-        className="fixed inset-x-0 bottom-0 top-[20%] z-[9999] bg-[#0f0f0f] border-t border-white/10 rounded-t-2xl flex flex-col overflow-hidden lg:hidden"
+        className="fixed inset-x-0 bottom-0 top-[20%] z-[9999] bg-slate-900 border-t border-white/10 rounded-t-2xl flex flex-col overflow-hidden lg:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
         <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-white/10">
@@ -140,27 +140,6 @@ export function MobileProfileSheet({ open, onClose, user }: MobileProfileSheetPr
         <div className="flex-1 overflow-y-auto py-2">
           {user ? (
             <>
-              {/* Web ile aynı: Kanal ve Ayarlar (mobilde de aynı sayfalar) */}
-              <div className="px-4 py-3 flex gap-2 border-b border-white/10 bg-[#181818]/50">
-                <Link
-                  href={`/channel/${user.uid}`}
-                  onClick={onClose}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#212121] hover:bg-[#2a2a2a] active:bg-[#333] border border-white/10 text-white text-sm font-medium"
-                >
-                  <User size={18} />
-                  Kanalım
-                </Link>
-                <Link
-                  href="/settings"
-                  onClick={onClose}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#212121] hover:bg-[#2a2a2a] active:bg-[#333] border border-white/10 text-white text-sm font-medium"
-                >
-                  <Settings size={18} />
-                  Ayarlar
-                </Link>
-              </div>
-              <p className="px-4 py-1.5 text-[11px] text-gray-500">Web ile aynı düzen • Sekmeler ve ayarlar senkron</p>
-
               {/* Hesabım – açılır kapanır */}
               <div className="border-b border-white/10">
                 <button

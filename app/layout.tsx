@@ -46,7 +46,7 @@ export default function RootLayout({
   return (
     <html lang="tr" suppressHydrationWarning>
       <AdSenseWithConsent />
-      <body className="antialiased min-h-screen bg-[#0f0f0f] text-white pb-24 lg:pb-0">
+      <body className="antialiased min-h-screen bg-slate-950 text-white pb-24 lg:pb-0">
         <AdminManifest />
         <PwaRegister />
         <PwaInstallBanner />
